@@ -12,7 +12,7 @@ Executes all scripts in the following order
 4. start_docker_env.sh
 
 Parameters:
-1. Absolute path to the parent directory of the projects 
+1. Absolute path to the parent directory of the projects
 2. Current github user
 3. Github user who owns the remote fork, to use to update the local repo
 4. Step to start building from, to skip building a project (1, 2, 3, ...)
@@ -24,7 +24,7 @@ Parameters:
 Clones the projects in a specified directory. If projects exist, then it just updates their branches.
 
 Parameters:
-1. Absolute path to the parent directory of the projects 
+1. Absolute path to the parent directory of the projects
 2. Current github user
 3. Github user who owns the remote fork, to use to update the local repo
 

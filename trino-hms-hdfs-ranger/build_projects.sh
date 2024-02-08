@@ -15,13 +15,13 @@ if [ "$java_21_home" == "" ]; then
   java_21_home="/usr/lib/jvm/java-21-openjdk-amd64"
 fi
 
-checkProjectExists $abs_path $PROJECT_RANGER
+exitIfProjectNotExist $abs_path $PROJECT_RANGER
 
-checkProjectExists $abs_path $PROJECT_HADOOP
+exitIfProjectNotExist $abs_path $PROJECT_HADOOP
 
-checkProjectExists $abs_path $PROJECT_HIVE
+exitIfProjectNotExist $abs_path $PROJECT_HIVE
 
-checkProjectExists $abs_path $PROJECT_TRINO
+exitIfProjectNotExist $abs_path $PROJECT_TRINO
 
 buildRanger=1
 buildHadoop=1

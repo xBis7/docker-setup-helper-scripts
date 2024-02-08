@@ -33,6 +33,7 @@ echo "'$PROJECT_HADOOP' env started."
 
 #reset COMPOSE_FILE env variable
 export COMPOSE_FILE=
+
 echo "Starting '$PROJECT_HIVE' env."
 cd $hive_docker_path
 docker-compose up -d

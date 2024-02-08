@@ -28,4 +28,8 @@ Starts all docker environments in a particular order
 3. Hive-metastore
 4. Trino
 
+### stop_docker_env.sh
+
+Stops all docker environments in reverse order from the one used for starting them.
+This is done to make sure all docker networks are properly removed.
 

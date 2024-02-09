@@ -17,6 +17,10 @@ HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
 HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
 HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
 
+TRINO_TABLE="test_table"
+NEW_TRINO_TABLE_NAME="new_$TRINO_TABLE"
+HDFS_DIR="test"
+
 checkProjectExists() {
   path=$1
   project=$2
@@ -161,12 +165,11 @@ retryOperationIfNeeded() {
 
   counter=0
 
-  while [[ "$counter" < 10 ]]; do
+  while [[ "$counter" < 9 ]]; do
 
-    echo "xbis: inside while"
     opOutput="$($cmd)"
 
-    echo "xbis: $opOutput"
+    echo "Counter=$counter | out: $opOutput"
 
     if [[ "$opOutput" == *"$expMsg"* ]]; then
       echo "Operation $result as expected."
@@ -178,7 +181,7 @@ retryOperationIfNeeded() {
     counter=$(($counter + 1))
 
     # If we reached counter=10 and the output is still different than the expected one, then exit.
-    if [[ "$counter" == 10 ]] && [[ "$opOutput" != *"$expMsg"* ]]; then
+    if [[ "$counter" == 9 ]] && [[ "$opOutput" != *"$expMsg"* ]]; then
       echo "Table creation should have $result, but it $opp_result..."
       echo "Stopping the docker env and exiting..."
       ./stop_docker_env.sh "$abs_path"

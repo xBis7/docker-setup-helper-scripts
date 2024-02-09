@@ -64,3 +64,14 @@ This is done to make sure all docker networks are properly removed.
 
 Parameters:
 1. Absolute path to the parent directory of the projects
+
+### ranger_dumps
+
+This directory contains dump files from the ranger postgres DB.
+
+This is an explanation of the files names
+
+* `defaults`, contains only the default `hadoopdev` and `hivedev` policies
+* `postres_added_to_hdfs`, this is the `defaults` + granted all access to all HDFS paths to user `postgres`
+* `postgres_hive_defaultdb_select`, this is the `postgres_added_to_hdfs` + `select` access to the default hive db for user `postgres`
+* `postgres_hive_defaultdb_select_alter`, this is the `postgres_hive_defaultdb_select` + `alter` access to the default hive db for user `postgres`

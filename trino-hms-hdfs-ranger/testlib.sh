@@ -10,6 +10,13 @@ HADOOP_BRANCH="hadoop-3.3.6-docker"
 HIVE_BRANCH="branch-3.1-build-fixed"
 TRINO_BRANCH="dev-env"
 
+DEFAULT_POLICIES="1_defaults"
+DEFAULT_AND_NO_HIVE="2_defaults_no_hive_perm_defaultdb"
+POSTGRES_HDFS_ACCESS="3_postgres_hdfs"
+HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
+HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
+HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
+
 checkProjectExists() {
   path=$1
   project=$2
@@ -103,3 +110,80 @@ updateProjectFromRemoteFork() {
 
   echo "Finished updating '$project_name' repo."
 }
+
+createHdfsTestData() {
+  dir_name=$1
+
+  docker exec -it hadoop_datanode_1 hdfs dfs -mkdir "/$dir_name"
+  docker exec -it hadoop_datanode_1 hdfs dfs -put NOTICE.txt "/$dir_name"
+}
+
+executeTrinoCommand() {
+  cmd=$1
+
+  docker exec -it trino-hms-hdfs_trino-coordinator_1 trino --execute="$cmd"
+}
+
+createTrinoTable() {
+  table_name=$1
+  hdfs_dir_name=$2
+
+  executeTrinoCommand "create table hive.default.$table_name (column1 varchar,column2 int) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'TEXTFILE');"
+}
+
+selectDataFromTrinoTable() {
+  table_name=$1
+  
+  executeTrinoCommand "select * from hive.default.$table_name;"
+}
+
+alterTrinoTable() {
+  old_table_name=$1
+  new_table_name=$2
+
+  executeTrinoCommand "alter table hive.default.$old_table_name rename to $new_table_name;"
+}
+
+retryOperationIfNeeded() {
+  cmd=$1
+  expMsg=$2
+  expFailure=$3
+
+  result="succeeded"
+  opp_result="failed"
+
+  if [ "$expFailure" == "true" ]; then
+    result="failed"
+    opp_result="succeeded"
+  fi
+
+  echo "Some wait time might be needed for trino to pick up the policy update. Retry a few times if needed."
+
+  counter=0
+
+  while [[ "$counter" < 10 ]]; do
+
+    echo "xbis: inside while"
+    opOutput="$($cmd)"
+
+    echo "xbis: $opOutput"
+
+    if [[ "$opOutput" == *"$expMsg"* ]]; then
+      echo "Operation $result as expected."
+      echo "Output: $opOutput"
+      break
+    fi
+
+    sleep 3
+    counter=$(($counter + 1))
+
+    # If we reached counter=10 and the output is still different than the expected one, then exit.
+    if [[ "$counter" == 10 ]] && [[ "$opOutput" != *"$expMsg"* ]]; then
+      echo "Table creation should have $result, but it $opp_result..."
+      echo "Stopping the docker env and exiting..."
+      ./stop_docker_env.sh "$abs_path"
+      exit 1
+    fi
+  done
+}
+

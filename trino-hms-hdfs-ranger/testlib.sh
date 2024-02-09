@@ -153,15 +153,16 @@ retryOperationIfNeeded() {
   expMsg=$2
   expFailure=$3
 
-  result="succeeded"
-  opp_result="failed"
+  result=""
 
   if [ "$expFailure" == "true" ]; then
     result="failed"
-    opp_result="succeeded"
+  else
+    result="succeeded"
   fi
 
-  echo "Some wait time might be needed for trino to pick up the policy update. Retry a few times if needed."
+  echo "- INFO: Some wait time might be needed for trino to pick up the policy update. Retry a few times if needed."
+  echo ""
 
   counter=0
 
@@ -169,11 +170,12 @@ retryOperationIfNeeded() {
 
     opOutput="$($cmd)"
 
-    echo "Counter=$counter | out: $opOutput"
+    echo "- INFO: Counter=$counter | out: $opOutput"
 
     if [[ "$opOutput" == *"$expMsg"* ]]; then
-      echo "Operation $result as expected."
-      echo "Output: $opOutput"
+      echo ""
+      echo "- RESULT: Operation $result as expected."
+      echo "- Output: $opOutput"
       break
     fi
 
@@ -182,8 +184,8 @@ retryOperationIfNeeded() {
 
     # If we reached counter=10 and the output is still different than the expected one, then exit.
     if [[ "$counter" == 9 ]] && [[ "$opOutput" != *"$expMsg"* ]]; then
-      echo "Table creation should have $result, but it $opp_result..."
-      echo "Stopping the docker env and exiting..."
+      echo "- RESULT: Table creation should have $result, but it didn't..."
+      echo "- Stopping the docker env and exiting..."
       ./stop_docker_env.sh "$abs_path"
       exit 1
     fi

@@ -6,12 +6,20 @@ abs_path=$1
 
 # Load the default Ranger policies.
 ./load_ranger_policies.sh "$abs_path" "$DEFAULT_AND_NO_HIVE"
-echo "Ranger policies updated."
+
+echo ""
+echo "- INFO: Ranger policies updated."
+echo ""
 
 # Extend to test with HDFS policies??
-echo "HDFS user hadoop, should be able to create data with ranger default policies."
+echo ""
+echo "- INFO: HDFS user hadoop, should be able to create data with ranger default policies."
+echo ""
+
 if createHdfsTestData "$HDFS_DIR"; then
-  echo "HDFS test data creation succeeded."
+  echo ""
+  echo "- RESULT: HDFS test data creation succeeded."
 else
-  echo "HDFS test data creation failed."
+  echo ""
+  echo "- RESULT: HDFS test data creation failed."
 fi

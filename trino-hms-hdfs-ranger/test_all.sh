@@ -1,11 +1,8 @@
 #!/bin/bash
 
-source "../testlib.sh"
+source "./testlib.sh"
 
 abs_path=$1
-
-trino_table="test_table"
-hdfs_dir="test"
 
 ./start_docker_env.sh "$abs_path"
 

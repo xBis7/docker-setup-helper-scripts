@@ -4,13 +4,17 @@ source "./testlib.sh"
 
 abs_path=$1
 
-echo ""
-echo "- INFO: Updating Ranger policies. User [postgres] will now have all access to Hive default DB."
+./start_docker_env.sh "$abs_path"
 
 ./load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_ALL"
 
-echo ""
-echo "- INFO: Ranger policies updated."
+if createHdfsTestData "$HDFS_DIR"; then
+  echo ""
+  echo "- RESULT: HDFS test data creation succeeded."
+else
+  echo ""
+  echo "- RESULT: HDFS test data creation failed."
+fi
 
 successMsg="CREATE TABLE"
 

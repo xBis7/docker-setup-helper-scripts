@@ -18,8 +18,8 @@ echo ""
 
 if createHdfsTestData "$HDFS_DIR"; then
   echo ""
-  echo "- RESULT: HDFS test data creation succeeded."
+  echo "- RESULT -> SUCCESS: HDFS test data creation succeeded."
 else
   echo ""
-  echo "- RESULT: HDFS test data creation failed."
+  echo "- RESULT -> FAILURE: HDFS test data creation failed."
 fi

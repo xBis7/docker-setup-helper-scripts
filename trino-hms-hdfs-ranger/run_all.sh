@@ -21,5 +21,5 @@ java_21_home=$6
 
 # Run the test script. That script also starts the docker env 
 # and stops it at the end or in any case of failure.
-./test.sh "$abs_path"
+./test_all.sh "$abs_path"
 

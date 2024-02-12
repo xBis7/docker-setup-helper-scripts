@@ -56,6 +56,7 @@ if [ "$buildRanger" == 0 ]; then
     echo "'$PROJECT_RANGER' build succeeded."
   else
     echo "'$PROJECT_RANGER' build failed."
+    # This is a common failure, retry once.
     mvn clean compile package install -DskipTests -DskipShade -rf :ranger-distro
   fi
 fi

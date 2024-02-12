@@ -174,7 +174,7 @@ retryOperationIfNeeded() {
 
     if [[ "$opOutput" == *"$expMsg"* ]]; then
       echo ""
-      echo "- RESULT: Operation $result as expected."
+      echo "- RESULT -> SUCCESS: Operation $result as expected."
       echo "- Output: $opOutput"
       break
     fi
@@ -184,7 +184,7 @@ retryOperationIfNeeded() {
 
     # If we reached counter=10 and the output is still different than the expected one, then exit.
     if [[ "$counter" == 9 ]] && [[ "$opOutput" != *"$expMsg"* ]]; then
-      echo "- RESULT: Table creation should have $result, but it didn't..."
+      echo "- RESULT -> FAILURE: Table creation should have $result, but it didn't..."
       echo "- Stopping the docker env and exiting..."
       ./stop_docker_env.sh "$abs_path"
       exit 1

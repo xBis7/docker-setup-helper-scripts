@@ -10,14 +10,14 @@ Executes all scripts in the following order
 2. build_projects.sh
 3. setup_docker_env.sh
 4. test_all.sh
-  1. start_docker_env.sh
-  2. test_hdfs_data_creation.sh
-  3. test_hive_no_hdfs_perm.sh
-  4. test_hive_no_perms.sh
-  5. test_hive_all_perms.sh
-  6. test_hive_only_select_perm.sh
-  7. test_hive_select_alter_perm.sh
-  8. stop_docker_env.sh 
+    1. start_docker_env.sh
+    2. test_hdfs_data_creation.sh
+    3. test_hive_no_hdfs_perm.sh
+    4. test_hive_no_perms.sh
+    5. test_hive_all_perms.sh
+    6. test_hive_only_select_perm.sh
+    7. test_hive_select_alter_perm.sh
+    8. stop_docker_env.sh 
 
 Parameters:
 1. Absolute path to the parent directory of the projects

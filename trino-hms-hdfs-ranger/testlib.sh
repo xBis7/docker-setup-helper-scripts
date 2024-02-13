@@ -8,7 +8,6 @@ PROJECT_TRINO="trino"
 RANGER_BRANCH="ranger-docker-hdfs"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
 HIVE_BRANCH="branch-3.1-build-fixed"
-TRINO_BRANCH="dev-env"
 
 DEFAULT_POLICIES="1_defaults"
 DEFAULT_AND_NO_HIVE="2_defaults_no_hive_perm_defaultdb"
@@ -125,7 +124,7 @@ createHdfsTestData() {
 executeTrinoCommand() {
   cmd=$1
 
-  docker exec -it trino-hms-hdfs_trino-coordinator_1 trino --execute="$cmd"
+  docker exec -it trino-spark_trino-coordinator_1 trino --execute="$cmd"
 }
 
 createTrinoTable() {

@@ -5,14 +5,9 @@ source "./testlib.sh"
 abs_path=$1
 starting_step=$2
 java_8_home=$3
-java_21_home=$4
 
 if [ "$java_8_home" == "" ]; then
   java_8_home="/usr/lib/jvm/java-8-openjdk-amd64"
-fi
-
-if [ "$java_21_home" == "" ]; then
-  java_21_home="/usr/lib/jvm/java-21-openjdk-amd64"
 fi
 
 exitIfProjectNotExist $abs_path $PROJECT_RANGER
@@ -21,27 +16,19 @@ exitIfProjectNotExist $abs_path $PROJECT_HADOOP
 
 exitIfProjectNotExist $abs_path $PROJECT_HIVE
 
-exitIfProjectNotExist $abs_path $PROJECT_TRINO
-
 buildRanger=1
 buildHadoop=1
 buildHive=1
-buildTrino=1
 
 if [ "$starting_step" == "1" ]; then
   buildHadoop=0
   buildHive=0
-  buildTrino=0
 elif [ "$starting_step" == "2" ]; then
   buildHive=0
-  buildTrino=0
-elif [ "$starting_step" == "3" ]; then
-  buildTrino=0
 else
   buildRanger=0
   buildHadoop=0
   buildHive=0
-  buildTrino=0
 fi
 
 
@@ -86,19 +73,5 @@ if [ "$buildHive" == 0 ]; then
     echo "'$PROJECT_HIVE' build succeeded."
   else
     echo "'$PROJECT_HIVE' build failed."
-  fi
-fi
-
-# Trino
-if [ "$buildTrino" == 0 ]; then
-  echo "Building '$PROJECT_TRINO'"
-
-  cd "$abs_path/$PROJECT_TRINO"
-  export JAVA_HOME="$java_21_home"
-
-  if mvn clean install -DskipTests; then
-    echo "'$PROJECT_TRINO' build succeeded."
-  else
-    echo "'$PROJECT_TRINO' build failed."
   fi
 fi

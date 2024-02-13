@@ -19,7 +19,7 @@ abs_path=$1
 ranger_docker_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker"
 hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop"
 hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/apache-hive-3.1.3-bin/compose/hive-metastore-ranger"
-trino_docker_path="$abs_path/$PROJECT_TRINO/core/docker/compose/trino-hms-hdfs"
+trino_docker_path="$abs_path/docker-setup-helper-scripts/compose/trino-spark"
 
 echo ""
 echo "Stopping '$PROJECT_TRINO' env."

@@ -18,18 +18,15 @@ github_remote_user=$3
 cloneProjectIfNotExist "$abs_path" "$PROJECT_RANGER" "$github_user"
 cloneProjectIfNotExist "$abs_path" "$PROJECT_HADOOP" "$github_user"
 cloneProjectIfNotExist "$abs_path" "$PROJECT_HIVE" "$github_user"
-cloneProjectIfNotExist "$abs_path" "$PROJECT_TRINO" "$github_user"
 
 if [ "$github_user" == "$github_remote_user" ]; then
   updateProjectRepo "$abs_path" "$PROJECT_RANGER" "$RANGER_BRANCH"
   updateProjectRepo "$abs_path" "$PROJECT_HADOOP" "$HADOOP_BRANCH"
   updateProjectRepo "$abs_path" "$PROJECT_HIVE" "$HIVE_BRANCH"
-  updateProjectRepo "$abs_path" "$PROJECT_TRINO" "$TRINO_BRANCH"
 else
   # Update repo if needed. No change, if everything is up-to-date.
   updateProjectFromRemoteFork "$abs_path" "$PROJECT_RANGER" "$github_remote_user" "$RANGER_BRANCH"
   updateProjectFromRemoteFork "$abs_path" "$PROJECT_HADOOP" "$github_remote_user" "$HADOOP_BRANCH"
   updateProjectFromRemoteFork "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_BRANCH"
-  updateProjectFromRemoteFork "$abs_path" "$PROJECT_TRINO" "$github_remote_user" "$TRINO_BRANCH"
 fi
 

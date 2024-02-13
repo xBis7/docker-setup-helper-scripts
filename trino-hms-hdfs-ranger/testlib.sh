@@ -58,7 +58,7 @@ cloneProjectIfNotExist() {
   if [ "$existsLocally" == 1 ]; then
     echo "'$project_name' doesn't exist locally, cloning..."
     cd "$base_path"
-    git clone "git@github.com:$github_user/ranger.git"
+    git clone "git@github.com:$github_user/$project_name.git"
   else
     echo "'$project_name' exists locally."
   fi
@@ -99,7 +99,7 @@ updateProjectFromRemoteFork() {
   else
     echo "Remote from user '$github_remote_user', doesn't exist in project '$project_name', adding..."
     
-    git remote add "$github_remote_user" "https://github.com/$github_remote_user/$project_name"
+    git remote add "$github_remote_user" "git@github.com:$github_remote_user/$project_name.git"
   fi
 
   git fetch $github_remote_user $github_branch

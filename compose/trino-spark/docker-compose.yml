@@ -26,6 +26,33 @@ services:
     networks:
       - hadoop_hadoop-network
 
+  spark-master:
+    image: 'apache/spark:3.5.0'
+    working_dir: /opt/spark
+    command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
+    hostname: spark-master
+    ports:
+      - "9090:9090"  # Spark master UI
+      - "7077:7077"  # Spark master communication port
+    environment:
+      - SPARK_LOCAL_IP=spark-master
+        networks:
+      - hadoop_hadoop-network
+
+  spark-worker:
+    image: 'apache/spark:3.5.0'
+    working_dir: /opt/spark
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_WORKER_CORES=1  # Number of cores to use on each worker
+      - SPARK_WORKER_MEMORY=1g  # Amount of memory to use on each worker
+      - SPARK_WORKER_WEBUI_PORT=8081
+      - SPARK_LOCAL_IP=spark-worker
+    networks:
+      - hadoop_hadoop-network
+
 volumes:
   hdfs-data:
     driver: local

@@ -106,7 +106,8 @@ handleRangerEnv() {
 }
 
 handleHadoopEnv() {
-  op=$1
+  abs_path=$1
+  op=$2
 
   hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop"
   cd $hadoop_docker_path
@@ -139,7 +140,8 @@ handleHadoopEnv() {
 }
 
 handleHiveEnv() {
-  op=$1
+  abs_path=$1
+  op=$2
 
   hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/apache-hive-3.1.3-bin/compose/hive-metastore-ranger"
   cd $hive_docker_path
@@ -168,7 +170,8 @@ handleHiveEnv() {
 }
 
 handleTrinoSparkEnv() {
-  op=$1
+  abs_path=$1
+  op=$2
 
   trino_spark_docker_path="$abs_path/docker-setup-helper-scripts/compose/trino-spark"
   cd $trino_spark_docker_path

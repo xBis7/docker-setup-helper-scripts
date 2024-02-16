@@ -65,10 +65,6 @@ services:
     networks:
       - hadoop_hadoop-network
 
-volumes:
-  hdfs-data:
-    driver: local
-
 networks:
   hadoop_hadoop-network:
     external: true

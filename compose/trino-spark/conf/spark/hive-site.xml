@@ -1,40 +1,14 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  <!-- Hive Metastore URI -->
   <property>
-    <name>hive.metastore.uris</name>
+    <name>metastore.thrift.uris</name>
     <value>thrift://hive-metastore:9083</value>
+    <description>Thrift URI for the remote metastore. Used by metastore client to connect to remote metastore.</description>
   </property>
 
-  <!-- Warehouse Directory - Location of Hive data in HDFS -->
   <property>
-    <name>hive.metastore.warehouse.dir</name>
-    <value>hdfs://namenode:8020/user/hive/warehouse</value>
+    <name>metastore.sasl.enabled</name>
+    <value>true</value>
   </property>
 
-  <!-- <property>
-    <name>spark.sql.hive.metastore.version</name>
-    <value>3.1.3</value>
-  </property> -->
-
-  <!-- JDBC Driver Class & Connection Details for Hive Metastore Database -->
-  <property>
-    <name>javax.jdo.option.ConnectionDriverName</name>
-    <value>org.postgresql.Driver</value>
-  </property>
-  
-  <property>
-    <name>javax.jdo.option.ConnectionURL</name>
-    <value>jdbc:postgresql://postgres:5432/metastore_db</value>
-  </property>
-  
-  <property>
-    <name>javax.jdo.option.ConnectionUserName</name>
-    <value>postgres</value>
-  </property>
-  
-  <property>
-    <name>javax.jdo.option.ConnectionPassword</name>
-    <value>postgres</value>
-  </property>
 </configuration>

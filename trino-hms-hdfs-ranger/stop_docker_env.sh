@@ -22,14 +22,14 @@ hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin
 trino_docker_path="$abs_path/docker-setup-helper-scripts/compose/trino-spark"
 
 echo ""
-echo "Stopping '$PROJECT_TRINO' env."
+echo "Stopping '$PROJECT_TRINO / $PROJECT_SPARK' env."
 echo ""
 
 cd $trino_docker_path
 docker-compose down
 
 echo ""
-echo "'$PROJECT_TRINO' env stopped."
+echo "'$PROJECT_TRINO / $PROJECT_SPARK' env stopped."
 echo ""
 
 echo ""
@@ -64,3 +64,7 @@ docker-compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.ym
 echo ""
 echo "'$PROJECT_RANGER' env stopped."
 echo ""
+
+echo "Cleaning up /spark-events dir."
+rm -r -f $trino_docker_path/conf/spark/spark-events/
+

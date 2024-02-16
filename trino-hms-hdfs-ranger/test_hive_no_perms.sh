@@ -8,7 +8,7 @@ echo ""
 echo "- INFO: Updating Ranger policies. User [postgres] now will have [ALL] privileges on all HDFS paths."
 echo "- INFO: No user will have permissions on Hive metastore operations on the default db."
 
-./load_ranger_policies.sh "$abs_path" "$POSTGRES_HDFS_ACCESS"
+./load_ranger_policies.sh "$abs_path" "$HDFS_ACCESS"
 
 echo ""
 echo "- INFO: Ranger policies updated."

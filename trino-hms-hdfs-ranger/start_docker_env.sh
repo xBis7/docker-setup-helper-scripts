@@ -57,12 +57,19 @@ echo "'$PROJECT_HIVE' env started."
 echo ""
 
 echo ""
-echo "Starting '$PROJECT_TRINO' env."
-echo ""
+echo "Starting '$PROJECT_TRINO / $PROJECT_SPARK' env."
 
 cd $trino_docker_path
+
+echo "Creating /spark-events dir and changing permissions."
+echo ""
+
+mkdir $trino_docker_path/conf/spark/spark-events
+chmod 777 $trino_docker_path/conf/spark/spark-events
+
+# This can be extended to scale to 3 spark workers.
 docker-compose up -d
 
 echo ""
-echo "'$PROJECT_TRINO' env started."
+echo "'$PROJECT_TRINO / $PROJECT_SPARK' env started."
 echo ""

@@ -1,24 +1,78 @@
 #!/bin/bash
 
+# Project names
 PROJECT_RANGER="ranger"
 PROJECT_HADOOP="hadoop"
 PROJECT_HIVE="hive"
 PROJECT_TRINO="trino"
+PROJECT_SPARK="spark"
 
+# Project branches
 RANGER_BRANCH="ranger-docker-hdfs"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
 HIVE_BRANCH="branch-3.1-build-fixed"
 
+# Dump file names
 DEFAULT_POLICIES="1_defaults"
 DEFAULT_AND_NO_HIVE="2_defaults_no_hive_perm_defaultdb"
-POSTGRES_HDFS_ACCESS="3_postgres_hdfs"
+HDFS_ACCESS="3_hdfs_all"
 HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
 HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
 HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
 
+# Const shared variables
 TRINO_TABLE="test_table"
 NEW_TRINO_TABLE_NAME="new_$TRINO_TABLE"
 HDFS_DIR="test"
+
+# Container names
+NAMENODE_HOSTNAME="hadoop_namenode_1"
+DN1_HOSTNAME="hadoop_datanode_1"
+DN2_HOSTNAME="hadoop_datanode_2"
+DN3_HOSTNAME="hadoop_datanode_3"
+
+HMS_HOSTNAME="hive-metastore-ranger_hive-metastore_1"
+HMS_POSTGRES_HOSTNAME="hive-metastore-ranger_postgres_1"
+
+RANGER_HOSTNAME="ranger"
+RANGER_POSTGRES_HOSTNAME="ranger-postgres"
+
+TRINO_HOSTNAME="trino-spark_trino-coordinator_1"
+
+SPARK_MASTER_HOSTNAME="trino-spark_spark-master_1"
+SPARK_WORKER1_HOSTNAME="trino-spark_spark-worker_1"
+
+getHostnameFromName() {
+  name=$1
+
+  if [ "$name" == "namenode" ]; then
+    echo "$NAMENODE_HOSTNAME" 
+  elif [ "$name" == "dn1" ]; then
+    echo "$DN1_HOSTNAME"
+  elif [ "$name" == "dn2" ]; then
+    echo "$DN2_HOSTNAME"
+  elif [ "$name" == "dn3" ]; then
+    echo "$DN3_HOSTNAME"
+  elif [ "$name" == "hms" ]; then
+    echo "$HMS_HOSTNAME"
+  elif [ "$name" == "hms_postgres" ]; then
+    echo "$HMS_POSTGRES_HOSTNAME"
+  elif [ "$name" == "ranger" ]; then
+    echo "$RANGER_HOSTNAME"
+  elif [ "$name" == "ranger_postgres" ]; then
+    echo "$RANGER_POSTGRES_HOSTNAME"
+  elif [ "$name" == "trino" ]; then
+    echo "$TRINO_HOSTNAME"
+  elif [ "$name" == "spark_master" ]; then
+    echo "$SPARK_MASTER_HOSTNAME"
+  elif [ "$name" == "spark_worker1" ]; then
+    echo "$SPARK_WORKER1_HOSTNAME"
+  else
+    echo "The provided name is unknown."
+    echo "Try one of the following: "
+    echo "[namenode, dn1, dn2, dn3, hms, hms_postgres, ranger, ranger_postgres, trino, spark_master, spark_worker1]"
+  fi
+}
 
 checkProjectExists() {
   path=$1

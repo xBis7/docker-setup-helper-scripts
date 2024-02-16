@@ -4,7 +4,7 @@ source "./testlib.sh"
 
 abs_path=$1
 
-./setup_for_trino_spark_testing.sh "$abs_path"
+./setup/setup_for_trino_spark_testing.sh "$abs_path"
 
 successMsg="CREATE TABLE"
 

@@ -1,6 +1,6 @@
 ## Basic Instructions
 
-You can execute `run_all.sh` to execute all scripts or just run each one of them.
+All scripts must be executed from `trino-hms-hdfs-ranger` root otherwise most of them will fail since almost each one of them depends on another.
 
 ### run_all.sh
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source "./testlib.sh"
-
 abs_path=$1
 dump_file_name=$2
 

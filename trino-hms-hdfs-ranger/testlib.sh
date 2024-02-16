@@ -74,6 +74,137 @@ getHostnameFromName() {
   fi
 }
 
+handleRangerEnv() {
+  abs_path=$1
+  op=$2
+
+  ranger_docker_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker"
+  cd $ranger_docker_path
+
+  if [ "$op" == "start" ]; then
+    echo ""
+    echo "Starting '$PROJECT_RANGER' env."
+    echo ""
+
+    export RANGER_DB_TYPE=postgres
+    docker-compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml up -d
+
+    echo ""
+    echo "'$PROJECT_RANGER' env started."
+    echo ""
+  else
+    echo ""
+    echo "Stopping '$PROJECT_RANGER' env."
+    echo ""
+
+    docker-compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml down
+
+    echo ""
+    echo "'$PROJECT_RANGER' env stopped."
+    echo ""
+  fi
+}
+
+handleHadoopEnv() {
+  op=$1
+
+  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop"
+  cd $hadoop_docker_path
+
+  if [ "$op" == "start" ]; then
+    echo ""
+    echo "Starting '$PROJECT_HADOOP' env."
+    echo ""
+
+    export COMPOSE_FILE=docker-compose.yaml:ranger.yaml
+    docker-compose up -d --scale datanode=3
+
+    echo ""
+    echo "'$PROJECT_HADOOP' env started."
+    echo ""
+
+    #reset COMPOSE_FILE env variable
+    export COMPOSE_FILE=
+  else
+    echo ""
+    echo "Stopping '$PROJECT_HADOOP' env."
+    echo ""
+
+    docker-compose down
+
+    echo ""
+    echo "'$PROJECT_HADOOP' env stopped."
+    echo ""
+  fi
+}
+
+handleHiveEnv() {
+  op=$1
+
+  hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/apache-hive-3.1.3-bin/compose/hive-metastore-ranger"
+  cd $hive_docker_path
+
+  if [ "$op" == "start" ]; then
+    echo ""
+    echo "Starting '$PROJECT_HIVE' env."
+    echo ""
+
+    docker-compose up -d
+
+    echo ""
+    echo "'$PROJECT_HIVE' env started."
+    echo ""
+  else
+    echo ""
+    echo "Stopping '$PROJECT_HIVE' env."
+    echo ""
+
+    docker-compose down
+
+    echo ""
+    echo "'$PROJECT_HIVE' env stopped."
+    echo ""
+  fi
+}
+
+handleTrinoSparkEnv() {
+  op=$1
+
+  trino_spark_docker_path="$abs_path/docker-setup-helper-scripts/compose/trino-spark"
+  cd $trino_spark_docker_path
+
+  if [ "$op" == "start" ]; then
+    echo ""
+    echo "Starting '$PROJECT_TRINO / $PROJECT_SPARK' env."
+
+    echo "Creating /spark-events dir and changing permissions."
+    echo ""
+
+    mkdir $trino_spark_docker_path/conf/spark/spark-events
+    chmod 777 $trino_spark_docker_path/conf/spark/spark-events
+
+    # This can be extended to scale to 3 spark workers.
+    docker-compose up -d
+
+    echo ""
+    echo "'$PROJECT_TRINO / $PROJECT_SPARK' env started."
+    echo ""
+  else
+    echo ""
+    echo "Stopping '$PROJECT_TRINO / $PROJECT_SPARK' env."
+    echo ""
+
+    docker-compose down
+
+    echo ""
+    echo "'$PROJECT_TRINO / $PROJECT_SPARK' env stopped."
+    echo ""
+
+    echo "Cleaning up /spark-events dir."
+    rm -r -f $trino_spark_docker_path/conf/spark/spark-events/
+  fi
+}
+
 checkProjectExists() {
   path=$1
   project=$2

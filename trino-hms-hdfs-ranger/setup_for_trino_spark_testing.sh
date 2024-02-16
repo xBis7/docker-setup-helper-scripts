@@ -16,4 +16,6 @@ if createHdfsTestData "$HDFS_DIR"; then
 else
   echo ""
   echo "- RESULT: HDFS test data creation failed."
+
+  ./retry_hdfs_setup_data_creation.sh
 fi

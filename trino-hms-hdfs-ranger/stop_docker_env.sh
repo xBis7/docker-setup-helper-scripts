@@ -16,55 +16,13 @@ abs_path=$1
 # 3. Hadoop
 # 4. Ranger
 
-ranger_docker_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker"
-hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop"
-hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/apache-hive-3.1.3-bin/compose/hive-metastore-ranger"
-trino_docker_path="$abs_path/docker-setup-helper-scripts/compose/trino-spark"
+handleTrinoSparkEnv "$abs_path" "stop"
 
-echo ""
-echo "Stopping '$PROJECT_TRINO / $PROJECT_SPARK' env."
-echo ""
+handleHiveEnv "$abs_path" "stop"
 
-cd $trino_docker_path
-docker-compose down
+handleHadoopEnv "$abs_path" "stop"
 
-echo ""
-echo "'$PROJECT_TRINO / $PROJECT_SPARK' env stopped."
-echo ""
+handleRangerEnv "$abs_path" "stop"
 
-echo ""
-echo "Stopping '$PROJECT_HIVE' env."
-echo ""
 
-cd $hive_docker_path
-docker-compose down
-
-echo ""
-echo "'$PROJECT_HIVE' env stopped."
-echo ""
-
-echo ""
-echo "Stopping '$PROJECT_HADOOP' env."
-echo ""
-
-cd $hadoop_docker_path
-docker-compose down
-
-echo ""
-echo "'$PROJECT_HADOOP' env stopped."
-echo ""
-
-echo ""
-echo "Stopping '$PROJECT_RANGER' env."
-echo ""
-
-cd $ranger_docker_path
-docker-compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml down
-
-echo ""
-echo "'$PROJECT_RANGER' env stopped."
-echo ""
-
-echo "Cleaning up /spark-events dir."
-rm -r -f $trino_docker_path/conf/spark/spark-events/
 

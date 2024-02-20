@@ -37,6 +37,7 @@ services:
     environment:
       - SPARK_LOCAL_IP=spark-master
     volumes:
+      - ./conf/spark/hive-jars:/opt/spark/hive-jars
       - ./conf/spark/spark-events:/opt/spark/spark-events
       - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
       - ./conf/spark/hive-site.xml:/opt/spark/conf/hive-site.xml:ro
@@ -57,6 +58,7 @@ services:
       - SPARK_WORKER_WEBUI_PORT=8081
       - SPARK_LOCAL_IP=spark-worker
     volumes:
+      - ./conf/spark/hive-jars:/opt/spark/hive-jars
       - ./conf/spark/spark-events:/opt/spark/spark-events
       - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
       - ./conf/spark/hive-site.xml:/opt/spark/conf/hive-site.xml:ro

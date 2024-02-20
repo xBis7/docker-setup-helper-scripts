@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <property>
-    <name>metastore.thrift.uris</name>
+    <name>hive.metastore.thrift.uris</name>
     <value>thrift://hive-metastore:9083</value>
-    <description>Thrift URI for the remote metastore. Used by metastore client to connect to remote metastore.</description>
   </property>
-
-  <property>
-    <name>metastore.sasl.enabled</name>
-    <value>true</value>
-  </property>
-
 </configuration>

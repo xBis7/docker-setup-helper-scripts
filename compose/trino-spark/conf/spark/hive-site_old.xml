@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <property>
+    <name>metastore.thrift.uris</name>
+    <value>thrift://hive-metastore:9083</value>
+    <description>Thrift URI for the remote metastore. Used by metastore client to connect to remote metastore.</description>
+  </property>
+
+  <property>
+    <name>metastore.sasl.enabled</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>metastore.kerberos.principal</name>
+    <value>hive/_HOST@LOCAL</value>
+  </property>
+
+  <property>
+    <name>spark.sql.warehouse.dir</name>
+    <value>/user/hive/warehouse</value>
+  </property>
+
+  <property>
+    <name>spark.sql.hive.metastore.version</name>
+    <value>3.1.0</value>
+  </property>
+
+  <property>
+    <name>spark.sql.hive.metastore.jars</name>
+    <value>/opt/spark/jars/*</value>
+  </property>
+
+  <property>
+    <name>spark.sql.hive.metastore.sharedPrefixes</name>
+    <value>org.postgresql</value>
+  </property>
+  
+
+  <!-- Hive Metastore Database Configuration -->
+  <property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:postgresql://postgres:5432/metastore_db</value>
+  </property>
+  
+  <property>
+    <name>javax.jdo.option.ConnectionDriverName</name>
+    <value>org.postgresql.Driver</value>
+  </property>
+
+  <property>
+    <name>javax.jdo.option.ConnectionUserName</name>
+    <value>postgres</value>
+  </property>
+
+  <property>
+    <name>javax.jdo.option.ConnectionPassword</name>
+    <value>postgres</value>
+  </property>
+
+  <property>
+    <name>hive.metastore.event.db.notification.api.auth</name>
+    <value>false</value>
+  </property>
+
+  <!-- <property>
+    <name>datanucleus.autoCreateSchema</name>
+    <value>false</value>
+  </property> -->
+</configuration>

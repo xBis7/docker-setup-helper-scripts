@@ -192,6 +192,75 @@ handleTrinoSparkEnv() {
     echo ""
     echo "'$PROJECT_TRINO / $PROJECT_SPARK' env started."
     echo ""
+
+    # We need to copy the hive metastore jars under the Spark master container.
+    # This is needed so that spark can be configured to work with HMS 3.1.3.
+    sparkMasterContainerID=$(docker ps | grep "$SPARK_MASTER_HOSTNAME" | awk '{print $1}')
+    sparkWorker1ContainerID=$(docker ps | grep "$SPARK_WORKER1_HOSTNAME" | awk '{print $1}')
+
+    hiveMetastoreJar="hive-metastore-3.1.3.jar"
+    hiveStandaloneMetastoreJar="hive-standalone-metastore-3.1.3.jar"
+    hiveCommonJar="hive-common-3.1.3.jar"
+    hiveJdbcJar="apache-hive-3.1.3-jdbc.jar"
+#hive-exec-3.1.3-core.jar
+#hive-exec-3.1.3.jar
+
+    hiveMetastoreJarPath="$abs_path/hive/metastore/target/$hiveMetastoreJar"
+    hiveStandaloneMetastoreJarPath="$abs_path/hive/standalone-metastore/target/$hiveStandaloneMetastoreJar"
+    hiveCommonJarPath="$abs_path/hive/common/target/$hiveCommonJar"
+
+    # Master
+    # docker cp "$hiveMetastoreJarPath" "$sparkMasterContainerID":/opt/spark/jars/hive-metastore-3.1.3.jar
+    # docker cp "$hiveStandaloneMetastoreJarPath" "$sparkMasterContainerID":/opt/spark/jars/hive-standalone-metastore-3.1.3.jar
+    # docker cp "$hiveCommonJarPath" "$sparkMasterContainerID":/opt/spark/jars/hive-common-3.1.3.jar
+
+    # docker cp "$abs_path/hive/packaging/target/apache-hive-3.1.3-jdbc.jar" "$sparkMasterContainerID":/opt/spark/jars/hive-3.1.3-jdbc.jar
+
+    # docker cp "$abs_path/hive/ql/target/hive-exec-3.1.3-core.jar" "$sparkMasterContainerID":/opt/spark/jars/hive-exec-3.1.3-core.jar
+    # docker cp "$abs_path/hive/ql/target/hive-exec-3.1.3.jar" "$sparkMasterContainerID":/opt/spark/jars/hive-exec-3.1.3.jar
+    # docker cp "$abs_path/hive/ql/target/original-hive-exec-3.1.3.jar" "$sparkMasterContainerID":/opt/spark/jars/original-hive-exec-3.1.3.jar
+
+    # Worker1
+    # docker cp "$hiveMetastoreJarPath" "$sparkWorker1ContainerID":/opt/spark/jars/hive-metastore-3.1.3.jar
+    # docker cp "$hiveStandaloneMetastoreJarPath" "$sparkWorker1ContainerID":/opt/spark/jars/hive-standalone-metastore-3.1.3.jar
+    # docker cp "$hiveCommonJarPath" "$sparkWorker1ContainerID":/opt/spark/jars/hive-common-3.1.3.jar
+
+    # docker cp "$abs_path/hive/packaging/target/apache-hive-3.1.3-jdbc.jar" "$sparkWorker1ContainerID":/opt/spark/jars/hive-3.1.3-jdbc.jar
+
+    # docker cp "$abs_path/hive/ql/target/hive-exec-3.1.3-core.jar" "$sparkWorker1ContainerID":/opt/spark/jars/hive-exec-3.1.3-core.jar
+    # docker cp "$abs_path/hive/ql/target/hive-exec-3.1.3.jar" "$sparkWorker1ContainerID":/opt/spark/jars/hive-exec-3.1.3.jar
+    # docker cp "$abs_path/hive/ql/target/original-hive-exec-3.1.3.jar" "$sparkWorker1ContainerID":/opt/spark/jars/original-hive-exec-3.1.3.jar
+
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-beeline-2.3.9.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-cli-2.3.9.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-common-2.3.9.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-exec-2.3.9-core.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-jdbc-2.3.9.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-llap-common-2.3.9.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-metastore-2.3.9.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-serde-2.3.9.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-shims-0.23-2.3.9.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-shims-2.3.9.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-shims-common-2.3.9.jar
+    # docker exec -it "$SPARK_MASTER_HOSTNAME" rm jars/hive-shims-scheduler-2.3.9.jar
+
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-beeline-2.3.9.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-cli-2.3.9.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-common-2.3.9.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-exec-2.3.9-core.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-jdbc-2.3.9.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-llap-common-2.3.9.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-metastore-2.3.9.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-serde-2.3.9.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-shims-0.23-2.3.9.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-shims-2.3.9.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-shims-common-2.3.9.jar
+    # docker exec -it "$SPARK_WORKER1_HOSTNAME" rm jars/hive-shims-scheduler-2.3.9.jar
+
+
+    # This needs to be removed. -->
+    # docker cp /home/xbis/Downloads/postgresql-42.7.1.jar "$sparkContainerID":/opt/spark/jars/postgresql-42.7.1.jar
+    # -->
   else
     echo ""
     echo "Stopping '$PROJECT_TRINO / $PROJECT_SPARK' env."

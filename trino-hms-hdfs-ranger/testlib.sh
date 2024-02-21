@@ -438,6 +438,30 @@ alterTrinoTable() {
   executeTrinoCommand "alter table hive.default.$old_table_name rename to $new_table_name;"
 }
 
+# TODO: modify scripts to use this method for every command execution.
+execCmdAndHandleErrorIfNeeded() {
+  cmd=$1
+  action_msg=$2
+
+  echo ""
+  if [ "$action_msg" == "" ]; then
+    action_msg="Operation"
+    echo "Executing cmd: "
+    echo "$cmd"
+    echo ""
+  else
+    echo "$action_msg."
+  fi
+
+  if $cmd; then
+    echo "$action_msg succeeded."
+    echo ""
+  else
+    echo "$action_msg failed. Exiting..."
+    exit 1
+  fi
+}
+
 retryOperationIfNeeded() {
   cmd=$1
   expMsg=$2

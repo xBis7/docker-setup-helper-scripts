@@ -24,5 +24,11 @@ handleHadoopEnv "$abs_path" "stop"
 
 handleRangerEnv "$abs_path" "stop"
 
-
+if docker network rm shared-network; then
+  echo "Removing 'shared-network' succeeded."
+else
+  echo "Removing 'shared-network' failed."
+  echo "Retry manually by running: "
+  echo "> docker network rm shared-network"
+fi
 

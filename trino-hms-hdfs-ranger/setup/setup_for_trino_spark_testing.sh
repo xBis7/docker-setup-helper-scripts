@@ -19,3 +19,5 @@ else
 
   ./setup/retry_hdfs_setup_data_creation.sh
 fi
+
+./docker/start_docker_containers.sh "$abs_path" "hms"

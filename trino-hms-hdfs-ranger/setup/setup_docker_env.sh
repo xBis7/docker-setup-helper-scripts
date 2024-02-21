@@ -24,26 +24,26 @@ hive_jars_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/a
 
 # Ranger - HDFS setup
 echo "Copying Ranger jars under HDFS."
-execCmdAndHandleErrorIfNeeded "cp \"$ranger_common_jar_path\" \"$hdfs_jars_path\""
-execCmdAndHandleErrorIfNeeded "cp \"$ranger_audit_jar_path\" \"$hdfs_jars_path\""
-execCmdAndHandleErrorIfNeeded "cp \"$ranger_hdfs_jar_path\" \"$hdfs_jars_path\""
+execCmdAndHandleErrorIfNeeded "cp $ranger_common_jar_path $hdfs_jars_path"
+execCmdAndHandleErrorIfNeeded "cp $ranger_audit_jar_path $hdfs_jars_path"
+execCmdAndHandleErrorIfNeeded "cp $ranger_hdfs_jar_path $hdfs_jars_path"
 echo "Copy finished."
 
 echo "Copying Ranger HDFS config files under HDFS."
-execCmdAndHandleErrorIfNeeded "cp \"$ranger_hdfs_audit_conf_path\" \"$hdfs_conf_path\""
-execCmdAndHandleErrorIfNeeded "cp \"$ranger_hdfs_security_conf_path\" \"$hdfs_conf_path\""
-execCmdAndHandleErrorIfNeeded "cp \"$ranger_hdfs_policymgr_conf_path\" \"$hdfs_conf_path\""
+execCmdAndHandleErrorIfNeeded "cp $ranger_hdfs_audit_conf_path $hdfs_conf_path"
+execCmdAndHandleErrorIfNeeded "cp $ranger_hdfs_security_conf_path $hdfs_conf_path"
+execCmdAndHandleErrorIfNeeded "cp $ranger_hdfs_policymgr_conf_path $hdfs_conf_path"
 echo "Copy finished."
 
 # Ranger - Hive setup
 echo "Copying Ranger jars under Hive."
-execCmdAndHandleErrorIfNeeded "cp \"$ranger_common_jar_path\" \"$hive_jars_path\""
-execCmdAndHandleErrorIfNeeded "cp \"$ranger_audit_jar_path\" \"$hive_jars_path\""
-execCmdAndHandleErrorIfNeeded "cp \"$ranger_hive_jar_path\" \"$hive_jars_path\""
+execCmdAndHandleErrorIfNeeded "cp $ranger_common_jar_path $hive_jars_path"
+execCmdAndHandleErrorIfNeeded "cp $ranger_audit_jar_path $hive_jars_path"
+execCmdAndHandleErrorIfNeeded "cp $ranger_hive_jar_path $hive_jars_path"
 echo "Copy finished."
 
 echo "Making hive 'entrypoint.sh' executable."
 hive_generated_entrypoint_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/apache-hive-3.1.3-bin/compose/hive-metastore-ranger"
-execCmdAndHandleErrorIfNeeded "chmod u+x \"$hive_generated_entrypoint_path/entrypoint.sh\""
+execCmdAndHandleErrorIfNeeded "chmod u+x $hive_generated_entrypoint_path/entrypoint.sh"
 echo "Permissions updated."
 

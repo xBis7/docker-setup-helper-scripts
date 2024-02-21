@@ -3,7 +3,7 @@
 source "./testlib.sh"
 
 abs_path=$1
-starting_step=$2
+build_project=$2
 java_8_home=$3
 
 if [ "$java_8_home" == "" ]; then
@@ -20,15 +20,36 @@ buildRanger=1
 buildHadoop=1
 buildHive=1
 
-if [ "$starting_step" == "1" ]; then
+if [ "$build_project" == "ranger" ]; then
+  buildRanger=0
+elif [ "$build_project" == "hadoop" ]; then
+  buildHadoop=0
+elif [ "$build_project" == "hms" ]; then
+  buildHive=0
+elif [ "$build_project" == "ranger/hadoop" ]; then
+  buildRanger=0
+  buildHadoop=0
+elif [ "$build_project" == "hadoop/hms" ]; then
   buildHadoop=0
   buildHive=0
-elif [ "$starting_step" == "2" ]; then
+elif [ "$build_project" == "ranger/hms" ]; then
+  buildRanger=0
   buildHive=0
-else
+elif [[ "$project" == "all" || "$project" == "" ]]; then
   buildRanger=0
   buildHadoop=0
   buildHive=0
+else
+  echo "Invalid project parameter."
+  echo "Try one of the following"
+  echo "'ranger'        -> building just Ranger"
+  echo "'hadoop'        -> building just Hadoop"
+  echo "'hms'           -> building just HiveMetastore"
+  echo "'ranger/hadoop' -> building Ranger and Hadoop"
+  echo "'hadoop/hms'    -> building Hadoop and HiveMetastore"
+  echo "'ranger/hms'    -> building Ranger and HiveMetastore"
+  echo "'all' or empty  -> building all projects"
+  # exit 1
 fi
 
 
@@ -43,8 +64,14 @@ if [ "$buildRanger" == 0 ]; then
     echo "'$PROJECT_RANGER' build succeeded."
   else
     echo "'$PROJECT_RANGER' build failed."
-    # This is a common failure, retry once.
-    mvn clean compile package install -DskipTests -DskipShade -rf :ranger-distro
+    echo ""
+    echo "If project failed in 'ranger-distro', it's a commmon failure, retry once and it will succeed."
+    echo "Run these commands: "
+    echo "> cd $abs_path/$PROJECT_RANGER"
+    echo "> mvn clean compile package install -DskipTests -DskipShade -rf :ranger-distro"
+    echo ""
+    echo "After it succeeds, rerun this script for the rest of the projects that you need to build."
+    exit 1
   fi
 fi
 
@@ -59,6 +86,7 @@ if [ "$buildHadoop" == 0 ]; then
     echo "'$PROJECT_HADOOP' build succeeded."
   else
     echo "'$PROJECT_HADOOP' build failed."
+    exit 1
   fi
 fi
 
@@ -73,5 +101,6 @@ if [ "$buildHive" == 0 ]; then
     echo "'$PROJECT_HIVE' build succeeded."
   else
     echo "'$PROJECT_HIVE' build failed."
+    exit 1
   fi
 fi

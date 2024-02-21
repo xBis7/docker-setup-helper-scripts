@@ -159,7 +159,9 @@ handleHiveEnv() {
     # Changing to v2 solves the issue. Check the following exception:
     # org.apache.hadoop.hive.metastore.api.MetaException: Got exception: java.net.URISyntaxException Illegal character in hostname at index 30: thrift://hive-metastore-ranger_hive-metastore_1.common-network:9083
 
-    docker compose up -d
+    # With compose v2, the command wasn't reading the path properly.
+    # Explicitly specifying the docker-compose file solved the issue.
+    docker compose -f "$hive_docker_path/docker-compose.yaml" up -d
 
     echo ""
     echo "'$PROJECT_HIVE' env started."
@@ -169,7 +171,7 @@ handleHiveEnv() {
     echo "Stopping '$PROJECT_HIVE' env."
     echo ""
 
-    docker compose down
+    docker compose -f "$hive_docker_path/docker-compose.yaml" down
 
     echo ""
     echo "'$PROJECT_HIVE' env stopped."

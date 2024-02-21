@@ -4,7 +4,7 @@ source "./testlib.sh"
 
 abs_path=$1
 github_user=$2
-github_remote_user=$3
+github_remote_user=$3   # 'origin' if current user is also the remote user.
 
 # This script is making the following assumptions
 # 1. github SSH has been setup 
@@ -19,14 +19,10 @@ cloneProjectIfNotExist "$abs_path" "$PROJECT_RANGER" "$github_user"
 cloneProjectIfNotExist "$abs_path" "$PROJECT_HADOOP" "$github_user"
 cloneProjectIfNotExist "$abs_path" "$PROJECT_HIVE" "$github_user"
 
-if [ "$github_user" == "$github_remote_user" ]; then
-  updateProjectRepo "$abs_path" "$PROJECT_RANGER" "$RANGER_BRANCH"
-  updateProjectRepo "$abs_path" "$PROJECT_HADOOP" "$HADOOP_BRANCH"
-  updateProjectRepo "$abs_path" "$PROJECT_HIVE" "$HIVE_BRANCH"
-else
-  # Update repo if needed. No change, if everything is up-to-date.
-  updateProjectFromRemoteFork "$abs_path" "$PROJECT_RANGER" "$github_remote_user" "$RANGER_BRANCH"
-  updateProjectFromRemoteFork "$abs_path" "$PROJECT_HADOOP" "$github_remote_user" "$HADOOP_BRANCH"
-  updateProjectFromRemoteFork "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_BRANCH"
-fi
+# If the current user also owns the remote repo,
+# then 'github_remote_user' should be set to 'origin'.
 
+# Update repo if needed. No change, if everything is up-to-date.
+updateProjectRepo "$abs_path" "$PROJECT_RANGER" "$github_remote_user" "$RANGER_BRANCH"
+updateProjectRepo "$abs_path" "$PROJECT_HADOOP" "$github_remote_user" "$HADOOP_BRANCH"
+updateProjectRepo "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_BRANCH"

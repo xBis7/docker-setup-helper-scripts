@@ -313,66 +313,24 @@ cloneProjectIfNotExist() {
 
   if [ "$existsLocally" == 1 ]; then
     echo "'$project_name' doesn't exist locally, cloning..."
+    echo ""
     cd "$base_path"
     if git clone "git@github.com:$github_user/$project_name.git"; then
+      echo ""
       echo "Cloning '$project_name' succeeded."
+      echo ""
     else
       echo "Cloning '$project_name' failed. Exiting..."
       exit 1
     fi
   else
+    echo ""
     echo "'$project_name' exists locally."
+    echo ""
   fi
 }
 
 updateProjectRepo() {
-  base_path=$1
-  project_name=$2
-  github_branch=$4
-
-  echo "Updating '$project_name' repo."
-  cd "$base_path/$project_name"
-
-  if git fetch origin $github_branch; then
-    echo "Fetching origin '$github_branch' succeeded."
-  else
-    echo "Fetching origin '$github_branch' failed. Exiting..."
-    exit 1
-  fi
-
-  curr_ranger_branch=$(git branch --show-current)
-
-  if [ "$curr_ranger_branch" != "$github_branch" ]; then
-    echo ""
-    echo "Current branch is $curr_ranger_branch."
-    echo "Checking out to branch '$github_branch'."
-    
-    if git checkout $github_branch; then
-      echo "Checking out to branch '$github_branch' succeeded."
-    else
-      echo "Checking out to branch '$github_branch' failed. Exiting..."
-      exit 1
-    fi
-  fi
-
-  echo ""
-  echo "Pulling changes from 'origin $github_branch'."
-
-  if git pull origin $github_branch; then
-    echo "Pulling changes from 'origin $github_branch' succeeded."
-  else
-    echo "Pulling changes from 'origin $github_branch' failed. Exiting..."
-    exit 1
-  fi
-
-  echo ""
-  echo "Finished updating '$project_name' repo."
-}
-
-# TODO: 
-# updateProjectRepo && updateProjectFromRemoteFork
-# can be combined in one method with the repo as parameter (origin, ...)
-updateProjectFromRemoteFork() {
   base_path=$1
   project_name=$2
   github_remote_user=$3
@@ -381,16 +339,18 @@ updateProjectFromRemoteFork() {
   echo "Updating '$project_name' repo."
   cd "$base_path/$project_name"
 
-  if git remote -v | grep "$github_remote_user"; then
-    echo "Remote from user '$github_remote_user', already exists in project '$project_name'."
-  else
-    echo "Remote from user '$github_remote_user', doesn't exist in project '$project_name', adding..."
-    
-    if git remote add "$github_remote_user" "git@github.com:$github_remote_user/$project_name.git"; then
-      echo "Adding remote repo for project '$project_name' succeeded."
+  if [ "$github_remote_user" != "origin" ]; then
+    if git remote -v | grep "$github_remote_user"; then
+      echo "Remote from user '$github_remote_user', already exists in project '$project_name'."
     else
-      echo "Adding remote repo for project '$project_name' failed. Exiting..."
-      exit 1
+      echo "Remote from user '$github_remote_user', doesn't exist in project '$project_name', adding..."
+
+      if git remote add "$github_remote_user" "git@github.com:$github_remote_user/$project_name.git"; then
+        echo "Adding remote repo for project '$project_name' succeeded."
+      else
+        echo "Adding remote repo for project '$project_name' failed. Exiting..."
+        exit 1
+      fi
     fi
   fi
 
@@ -406,15 +366,32 @@ updateProjectFromRemoteFork() {
   if [ "$curr_ranger_branch" != "$github_branch" ]; then
     echo ""
     echo "Current branch is $curr_ranger_branch."
-    echo "Checking out to branch '$github_remote_user/$github_branch'."
     
-    if git checkout $github_remote_user/$github_branch; then
-      echo "Checking out to branch '$github_remote_user/$github_branch' succeeded."
+    if [ "$github_remote_user" == "origin" ]; then
+      # If we go 'git checkout origin/branch', then it will checkout
+      # to the particular commit from the remote branch.
+      echo "Checking out to branch '$github_branch'."
+      echo ""
+      if git checkout $github_branch; then
+        echo "Checking out to branch '$github_branch' succeeded."
+      else
+        echo "Checking out to branch '$github_branch' failed. Exiting..."
+        exit 1
+      fi
     else
-      echo "Checking out to branch '$github_remote_user/$github_branch' failed. Exiting..."
-      exit 1
+      echo "Checking out to branch '$github_remote_user/$github_branch'."
+      echo ""
+      if git checkout $github_remote_user/$github_branch; then
+        echo "Checking out to branch '$github_remote_user/$github_branch' succeeded."
+      else
+        echo "Checking out to branch '$github_remote_user/$github_branch' failed. Exiting..."
+        exit 1
+      fi
     fi
   fi
+
+  echo ""
+  echo "Pulling changes from '$github_remote_user $github_branch'."
 
   if git pull $github_remote_user $github_branch; then
     echo "Pulling changes from '$github_remote_user $github_branch' succeeded."
@@ -423,7 +400,9 @@ updateProjectFromRemoteFork() {
     exit 1
   fi
   
+  echo ""
   echo "Finished updating '$project_name' repo."
+  echo ""
 }
 
 createHdfsTestData() {

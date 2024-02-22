@@ -59,7 +59,7 @@ if [ "$buildRanger" == 0 ]; then
   cd "$abs_path/$PROJECT_RANGER"
   export JAVA_HOME="$java_8_home"
 
-  output=$(mvn clean compile package install -DskipTests -DskipShade)
+  output=$(mvn clean compile package install --batch-mode -DskipTests -DskipShade)
   status=$?
 
   if [ "$status" == 0 ]; then
@@ -84,7 +84,7 @@ if [ "$buildRanger" == 0 ]; then
       echo "Project failure in 'ranger-distro', is a commmon failure, retry once and it will succeed."
       echo "Run these commands: "
       echo "> cd $abs_path/$PROJECT_RANGER"
-      echo "> mvn clean compile package install -DskipTests -DskipShade -rf :ranger-distro"
+      echo "> mvn clean compile package install --batch-mode -DskipTests -DskipShade -rf :ranger-distro"
       echo ""
       echo "After it succeeds, rerun this script for the rest of the projects that you need to build."
     fi
@@ -102,7 +102,7 @@ if [ "$buildHadoop" == 0 ]; then
   cd "$abs_path/$PROJECT_HADOOP"
   export JAVA_HOME="$java_8_home"
 
-  output=$(mvn clean install -Dmaven.javadoc.skip=true -DskipTests -DskipShade -Pdist,src)
+  output=$(mvn clean install --batch-mode -Dmaven.javadoc.skip=true -DskipTests -DskipShade -Pdist,src)
   status=$?
 
   if [ "$status" == 0 ]; then
@@ -134,7 +134,7 @@ if [ "$buildHive" == 0 ]; then
   cd "$abs_path/$PROJECT_HIVE"
   export JAVA_HOME="$java_8_home"
 
-  output=$(mvn clean install package -DskipTests -Pdist)
+  output=$(mvn clean install package --batch-mode -DskipTests -Pdist)
   status=$?
 
   if [ "$status" == 0 ]; then

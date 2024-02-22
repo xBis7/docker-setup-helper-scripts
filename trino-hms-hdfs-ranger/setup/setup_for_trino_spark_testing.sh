@@ -8,7 +8,9 @@ abs_path=$1
 
 ./docker/start_docker_env.sh "$abs_path"
 
-./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_ALL"
+# This dump is 
+# "$HDFS_AND_HIVE_ALL" + some very limited for URL based auth in Hive.
+./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_LIMITED_SPARK_URL"
 
 if createHdfsTestData "$HDFS_DIR"; then
   echo ""
@@ -16,6 +18,4 @@ if createHdfsTestData "$HDFS_DIR"; then
 else
   echo ""
   echo "- RESULT: HDFS test data creation failed."
-
-  ./setup/retry_hdfs_setup_data_creation.sh
 fi

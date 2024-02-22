@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.16 (Debian 12.16-1.pgdg120+1)
--- Dumped by pg_dump version 12.16 (Debian 12.16-1.pgdg120+1)
+-- Dumped from database version 12.18 (Debian 12.18-1.pgdg120+2)
+-- Dumped by pg_dump version 12.18 (Debian 12.18-1.pgdg120+2)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -22,7 +22,7 @@ SET row_security = off;
 
 CREATE FUNCTION public.getmodulesidbyname(input_val character varying) RETURNS bigint
     LANGUAGE sql
-    AS $_$ SELECT x_modules_master.id FROM x_modules_master
+    AS $_$ SELECT x_modules_master.id FROM x_modules_master
 WHERE x_modules_master.module = $1; $_$;
 
 
@@ -34,7 +34,7 @@ ALTER FUNCTION public.getmodulesidbyname(input_val character varying) OWNER TO r
 
 CREATE FUNCTION public.getxportaluidbyloginid(input_val character varying) RETURNS bigint
     LANGUAGE sql
-    AS $_$ SELECT x_portal_user.id FROM x_portal_user
+    AS $_$ SELECT x_portal_user.id FROM x_portal_user
 WHERE x_portal_user.login_id = $1; $_$;
 
 
@@ -3347,6 +3347,7 @@ COPY public.x_auth_sess (id, create_time, update_time, added_by_id, upd_by_id, l
 1	2024-02-09 11:25:30.134	2024-02-09 11:25:30.137	\N	\N	admin	1	8F59AB6584F79CC880489496F9072E31	2024-02-09 11:25:30.134	1	1	0	1	172.18.0.1	Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
 2	2024-02-09 11:25:30.827	2024-02-09 11:25:30.827	\N	\N	admin	1	CDB0F6033CEF4C29BF3D1F20376137F0	2024-02-09 11:25:30.827	1	1	0	1	172.18.0.3	python-requests/2.31.0
 3	2024-02-16 15:24:14.577	2024-02-16 15:24:14.578	\N	\N	admin	1	6407F1196CE810EB4F2D7A2EBE0BCA7A	2024-02-16 15:24:14.577	1	1	0	1	172.30.0.1	Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36
+4	2024-02-22 11:57:35.256	2024-02-22 11:57:35.257	\N	\N	admin	1	F9C18291E28EA621806DA22CF09CBD59	2024-02-22 11:57:35.256	1	1	0	1	172.19.0.1	Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36
 \.
 
 
@@ -3446,7 +3447,7 @@ COPY public.x_data_hist (id, create_time, update_time, obj_guid, obj_class_type,
 70	2024-02-09 11:25:31.939	2024-02-09 11:25:31.939	c63c7e93-187a-41d3-999d-77fbc671bd81	1030	7	dev_knox	1	Create	2024-02-09 11:25:31.939	\N	{"id":7,"guid":"c63c7e93-187a-41d3-999d-77fbc671bd81","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707477931924,"updateTime":1707477931925,"version":1,"type":"knox","name":"dev_knox","displayName":"dev_knox","tagService":"dev_tag","configs":{"password":"*****","ranger.plugin.audit.filters":"[ {'accessResult': 'DENIED', 'isAudited': true}, {'users':['knox'] ,'isAudited':false} ]","knox.url":"https://ranger-knox:8443","username":"knox"},"policyVersion":1,"policyUpdateTime":1707477931925,"tagVersion":1,"tagUpdateTime":1707477931925}
 71	2024-02-09 11:25:31.953	2024-02-09 11:25:31.953	02cd58b5-aca9-4f0d-b1c4-d943f3ab0186	1020	20	all - topology, service	1	Create	2024-02-09 11:25:31.953	\N	{"id":20,"guid":"02cd58b5-aca9-4f0d-b1c4-d943f3ab0186","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707477931949,"updateTime":1707477931950,"version":1,"service":"dev_knox","name":"all - topology, service","policyType":0,"policyPriority":0,"description":"Policy for all - topology, service","resourceSignature":"bcdaa6d5b59d1ff76890aee0548b75e9abd1a9bb6964fa8a5157b6d37ffce8db","isAuditEnabled":true,"resources":{"topology":{"values":["*"],"isExcludes":false,"isRecursive":false},"service":{"values":["*"],"isExcludes":false,"isRecursive":false}},"policyItems":[{"accesses":[{"type":"allow","isAllowed":true}],"users":["knox"],"delegateAdmin":true}],"serviceType":"knox","isDenyAllElse":false}
 73	2024-02-09 11:25:32.022	2024-02-09 11:25:32.022	a7decc34-2ee9-4a03-9842-5b23acc69495	1020	21	all - keyname	1	Create	2024-02-09 11:25:32.022	\N	{"id":21,"guid":"a7decc34-2ee9-4a03-9842-5b23acc69495","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707477932014,"updateTime":1707477932014,"version":1,"service":"dev_kms","name":"all - keyname","policyType":0,"policyPriority":0,"description":"Policy for all - keyname","resourceSignature":"43ba5ec899642b547c31144d1b915a0b8502b71fbff3216ec5733c7d6363cb2c","isAuditEnabled":true,"resources":{"keyname":{"values":["*"],"isExcludes":false,"isRecursive":false}},"policyItems":[{"accesses":[{"type":"create","isAllowed":true},{"type":"delete","isAllowed":true},{"type":"rollover","isAllowed":true},{"type":"setkeymaterial","isAllowed":true},{"type":"get","isAllowed":true},{"type":"getkeys","isAllowed":true},{"type":"getmetadata","isAllowed":true},{"type":"generateeek","isAllowed":true},{"type":"decrypteek","isAllowed":true}],"users":["keyadmin"],"delegateAdmin":true},{"accesses":[{"type":"getmetadata","isAllowed":true},{"type":"generateeek","isAllowed":true}],"users":["hdfs"],"delegateAdmin":true},{"accesses":[{"type":"getmetadata","isAllowed":true},{"type":"generateeek","isAllowed":true}],"users":["om"],"delegateAdmin":true},{"accesses":[{"type":"getmetadata","isAllowed":true},{"type":"decrypteek","isAllowed":true}],"users":["hive"],"delegateAdmin":true},{"accesses":[{"type":"decrypteek","isAllowed":true}],"users":["hbase"],"delegateAdmin":true}],"serviceType":"kms","isDenyAllElse":false}
-85	2024-02-09 11:27:04.838	2024-02-16 15:26:06.488	0658f2ed-016c-4bad-a77b-dc876bcb03e1	1020	31	default database tables columns	1	Create	2024-02-09 11:27:04.838	2024-02-16 15:26:06.488	{"id":31,"guid":"0658f2ed-016c-4bad-a77b-dc876bcb03e1","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478024830,"updateTime":1707478024830,"version":1,"service":"hivedev","name":"default database tables columns","policyType":0,"policyPriority":0,"resourceSignature":"6953543a4b66b6f2035924da5ab162724650a6b3e6ef0049c02819d894bc72a5","isAuditEnabled":true,"resources":{"database":{"values":["default"],"isExcludes":false,"isRecursive":false},"column":{"values":["*"],"isExcludes":false,"isRecursive":false},"table":{"values":["*"],"isExcludes":false,"isRecursive":false}},"policyItems":[{"accesses":[{"type":"create","isAllowed":true}],"groups":["public"],"delegateAdmin":false}],"serviceType":"hive","isDenyAllElse":false}
+75	2024-02-09 11:26:49.06	2024-02-16 15:27:02.273	8c5b265b-c229-42bd-89b2-7bc24262f107	1020	22	all - path	1	Create	2024-02-09 11:26:49.06	2024-02-16 15:27:02.273	{"id":22,"guid":"8c5b265b-c229-42bd-89b2-7bc24262f107","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478009047,"updateTime":1707478009049,"version":1,"service":"hadoopdev","name":"all - path","policyType":0,"policyPriority":0,"description":"Policy for all - path","resourceSignature":"dfe81e379022be6cadb1665e2a3883824f2bc09626557a32efa3a236609005b6","isAuditEnabled":true,"resources":{"path":{"values":["/*"],"isExcludes":false,"isRecursive":true}},"policyItems":[{"accesses":[{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"execute","isAllowed":true}],"users":["hadoop"],"delegateAdmin":true}],"serviceType":"hdfs","isDenyAllElse":false}
 74	2024-02-09 11:26:49.037	2024-02-09 11:26:49.037	8437a739-9255-4ef1-8830-da8502f34207	1030	9	hadoopdev	1	Create	2024-02-09 11:26:49.037	\N	{"id":9,"guid":"8437a739-9255-4ef1-8830-da8502f34207","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478009007,"updateTime":1707478009008,"version":1,"type":"hdfs","name":"hadoopdev","displayName":"hadoopdev","configs":{"password":"*****","hadoop.security.authentication":"simple","hadoop.rpc.protection":"authentication","fs.default.name":"http://localhost:8020","hadoop.security.authorization":"true","ranger.plugin.audit.filters":"[{'accessResult':'DENIED','isAudited':true},{'actions':['delete','rename'],'isAudited':true},{'users':['hdfs'],'actions':['listStatus','getfileinfo','listCachePools','listCacheDirectives','listCorruptFileBlocks','monitorHealth','rollEditLog','open'],'isAudited':false},{'users':['oozie'],'resources':{'path':{'values':['/user/oozie/share/lib'],'isRecursive':true}},'isAudited':false},{'users':['spark'],'resources':{'path':{'values':['/user/spark/applicationHistory'],'isRecursive':true}},'isAudited':false},{'users':['hue'],'resources':{'path':{'values':['/user/hue'],'isRecursive':true}},'isAudited':false},{'users':['hbase'],'resources':{'path':{'values':['/hbase'],'isRecursive':true}},'isAudited':false},{'users':['mapred'],'resources':{'path':{'values':['/user/history'],'isRecursive':true}},'isAudited':false},{'actions':['getfileinfo'],'isAudited':false}]","username":"hadoop"},"policyVersion":1,"policyUpdateTime":1707478009008,"tagVersion":1,"tagUpdateTime":1707478009008}
 76	2024-02-09 11:26:49.082	2024-02-09 11:26:49.082	f4217818-5d32-4d8c-adf4-9bea09b84777	1020	23	kms-audit-path	1	Create	2024-02-09 11:26:49.082	\N	{"id":23,"guid":"f4217818-5d32-4d8c-adf4-9bea09b84777","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478009073,"updateTime":1707478009073,"version":1,"service":"hadoopdev","name":"kms-audit-path","policyType":0,"policyPriority":0,"description":"Policy for kms-audit-path","resourceSignature":"b349a238ab1cea962a44878de9da2231537b5b1ab65006ca892565679d6ab1e0","isAuditEnabled":true,"resources":{"path":{"values":["/ranger/audit/kms"],"isExcludes":false,"isRecursive":true}},"policyItems":[{"accesses":[{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"execute","isAllowed":true}],"users":["keyadmin"],"delegateAdmin":false}],"serviceType":"hdfs","isDenyAllElse":false}
 77	2024-02-09 11:26:49.102	2024-02-09 11:26:49.102	ad19e1ac-bee5-4123-bb7f-f1ee433ffd77	1020	24	hbase-archive	1	Create	2024-02-09 11:26:49.102	\N	{"id":24,"guid":"ad19e1ac-bee5-4123-bb7f-f1ee433ffd77","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478009092,"updateTime":1707478009093,"version":1,"service":"hadoopdev","name":"hbase-archive","policyType":0,"policyPriority":0,"description":"Policy for hbase archive location","resourceSignature":"37fe368bc41139223d1f995603a4e71c352b8804e0413c0a06235b09ab42b19c","isAuditEnabled":true,"resources":{"path":{"values":["/hbase/archive"],"isExcludes":false,"isRecursive":true}},"policyItems":[{"accesses":[{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"execute","isAllowed":true}],"users":["hbase"],"delegateAdmin":false}],"serviceType":"hdfs","isDenyAllElse":false}
@@ -3459,7 +3460,10 @@ COPY public.x_data_hist (id, create_time, update_time, obj_guid, obj_class_type,
 84	2024-02-09 11:27:04.823	2024-02-09 11:27:04.823	a10c3b0a-f9e6-4ab0-9876-6a03982b831b	1020	30	all - url	1	Create	2024-02-09 11:27:04.823	\N	{"id":30,"guid":"a10c3b0a-f9e6-4ab0-9876-6a03982b831b","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478024814,"updateTime":1707478024814,"version":1,"service":"hivedev","name":"all - url","policyType":0,"policyPriority":0,"description":"Policy for all - url","resourceSignature":"a6a328c623a4eb15d84ccf34df65c83acba3c59c7df4a601780b1caa153aa870","isAuditEnabled":true,"resources":{"url":{"values":["*"],"isExcludes":false,"isRecursive":true}},"policyItems":[{"accesses":[{"type":"select","isAllowed":true},{"type":"update","isAllowed":true},{"type":"create","isAllowed":true},{"type":"drop","isAllowed":true},{"type":"alter","isAllowed":true},{"type":"index","isAllowed":true},{"type":"lock","isAllowed":true},{"type":"all","isAllowed":true},{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"repladmin","isAllowed":true},{"type":"serviceadmin","isAllowed":true},{"type":"tempudfadmin","isAllowed":true},{"type":"refresh","isAllowed":true}],"users":["hive"],"delegateAdmin":true}],"serviceType":"hive","isDenyAllElse":false}
 87	2024-02-16 15:26:06.488	2024-02-16 15:26:06.488	0658f2ed-016c-4bad-a77b-dc876bcb03e1	1020	31	default database tables columns	2	Update	2024-02-16 15:26:06.488	\N	{"id":31,"guid":"0658f2ed-016c-4bad-a77b-dc876bcb03e1","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478024830,"updateTime":1708097166465,"version":2,"service":"hivedev","name":"default database tables columns","policyType":0,"policyPriority":0,"resourceSignature":"6953543a4b66b6f2035924da5ab162724650a6b3e6ef0049c02819d894bc72a5","isAuditEnabled":true,"resources":{"database":{"values":["default"],"isExcludes":false,"isRecursive":false},"column":{"values":["*"],"isExcludes":false,"isRecursive":false},"table":{"values":["*"],"isExcludes":false,"isRecursive":false}},"serviceType":"hive","isDenyAllElse":false}
 88	2024-02-16 15:27:02.273	2024-02-16 15:27:02.273	8c5b265b-c229-42bd-89b2-7bc24262f107	1020	22	all - path	2	Update	2024-02-16 15:27:02.273	\N	{"id":22,"guid":"8c5b265b-c229-42bd-89b2-7bc24262f107","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478009047,"updateTime":1708097222252,"version":2,"service":"hadoopdev","name":"all - path","policyType":0,"policyPriority":0,"description":"Policy for all - path","resourceSignature":"dfe81e379022be6cadb1665e2a3883824f2bc09626557a32efa3a236609005b6","isAuditEnabled":true,"resources":{"path":{"values":["/*"],"isExcludes":false,"isRecursive":true}},"policyItems":[{"accesses":[{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"execute","isAllowed":true}],"users":["hadoop","postgres","spark"],"delegateAdmin":true}],"serviceType":"hdfs","isDenyAllElse":false}
-75	2024-02-09 11:26:49.06	2024-02-16 15:27:02.273	8c5b265b-c229-42bd-89b2-7bc24262f107	1020	22	all - path	1	Create	2024-02-09 11:26:49.06	2024-02-16 15:27:02.273	{"id":22,"guid":"8c5b265b-c229-42bd-89b2-7bc24262f107","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478009047,"updateTime":1707478009049,"version":1,"service":"hadoopdev","name":"all - path","policyType":0,"policyPriority":0,"description":"Policy for all - path","resourceSignature":"dfe81e379022be6cadb1665e2a3883824f2bc09626557a32efa3a236609005b6","isAuditEnabled":true,"resources":{"path":{"values":["/*"],"isExcludes":false,"isRecursive":true}},"policyItems":[{"accesses":[{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"execute","isAllowed":true}],"users":["hadoop"],"delegateAdmin":true}],"serviceType":"hdfs","isDenyAllElse":false}
+89	2024-02-16 15:27:44.367	2024-02-16 15:27:44.367	0658f2ed-016c-4bad-a77b-dc876bcb03e1	1020	31	default database tables columns	3	Update	2024-02-16 15:27:44.367	\N	{"id":31,"guid":"0658f2ed-016c-4bad-a77b-dc876bcb03e1","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478024830,"updateTime":1708097264346,"version":3,"service":"hivedev","name":"default database tables columns","policyType":0,"policyPriority":0,"resourceSignature":"6953543a4b66b6f2035924da5ab162724650a6b3e6ef0049c02819d894bc72a5","isAuditEnabled":true,"resources":{"database":{"values":["default"],"isExcludes":false,"isRecursive":false},"column":{"values":["*"],"isExcludes":false,"isRecursive":false},"table":{"values":["*"],"isExcludes":false,"isRecursive":false}},"policyItems":[{"accesses":[{"type":"select","isAllowed":true},{"type":"update","isAllowed":true},{"type":"create","isAllowed":true},{"type":"drop","isAllowed":true},{"type":"alter","isAllowed":true},{"type":"index","isAllowed":true},{"type":"lock","isAllowed":true},{"type":"all","isAllowed":true},{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"repladmin","isAllowed":true},{"type":"serviceadmin","isAllowed":true},{"type":"tempudfadmin","isAllowed":true},{"type":"refresh","isAllowed":true}],"users":["postgres","spark"],"delegateAdmin":false}],"serviceType":"hive","isDenyAllElse":false}
+85	2024-02-09 11:27:04.838	2024-02-16 15:27:44.367	0658f2ed-016c-4bad-a77b-dc876bcb03e1	1020	31	default database tables columns	1	Create	2024-02-09 11:27:04.838	2024-02-16 15:27:44.367	{"id":31,"guid":"0658f2ed-016c-4bad-a77b-dc876bcb03e1","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1707478024830,"updateTime":1707478024830,"version":1,"service":"hivedev","name":"default database tables columns","policyType":0,"policyPriority":0,"resourceSignature":"6953543a4b66b6f2035924da5ab162724650a6b3e6ef0049c02819d894bc72a5","isAuditEnabled":true,"resources":{"database":{"values":["default"],"isExcludes":false,"isRecursive":false},"column":{"values":["*"],"isExcludes":false,"isRecursive":false},"table":{"values":["*"],"isExcludes":false,"isRecursive":false}},"policyItems":[{"accesses":[{"type":"create","isAllowed":true}],"groups":["public"],"delegateAdmin":false}],"serviceType":"hive","isDenyAllElse":false}
+91	2024-02-22 12:01:02.674	2024-02-22 12:01:02.674	a14e5153-daaf-41fa-b2a6-2e95981560a9	1020	33	url-spark	2	Update	2024-02-22 12:01:02.674	\N	{"id":33,"guid":"a14e5153-daaf-41fa-b2a6-2e95981560a9","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1708603252380,"updateTime":1708603262654,"version":2,"service":"hivedev","name":"url-spark","policyType":0,"policyPriority":0,"resourceSignature":"b1cb1cfee7b725bdf08c6b48204e71f8417024959197898a1b2253a506b174ce","isAuditEnabled":true,"resources":{"url":{"values":["hdfs://namenode/*"],"isExcludes":false,"isRecursive":true}},"policyItems":[{"accesses":[{"type":"select","isAllowed":true},{"type":"read","isAllowed":true}],"users":["spark"],"delegateAdmin":false}],"serviceType":"hive","isDenyAllElse":false}
+90	2024-02-22 12:00:52.476	2024-02-22 12:01:02.674	a14e5153-daaf-41fa-b2a6-2e95981560a9	1020	33	url-spark	1	Create	2024-02-22 12:00:52.476	2024-02-22 12:01:02.674	{"id":33,"guid":"a14e5153-daaf-41fa-b2a6-2e95981560a9","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":1708603252380,"updateTime":1708603252386,"version":1,"service":"hivedev","name":"url-spark","policyType":0,"policyPriority":0,"resourceSignature":"b1cb1cfee7b725bdf08c6b48204e71f8417024959197898a1b2253a506b174ce","isAuditEnabled":true,"resources":{"url":{"values":["hdfs://namenode/*"],"isExcludes":false,"isRecursive":true}},"policyItems":[{"accesses":[{"type":"select","isAllowed":true}],"users":["spark"],"delegateAdmin":false}],"serviceType":"hive","isDenyAllElse":false}
 \.
 
 
@@ -3748,7 +3752,8 @@ COPY public.x_perm_map (id, create_time, update_time, added_by_id, upd_by_id, pe
 --
 
 COPY public.x_plugin_info (id, create_time, update_time, service_name, app_type, host_name, ip_address, info) FROM stdin;
-1	2024-02-09 11:27:12.042	2024-02-16 15:24:07.43	hadoopdev	hdfs	namenode	172.30.0.6	{"roleActiveVersion":"-1","roleDownloadedVersion":"1","roleActivationTime":"1707478002038","pluginCapabilities":"fffff","roleDownloadTime":"1707478032041","adminCapabilities":"7ffff","policyDownloadedVersion":"5","policyDownloadTime":"1708097047416","policyActiveVersion":"11","policyActivationTime":"1708096825475"}
+1	2024-02-09 11:27:12.042	2024-02-22 11:50:41.822	hadoopdev	hdfs	namenode	172.19.0.7	{"roleActiveVersion":"-1","roleDownloadedVersion":"1","roleActivationTime":"1708602611638","pluginCapabilities":"fffff","roleDownloadTime":"1708602641620","adminCapabilities":"7ffff","policyDownloadedVersion":"7","policyDownloadTime":"1708602641818","policyActiveVersion":"5","policyActivationTime":"1708097047499"}
+2	2024-02-22 11:51:01.095	2024-02-22 12:01:31.469	hivedev	hiveMetastore	hive-metastore	172.19.0.11	{"roleActiveVersion":"-1","roleDownloadedVersion":"1","roleActivationTime":"0","pluginCapabilities":"fffff","roleDownloadTime":"1708602661093","adminCapabilities":"7ffff","policyDownloadedVersion":"15","policyDownloadTime":"1708603291462","policyActiveVersion":"14","policyActivationTime":"1708603261493"}
 \.
 
 
@@ -3787,8 +3792,9 @@ COPY public.x_policy (id, guid, create_time, update_time, added_by_id, upd_by_id
 29	57f897b3-62a0-4c37-b59a-1889c110ad01	2024-02-09 11:27:04.794	2024-02-09 11:27:04.794	1	1	1	10	all - database, udf	0	Policy for all - database, udf	a9a4ce765b10e47239e032918d1f88aadab9f6e5ca4ed9612b1f6d720f49792e	t	t	\N	0	{"service":"hivedev","name":"all - database, udf","policyType":0,"policyPriority":0,"description":"Policy for all - database, udf","resourceSignature":"a9a4ce765b10e47239e032918d1f88aadab9f6e5ca4ed9612b1f6d720f49792e","isAuditEnabled":true,"resources":{"database":{"values":["*"],"isExcludes":false,"isRecursive":false},"udf":{"values":["*"],"isExcludes":false,"isRecursive":false}},"policyItems":[{"accesses":[{"type":"select","isAllowed":true},{"type":"update","isAllowed":true},{"type":"create","isAllowed":true},{"type":"drop","isAllowed":true},{"type":"alter","isAllowed":true},{"type":"index","isAllowed":true},{"type":"lock","isAllowed":true},{"type":"all","isAllowed":true},{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"repladmin","isAllowed":true},{"type":"serviceadmin","isAllowed":true},{"type":"tempudfadmin","isAllowed":true},{"type":"refresh","isAllowed":true}],"users":["hive"],"groups":[],"roles":[],"conditions":[],"delegateAdmin":true},{"accesses":[{"type":"all","isAllowed":true}],"users":["{OWNER}"],"groups":[],"roles":[],"conditions":[],"delegateAdmin":true}],"denyPolicyItems":[],"allowExceptions":[],"denyExceptions":[],"dataMaskPolicyItems":[],"rowFilterPolicyItems":[],"serviceType":"hive","options":{},"validitySchedules":[],"policyLabels":[],"isDenyAllElse":false,"guid":"57f897b3-62a0-4c37-b59a-1889c110ad01","isEnabled":true,"version":1}	1
 30	a10c3b0a-f9e6-4ab0-9876-6a03982b831b	2024-02-09 11:27:04.814	2024-02-09 11:27:04.814	1	1	1	10	all - url	0	Policy for all - url	a6a328c623a4eb15d84ccf34df65c83acba3c59c7df4a601780b1caa153aa870	t	t	\N	0	{"service":"hivedev","name":"all - url","policyType":0,"policyPriority":0,"description":"Policy for all - url","resourceSignature":"a6a328c623a4eb15d84ccf34df65c83acba3c59c7df4a601780b1caa153aa870","isAuditEnabled":true,"resources":{"url":{"values":["*"],"isExcludes":false,"isRecursive":true}},"policyItems":[{"accesses":[{"type":"select","isAllowed":true},{"type":"update","isAllowed":true},{"type":"create","isAllowed":true},{"type":"drop","isAllowed":true},{"type":"alter","isAllowed":true},{"type":"index","isAllowed":true},{"type":"lock","isAllowed":true},{"type":"all","isAllowed":true},{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"repladmin","isAllowed":true},{"type":"serviceadmin","isAllowed":true},{"type":"tempudfadmin","isAllowed":true},{"type":"refresh","isAllowed":true}],"users":["hive"],"groups":[],"roles":[],"conditions":[],"delegateAdmin":true}],"denyPolicyItems":[],"allowExceptions":[],"denyExceptions":[],"dataMaskPolicyItems":[],"rowFilterPolicyItems":[],"serviceType":"hive","options":{},"validitySchedules":[],"policyLabels":[],"isDenyAllElse":false,"guid":"a10c3b0a-f9e6-4ab0-9876-6a03982b831b","isEnabled":true,"version":1}	1
 32	b77f3ebb-eb0a-4fd6-a9b9-0efce1ad07cd	2024-02-09 11:27:04.847	2024-02-09 11:27:04.847	1	1	1	10	Information_schema database tables columns	0	\N	ae84bfb2ea30aed7571ac7d10c68e30084fb38933ff1d7fca41a833e105bd6bb	t	t	\N	0	{"service":"hivedev","name":"Information_schema database tables columns","policyType":0,"policyPriority":0,"resourceSignature":"ae84bfb2ea30aed7571ac7d10c68e30084fb38933ff1d7fca41a833e105bd6bb","isAuditEnabled":true,"resources":{"database":{"values":["information_schema"],"isExcludes":false,"isRecursive":false},"column":{"values":["*"],"isExcludes":false,"isRecursive":false},"table":{"values":["*"],"isExcludes":false,"isRecursive":false}},"policyItems":[{"accesses":[{"type":"select","isAllowed":true}],"users":[],"groups":["public"],"roles":[],"conditions":[],"delegateAdmin":false}],"denyPolicyItems":[],"allowExceptions":[],"denyExceptions":[],"dataMaskPolicyItems":[],"rowFilterPolicyItems":[],"serviceType":"hive","options":{},"validitySchedules":[],"policyLabels":[],"isDenyAllElse":false,"guid":"b77f3ebb-eb0a-4fd6-a9b9-0efce1ad07cd","isEnabled":true,"version":1}	1
-31	0658f2ed-016c-4bad-a77b-dc876bcb03e1	2024-02-09 11:27:04.83	2024-02-16 15:26:06.465	1	1	2	10	default database tables columns	0		6953543a4b66b6f2035924da5ab162724650a6b3e6ef0049c02819d894bc72a5	t	t	\N	0	{"service":"hivedev","name":"default database tables columns","policyType":0,"policyPriority":0,"description":"","resourceSignature":"6953543a4b66b6f2035924da5ab162724650a6b3e6ef0049c02819d894bc72a5","isAuditEnabled":true,"resources":{"database":{"values":["default"],"isExcludes":false,"isRecursive":false},"column":{"values":["*"],"isExcludes":false,"isRecursive":false},"table":{"values":["*"],"isExcludes":false,"isRecursive":false}},"additionalResources":[],"policyItems":[],"denyPolicyItems":[],"allowExceptions":[],"denyExceptions":[],"dataMaskPolicyItems":[],"rowFilterPolicyItems":[],"serviceType":"hive","options":{},"validitySchedules":[],"policyLabels":[],"isDenyAllElse":false,"id":31,"guid":"0658f2ed-016c-4bad-a77b-dc876bcb03e1","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":"20240209-11:27:04.830-+0000","updateTime":"20240209-11:27:04.830-+0000","version":1}	1
 22	8c5b265b-c229-42bd-89b2-7bc24262f107	2024-02-09 11:26:49.047	2024-02-16 15:27:02.252	1	1	2	9	all - path	0	Policy for all - path	dfe81e379022be6cadb1665e2a3883824f2bc09626557a32efa3a236609005b6	t	t	\N	0	{"service":"hadoopdev","name":"all - path","policyType":0,"policyPriority":0,"description":"Policy for all - path","resourceSignature":"dfe81e379022be6cadb1665e2a3883824f2bc09626557a32efa3a236609005b6","isAuditEnabled":true,"resources":{"path":{"values":["/*"],"isExcludes":false,"isRecursive":true}},"additionalResources":[],"policyItems":[{"accesses":[{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"execute","isAllowed":true}],"users":["hadoop","postgres","spark"],"groups":[],"roles":[],"conditions":[],"delegateAdmin":true}],"denyPolicyItems":[],"allowExceptions":[],"denyExceptions":[],"dataMaskPolicyItems":[],"rowFilterPolicyItems":[],"serviceType":"hdfs","options":{},"validitySchedules":[],"policyLabels":[],"isDenyAllElse":false,"id":22,"guid":"8c5b265b-c229-42bd-89b2-7bc24262f107","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":"20240209-11:26:49.047-+0000","updateTime":"20240209-11:26:49.049-+0000","version":1}	1
+31	0658f2ed-016c-4bad-a77b-dc876bcb03e1	2024-02-09 11:27:04.83	2024-02-16 15:27:44.346	1	1	3	10	default database tables columns	0		6953543a4b66b6f2035924da5ab162724650a6b3e6ef0049c02819d894bc72a5	t	t	\N	0	{"service":"hivedev","name":"default database tables columns","policyType":0,"policyPriority":0,"description":"","resourceSignature":"6953543a4b66b6f2035924da5ab162724650a6b3e6ef0049c02819d894bc72a5","isAuditEnabled":true,"resources":{"database":{"values":["default"],"isExcludes":false,"isRecursive":false},"column":{"values":["*"],"isExcludes":false,"isRecursive":false},"table":{"values":["*"],"isExcludes":false,"isRecursive":false}},"additionalResources":[],"policyItems":[{"accesses":[{"type":"select","isAllowed":true},{"type":"update","isAllowed":true},{"type":"create","isAllowed":true},{"type":"drop","isAllowed":true},{"type":"alter","isAllowed":true},{"type":"index","isAllowed":true},{"type":"lock","isAllowed":true},{"type":"all","isAllowed":true},{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"repladmin","isAllowed":true},{"type":"serviceadmin","isAllowed":true},{"type":"tempudfadmin","isAllowed":true},{"type":"refresh","isAllowed":true}],"users":["postgres","spark"],"groups":[],"roles":[],"conditions":[],"delegateAdmin":false}],"denyPolicyItems":[],"allowExceptions":[],"denyExceptions":[],"dataMaskPolicyItems":[],"rowFilterPolicyItems":[],"serviceType":"hive","options":{},"validitySchedules":[],"policyLabels":[],"isDenyAllElse":false,"id":31,"guid":"0658f2ed-016c-4bad-a77b-dc876bcb03e1","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":"20240209-11:27:04.830-+0000","updateTime":"20240216-15:26:06.465-+0000","version":2}	1
+33	a14e5153-daaf-41fa-b2a6-2e95981560a9	2024-02-22 12:00:52.38	2024-02-22 12:01:02.654	1	1	2	10	url-spark	0		b1cb1cfee7b725bdf08c6b48204e71f8417024959197898a1b2253a506b174ce	t	t	\N	0	{"service":"hivedev","name":"url-spark","policyType":0,"policyPriority":0,"description":"","resourceSignature":"b1cb1cfee7b725bdf08c6b48204e71f8417024959197898a1b2253a506b174ce","isAuditEnabled":true,"resources":{"url":{"values":["hdfs://namenode/*"],"isExcludes":false,"isRecursive":true}},"additionalResources":[],"policyItems":[{"accesses":[{"type":"select","isAllowed":true},{"type":"read","isAllowed":true}],"users":["spark"],"groups":[],"roles":[],"conditions":[],"delegateAdmin":false}],"denyPolicyItems":[],"allowExceptions":[],"denyExceptions":[],"dataMaskPolicyItems":[],"rowFilterPolicyItems":[],"serviceType":"hive","options":{},"validitySchedules":[],"policyLabels":[],"isDenyAllElse":false,"id":33,"guid":"a14e5153-daaf-41fa-b2a6-2e95981560a9","isEnabled":true,"createdBy":"Admin","updatedBy":"Admin","createTime":"20240222-12:00:52.380-+0000","updateTime":"20240222-12:00:52.386-+0000","version":1}	1
 \.
 
 
@@ -3807,6 +3813,16 @@ COPY public.x_policy_change_log (id, create_time, service_id, change_type, polic
 8	2024-02-16 15:24:06.203	8	5	3	\N	\N	\N	\N	\N
 9	2024-02-16 15:24:06.205	9	5	5	\N	\N	\N	\N	\N
 10	2024-02-16 15:24:06.208	10	5	10	\N	\N	\N	\N	\N
+11	2024-02-22 11:50:25.702	2	5	4	\N	\N	\N	\N	\N
+12	2024-02-22 11:50:25.708	1	5	7	\N	\N	\N	\N	\N
+13	2024-02-22 11:50:25.711	3	5	4	\N	\N	\N	\N	\N
+14	2024-02-22 11:50:25.714	4	5	11	\N	\N	\N	\N	\N
+15	2024-02-22 11:50:25.718	5	5	4	\N	\N	\N	\N	\N
+16	2024-02-22 11:50:25.721	6	5	8	\N	\N	\N	\N	\N
+17	2024-02-22 11:50:25.724	7	5	4	\N	\N	\N	\N	\N
+18	2024-02-22 11:50:25.728	8	5	4	\N	\N	\N	\N	\N
+19	2024-02-22 11:50:25.731	9	5	7	\N	\N	\N	\N	\N
+20	2024-02-22 11:50:25.733	10	5	13	\N	\N	\N	\N	\N
 \.
 
 
@@ -3832,6 +3848,11 @@ COPY public.x_policy_condition_def (id, guid, create_time, update_time, added_by
 COPY public.x_policy_export_audit (id, create_time, update_time, added_by_id, upd_by_id, client_ip, agent_id, req_epoch, last_updated, repository_name, exported_json, http_ret_code, cluster_name, zone_name, policy_version) FROM stdin;
 1	2024-02-09 11:27:12.177	2024-02-09 11:27:12.178	\N	\N	172.18.0.6	hdfs@namenode-hadoopdev	-1	\N	hadoopdev	\N	200			\N
 2	2024-02-16 15:24:07.415	2024-02-16 15:24:07.418	\N	\N	172.30.0.6	hdfs@namenode-hadoopdev	11	\N	hadoopdev	\N	200			\N
+3	2024-02-16 15:27:25.455	2024-02-16 15:27:25.456	\N	\N	172.30.0.6	hdfs@namenode-hadoopdev	5	\N	hadoopdev	\N	200			\N
+4	2024-02-22 11:50:41.817	2024-02-22 11:50:41.819	\N	\N	172.19.0.7	hdfs@namenode-hadoopdev	-1	\N	hadoopdev	\N	200			\N
+5	2024-02-22 11:51:01.244	2024-02-22 11:51:01.245	\N	\N	172.19.0.11	hiveMetastore@hive-metastore-hivedev	-1	\N	hivedev	\N	200			\N
+6	2024-02-22 12:01:01.464	2024-02-22 12:01:01.465	\N	\N	172.19.0.11	hiveMetastore@hive-metastore-hivedev	13	\N	hivedev	\N	200			\N
+7	2024-02-22 12:01:31.461	2024-02-22 12:01:31.462	\N	\N	172.19.0.11	hiveMetastore@hive-metastore-hivedev	14	\N	hivedev	\N	200			\N
 \.
 
 
@@ -4295,6 +4316,22 @@ COPY public.x_policy_ref_access_type (id, guid, create_time, update_time, added_
 385	\N	2024-02-09 11:26:49.047	2024-02-16 15:27:02.267	1	1	22	1	read
 386	\N	2024-02-09 11:26:49.047	2024-02-16 15:27:02.269	1	1	22	2	write
 387	\N	2024-02-09 11:26:49.047	2024-02-16 15:27:02.269	1	1	22	3	execute
+388	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.361	1	1	31	12	drop
+390	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.362	1	1	31	9	select
+399	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.363	1	1	31	19	repladmin
+391	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.362	1	1	31	17	read
+392	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.362	1	1	31	10	update
+398	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.363	1	1	31	15	lock
+397	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.363	1	1	31	11	create
+389	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.362	1	1	31	16	all
+396	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.363	1	1	31	20	serviceadmin
+394	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.363	1	1	31	22	refresh
+393	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.363	1	1	31	14	index
+400	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.363	1	1	31	18	write
+401	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.363	1	1	31	13	alter
+395	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.363	1	1	31	21	tempudfadmin
+403	\N	2024-02-22 12:00:52.38	2024-02-22 12:01:02.669	1	1	33	9	select
+404	\N	2024-02-22 12:00:52.38	2024-02-22 12:01:02.67	1	1	33	17	read
 \.
 
 
@@ -4386,10 +4423,11 @@ COPY public.x_policy_ref_resource (id, guid, create_time, update_time, added_by_
 49	\N	2024-02-09 11:27:04.847	2024-02-09 11:27:04.852	1	1	32	5	database
 50	\N	2024-02-09 11:27:04.847	2024-02-09 11:27:04.852	1	1	32	8	column
 51	\N	2024-02-09 11:27:04.847	2024-02-09 11:27:04.852	1	1	32	6	table
-52	\N	2024-02-09 11:27:04.83	2024-02-16 15:26:06.48	1	1	31	5	database
-54	\N	2024-02-09 11:27:04.83	2024-02-16 15:26:06.481	1	1	31	6	table
-53	\N	2024-02-09 11:27:04.83	2024-02-16 15:26:06.481	1	1	31	8	column
 55	\N	2024-02-09 11:26:49.047	2024-02-16 15:27:02.259	1	1	22	1	path
+56	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.354	1	1	31	5	database
+57	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.355	1	1	31	8	column
+58	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.355	1	1	31	6	table
+60	\N	2024-02-22 12:00:52.38	2024-02-22 12:01:02.665	1	1	33	9	url
 \.
 
 
@@ -4447,6 +4485,9 @@ COPY public.x_policy_ref_user (id, guid, create_time, update_time, added_by_id, 
 40	\N	2024-02-09 11:26:49.047	2024-02-16 15:27:02.262	1	1	22	16	spark
 41	\N	2024-02-09 11:26:49.047	2024-02-16 15:27:02.263	1	1	22	14	hadoop
 42	\N	2024-02-09 11:26:49.047	2024-02-16 15:27:02.264	1	1	22	15	postgres
+43	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.356	1	1	31	16	spark
+44	\N	2024-02-09 11:27:04.83	2024-02-16 15:27:44.357	1	1	31	15	postgres
+46	\N	2024-02-22 12:00:52.38	2024-02-22 12:01:02.667	1	1	33	16	spark
 \.
 
 
@@ -4981,16 +5022,16 @@ COPY public.x_service_resource (id, guid, create_time, update_time, added_by_id,
 --
 
 COPY public.x_service_version_info (id, service_id, policy_version, policy_update_time, tag_version, tag_update_time, role_version, role_update_time, version) FROM stdin;
-2	2	3	2024-02-16 15:24:06.167	2	2024-02-16 15:24:06.212	1	2024-02-09 11:25:31.06	4
-1	1	6	2024-02-16 15:24:06.179	2	2024-02-16 15:24:06.216	1	2024-02-09 11:25:30.867	7
-3	3	3	2024-02-16 15:24:06.182	2	2024-02-16 15:24:06.219	1	2024-02-09 11:25:31.269	4
-4	4	10	2024-02-16 15:24:06.187	2	2024-02-16 15:24:06.221	1	2024-02-09 11:25:31.354	11
-5	5	3	2024-02-16 15:24:06.192	2	2024-02-16 15:24:06.226	1	2024-02-09 11:25:31.654	4
-6	6	7	2024-02-16 15:24:06.196	2	2024-02-16 15:24:06.229	1	2024-02-09 11:25:31.722	8
-7	7	3	2024-02-16 15:24:06.199	2	2024-02-16 15:24:06.233	1	2024-02-09 11:25:31.925	4
-8	8	3	2024-02-16 15:24:06.202	2	2024-02-16 15:24:06.237	1	2024-02-09 11:25:31.991	4
-10	10	11	2024-02-16 15:26:06.497	2	2024-02-16 15:24:06.243	1	2024-02-09 11:27:04.702	12
-9	9	6	2024-02-16 15:27:02.281	2	2024-02-16 15:24:06.24	1	2024-02-09 11:26:49.008	7
+2	2	4	2024-02-22 11:50:25.694	3	2024-02-22 11:50:25.737	1	2024-02-09 11:25:31.06	6
+1	1	7	2024-02-22 11:50:25.707	3	2024-02-22 11:50:25.743	1	2024-02-09 11:25:30.867	9
+3	3	4	2024-02-22 11:50:25.71	3	2024-02-22 11:50:25.745	1	2024-02-09 11:25:31.269	6
+4	4	11	2024-02-22 11:50:25.713	3	2024-02-22 11:50:25.748	1	2024-02-09 11:25:31.354	13
+5	5	4	2024-02-22 11:50:25.716	3	2024-02-22 11:50:25.751	1	2024-02-09 11:25:31.654	6
+6	6	8	2024-02-22 11:50:25.72	3	2024-02-22 11:50:25.754	1	2024-02-09 11:25:31.722	10
+7	7	4	2024-02-22 11:50:25.723	3	2024-02-22 11:50:25.758	1	2024-02-09 11:25:31.925	6
+8	8	4	2024-02-22 11:50:25.727	3	2024-02-22 11:50:25.76	1	2024-02-09 11:25:31.991	6
+9	9	7	2024-02-22 11:50:25.73	3	2024-02-22 11:50:25.762	1	2024-02-09 11:26:49.008	9
+10	10	15	2024-02-22 12:01:02.686	3	2024-02-22 11:50:25.764	1	2024-02-09 11:27:04.702	17
 \.
 
 
@@ -5007,16 +5048,16 @@ COPY public.x_tag (id, guid, create_time, update_time, added_by_id, upd_by_id, v
 --
 
 COPY public.x_tag_change_log (id, create_time, service_id, change_type, service_tags_version, service_resource_id, tag_id) FROM stdin;
-1	2024-02-16 15:24:06.214	2	4	2	\N	\N
-2	2024-02-16 15:24:06.217	1	4	2	\N	\N
-3	2024-02-16 15:24:06.22	3	4	2	\N	\N
-4	2024-02-16 15:24:06.222	4	4	2	\N	\N
-5	2024-02-16 15:24:06.227	5	4	2	\N	\N
-6	2024-02-16 15:24:06.231	6	4	2	\N	\N
-7	2024-02-16 15:24:06.235	7	4	2	\N	\N
-8	2024-02-16 15:24:06.238	8	4	2	\N	\N
-9	2024-02-16 15:24:06.241	9	4	2	\N	\N
-10	2024-02-16 15:24:06.244	10	4	2	\N	\N
+11	2024-02-22 11:50:25.739	2	4	3	\N	\N
+12	2024-02-22 11:50:25.744	1	4	3	\N	\N
+13	2024-02-22 11:50:25.746	3	4	3	\N	\N
+14	2024-02-22 11:50:25.749	4	4	3	\N	\N
+15	2024-02-22 11:50:25.752	5	4	3	\N	\N
+16	2024-02-22 11:50:25.756	6	4	3	\N	\N
+17	2024-02-22 11:50:25.759	7	4	3	\N	\N
+18	2024-02-22 11:50:25.761	8	4	3	\N	\N
+19	2024-02-22 11:50:25.763	9	4	3	\N	\N
+20	2024-02-22 11:50:25.765	10	4	3	\N	\N
 \.
 
 
@@ -5452,6 +5493,20 @@ COPY public.x_trx_log (id, create_time, update_time, added_by_id, upd_by_id, cla
 409	2024-02-16 15:26:06.462	2024-02-16 15:26:06.494	1	1	1020	31	10	1030	hivedev	default database tables columns	Policy Items	[{"accesses":[{"type":"create","isAllowed":true}],"groups":["public"],"delegateAdmin":false}]		5191491887875375241	update	3	5191491887875375241	Spring Authenticated Session
 410	2024-02-16 15:27:02.248	2024-02-16 15:27:02.278	1	1	1020	22	9	1030	hadoopdev	all - path	Policy Additional Resources	\N	[]	-3723785931874481917	update	3	-3723785931874481917	Spring Authenticated Session
 411	2024-02-16 15:27:02.248	2024-02-16 15:27:02.279	1	1	1020	22	9	1030	hadoopdev	all - path	Policy Items	[{"accesses":[{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"execute","isAllowed":true}],"users":["hadoop"],"delegateAdmin":true}]	[{"accesses":[{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"execute","isAllowed":true}],"users":["hadoop","postgres","spark"],"delegateAdmin":true}]	-3723785931874481917	update	3	-3723785931874481917	Spring Authenticated Session
+412	2024-02-16 15:27:44.344	2024-02-16 15:27:44.369	1	1	1020	31	10	1030	hivedev	default database tables columns	Policy Additional Resources	\N	[]	3028617189592285617	update	3	3028617189592285617	Spring Authenticated Session
+413	2024-02-16 15:27:44.344	2024-02-16 15:27:44.369	1	1	1020	31	10	1030	hivedev	default database tables columns	Policy Items		[{"accesses":[{"type":"select","isAllowed":true},{"type":"update","isAllowed":true},{"type":"create","isAllowed":true},{"type":"drop","isAllowed":true},{"type":"alter","isAllowed":true},{"type":"index","isAllowed":true},{"type":"lock","isAllowed":true},{"type":"all","isAllowed":true},{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"repladmin","isAllowed":true},{"type":"serviceadmin","isAllowed":true},{"type":"tempudfadmin","isAllowed":true},{"type":"refresh","isAllowed":true}],"users":["postgres","spark"],"delegateAdmin":false}]	3028617189592285617	update	3	3028617189592285617	Spring Authenticated Session
+414	2024-02-22 12:00:52.48	2024-02-22 12:00:52.482	1	1	1020	33	10	1030	hivedev	url-spark	Policy Name	\N	url-spark	1294258817732527917	create	4	1294258817732527917	Spring Authenticated Session
+415	2024-02-22 12:00:52.48	2024-02-22 12:00:52.484	1	1	1020	33	10	1030	hivedev	url-spark	Priority	\N	0	1294258817732527917	create	4	1294258817732527917	Spring Authenticated Session
+416	2024-02-22 12:00:52.48	2024-02-22 12:00:52.485	1	1	1020	33	10	1030	hivedev	url-spark	Audit Status	\N	true	1294258817732527917	create	4	1294258817732527917	Spring Authenticated Session
+417	2024-02-22 12:00:52.48	2024-02-22 12:00:52.485	1	1	1020	33	10	1030	hivedev	url-spark	Policy Resources	\N	{"url":{"values":["hdfs://namenode/*"],"isExcludes":false,"isRecursive":true}}	1294258817732527917	create	4	1294258817732527917	Spring Authenticated Session
+418	2024-02-22 12:00:52.48	2024-02-22 12:00:52.486	1	1	1020	33	10	1030	hivedev	url-spark	Policy Additional Resources	\N	[]	1294258817732527917	create	4	1294258817732527917	Spring Authenticated Session
+419	2024-02-22 12:00:52.481	2024-02-22 12:00:52.487	1	1	1020	33	10	1030	hivedev	url-spark	Policy Items	\N	[{"accesses":[{"type":"select","isAllowed":true}],"users":["spark"],"delegateAdmin":false}]	1294258817732527917	create	4	1294258817732527917	Spring Authenticated Session
+420	2024-02-22 12:00:52.481	2024-02-22 12:00:52.487	1	1	1020	33	10	1030	hivedev	url-spark	Validity Schedules	\N	[]	1294258817732527917	create	4	1294258817732527917	Spring Authenticated Session
+421	2024-02-22 12:00:52.481	2024-02-22 12:00:52.488	1	1	1020	33	10	1030	hivedev	url-spark	Policy Labels	\N	[]	1294258817732527917	create	4	1294258817732527917	Spring Authenticated Session
+422	2024-02-22 12:00:52.482	2024-02-22 12:00:52.489	1	1	1020	33	10	1030	hivedev	url-spark	Deny All Other Accesses	\N	false	1294258817732527917	create	4	1294258817732527917	Spring Authenticated Session
+423	2024-02-22 12:00:52.482	2024-02-22 12:00:52.489	1	1	1020	33	10	1030	hivedev	url-spark	Policy Status	\N	true	1294258817732527917	create	4	1294258817732527917	Spring Authenticated Session
+424	2024-02-22 12:01:02.643	2024-02-22 12:01:02.68	1	1	1020	33	10	1030	hivedev	url-spark	Policy Additional Resources	\N	[]	1135736373280655555	update	4	1135736373280655555	Spring Authenticated Session
+425	2024-02-22 12:01:02.645	2024-02-22 12:01:02.681	1	1	1020	33	10	1030	hivedev	url-spark	Policy Items	[{"accesses":[{"type":"select","isAllowed":true}],"users":["spark"],"delegateAdmin":false}]	[{"accesses":[{"type":"select","isAllowed":true},{"type":"read","isAllowed":true}],"users":["spark"],"delegateAdmin":false}]	1135736373280655555	update	4	1135736373280655555	Spring Authenticated Session
 \.
 
 
@@ -5588,7 +5643,7 @@ SELECT pg_catalog.setval('public.x_audit_map_seq', 1, false);
 -- Name: x_auth_sess_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_auth_sess_seq', 3, true);
+SELECT pg_catalog.setval('public.x_auth_sess_seq', 4, true);
 
 
 --
@@ -5609,7 +5664,7 @@ SELECT pg_catalog.setval('public.x_cred_store_seq', 1, false);
 -- Name: x_data_hist_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_data_hist_seq', 88, true);
+SELECT pg_catalog.setval('public.x_data_hist_seq', 91, true);
 
 
 --
@@ -5693,14 +5748,14 @@ SELECT pg_catalog.setval('public.x_perm_map_seq', 1, false);
 -- Name: x_plugin_info_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_plugin_info_seq', 1, true);
+SELECT pg_catalog.setval('public.x_plugin_info_seq', 2, true);
 
 
 --
 -- Name: x_policy_change_log_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_policy_change_log_seq', 10, true);
+SELECT pg_catalog.setval('public.x_policy_change_log_seq', 20, true);
 
 
 --
@@ -5714,7 +5769,7 @@ SELECT pg_catalog.setval('public.x_policy_condition_def_seq', 7, true);
 -- Name: x_policy_export_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_policy_export_seq', 2, true);
+SELECT pg_catalog.setval('public.x_policy_export_seq', 7, true);
 
 
 --
@@ -5784,7 +5839,7 @@ SELECT pg_catalog.setval('public.x_policy_label_seq', 1, false);
 -- Name: x_policy_ref_access_type_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_policy_ref_access_type_seq', 387, true);
+SELECT pg_catalog.setval('public.x_policy_ref_access_type_seq', 404, true);
 
 
 --
@@ -5812,7 +5867,7 @@ SELECT pg_catalog.setval('public.x_policy_ref_group_seq', 12, true);
 -- Name: x_policy_ref_resource_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_policy_ref_resource_seq', 55, true);
+SELECT pg_catalog.setval('public.x_policy_ref_resource_seq', 60, true);
 
 
 --
@@ -5826,7 +5881,7 @@ SELECT pg_catalog.setval('public.x_policy_ref_role_seq', 1, false);
 -- Name: x_policy_ref_user_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_policy_ref_user_seq', 42, true);
+SELECT pg_catalog.setval('public.x_policy_ref_user_seq', 46, true);
 
 
 --
@@ -5847,7 +5902,7 @@ SELECT pg_catalog.setval('public.x_policy_resource_seq', 1, false);
 -- Name: x_policy_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_policy_seq', 32, true);
+SELECT pg_catalog.setval('public.x_policy_seq', 33, true);
 
 
 --
@@ -6036,7 +6091,7 @@ SELECT pg_catalog.setval('public.x_service_version_info_seq', 10, true);
 -- Name: x_tag_change_log_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_tag_change_log_seq', 10, true);
+SELECT pg_catalog.setval('public.x_tag_change_log_seq', 20, true);
 
 
 --
@@ -6064,7 +6119,7 @@ SELECT pg_catalog.setval('public.x_tag_seq', 1, false);
 -- Name: x_trx_log_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_trx_log_seq', 411, true);
+SELECT pg_catalog.setval('public.x_trx_log_seq', 425, true);
 
 
 --

@@ -17,6 +17,7 @@ DEFAULT_POLICIES="1_defaults"
 DEFAULT_AND_NO_HIVE="2_defaults_no_hive_perm_defaultdb"
 HDFS_ACCESS="3_hdfs_all"
 HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
+HDFS_AND_HIVE_LIMITED_SPARK_URL="4_1_hive_limited_spark_url"
 HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
 HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
 
@@ -26,21 +27,39 @@ NEW_TRINO_TABLE_NAME="new_$TRINO_TABLE"
 HDFS_DIR="test"
 
 # Container names
-NAMENODE_HOSTNAME="hadoop_namenode_1"
-DN1_HOSTNAME="hadoop_datanode_1"
-DN2_HOSTNAME="hadoop_datanode_2"
-DN3_HOSTNAME="hadoop_datanode_3"
+# Compose V2
+NAMENODE_HOSTNAME="hadoop-ranger-namenode-1"
+DN1_HOSTNAME="hadoop-ranger-datanode-1"
+DN2_HOSTNAME="hadoop-ranger-datanode-2"
+DN3_HOSTNAME="hadoop-ranger-datanode-3"
 
-HMS_HOSTNAME="hive-metastore-ranger_hive-metastore_1"
-HMS_POSTGRES_HOSTNAME="hive-metastore-ranger_postgres_1"
+HMS_HOSTNAME="hive-metastore-ranger-hive-metastore-1"
+HMS_POSTGRES_HOSTNAME="hive-metastore-ranger-postgres-1"
 
 RANGER_HOSTNAME="ranger"
 RANGER_POSTGRES_HOSTNAME="ranger-postgres"
 
-TRINO_HOSTNAME="trino-spark_trino-coordinator_1"
+TRINO_HOSTNAME="trino-spark-trino-coordinator-1"
 
-SPARK_MASTER_HOSTNAME="trino-spark_spark-master_1"
-SPARK_WORKER1_HOSTNAME="trino-spark_spark-worker_1"
+SPARK_MASTER_HOSTNAME="trino-spark-spark-master-1"
+SPARK_WORKER1_HOSTNAME="trino-spark-spark-worker-1"
+
+# Compose V1
+NAMENODE_HOSTNAME_V1="hadoop-ranger_namenode_1"
+DN1_HOSTNAME_V1="hadoop-ranger_datanode_1"
+DN2_HOSTNAME_V1="hadoop-ranger_datanode_2"
+DN3_HOSTNAME_V1="hadoop-ranger_datanode_3"
+
+HMS_HOSTNAME_V1="hive-metastore-ranger_hive-metastore_1"
+HMS_POSTGRES_HOSTNAME_V1="hive-metastore_ranger-postgres_1"
+
+RANGER_HOSTNAME_V1="ranger"
+RANGER_POSTGRES_HOSTNAME_V1="ranger-postgres"
+
+TRINO_HOSTNAME_V1="trino-spark_trino-coordinator_1"
+
+SPARK_MASTER_HOSTNAME_V1="trino-spark_spark-master_1"
+SPARK_WORKER1_HOSTNAME_V1="trino-spark_spark-worker_1"
 
 getHostnameFromName() {
   name=$1
@@ -87,7 +106,7 @@ handleRangerEnv() {
     echo ""
 
     export RANGER_DB_TYPE=postgres
-    docker-compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml up -d
+    docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml up -d
 
     echo ""
     echo "'$PROJECT_RANGER' env started."
@@ -97,7 +116,7 @@ handleRangerEnv() {
     echo "Stopping '$PROJECT_RANGER' env."
     echo ""
 
-    docker-compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml down
+    docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml down
 
     echo ""
     echo "'$PROJECT_RANGER' env stopped."
@@ -109,7 +128,7 @@ handleHadoopEnv() {
   abs_path=$1
   op=$2
 
-  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop"
+  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop-ranger"
   cd $hadoop_docker_path
 
   if [ "$op" == "start" ]; then
@@ -117,8 +136,7 @@ handleHadoopEnv() {
     echo "Starting '$PROJECT_HADOOP' env."
     echo ""
 
-    export COMPOSE_FILE=docker-compose.yaml:ranger.yaml
-    docker-compose up -d --scale datanode=3
+    docker compose -f "$hadoop_docker_path/docker-compose.yaml" up -d --scale datanode=3
 
     echo ""
     echo "'$PROJECT_HADOOP' env started."
@@ -131,7 +149,7 @@ handleHadoopEnv() {
     echo "Stopping '$PROJECT_HADOOP' env."
     echo ""
 
-    docker-compose down
+    docker compose -f "$hadoop_docker_path/docker-compose.yaml" down
 
     echo ""
     echo "'$PROJECT_HADOOP' env stopped."
@@ -152,7 +170,7 @@ handleHiveEnv() {
     echo ""
 
     # 'docker-compose' uses v1
-    # 'docker compose' uses v2, compose was integrated into the docker tool
+    # 'docker compose' uses v2, compose was integrated into the docker CLI tool as a plugin.
     # Here we need to use v2 because one of the convention changes is that
     # in v1 names are concatenated using '_' while in v2 this is done using '-'.
     # Spark shell complains about the hive-metastore name because of the '_'.
@@ -197,7 +215,7 @@ handleTrinoSparkEnv() {
     chmod 777 $trino_spark_docker_path/conf/spark/spark-events
 
     # This can be extended to scale to 3 spark workers.
-    docker-compose up -d
+    docker compose -f "$trino_spark_docker_path/docker-compose.yml" up -d --scale spark-worker=3
 
     echo ""
     echo "'$PROJECT_TRINO / $PROJECT_SPARK' env started."
@@ -276,7 +294,7 @@ handleTrinoSparkEnv() {
     echo "Stopping '$PROJECT_TRINO / $PROJECT_SPARK' env."
     echo ""
 
-    docker-compose down
+    docker compose -f "$trino_spark_docker_path/docker-compose.yml" down
 
     echo ""
     echo "'$PROJECT_TRINO / $PROJECT_SPARK' env stopped."
@@ -418,14 +436,14 @@ updateProjectRepo() {
 createHdfsTestData() {
   dir_name=$1
 
-  docker exec -it hadoop_datanode_1 hdfs dfs -mkdir "/$dir_name"
-  docker exec -it hadoop_datanode_1 hdfs dfs -put NOTICE.txt "/$dir_name"
+  docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir "/$dir_name"
+  docker exec -it "$DN1_HOSTNAME" hdfs dfs -put NOTICE.txt "/$dir_name"
 }
 
 executeTrinoCommand() {
   cmd=$1
 
-  docker exec -it trino-spark_trino-coordinator_1 trino --execute="$cmd"
+  docker exec -it "$TRINO_HOSTNAME" trino --execute="$cmd"
 }
 
 createTrinoTable() {
@@ -509,8 +527,7 @@ retryOperationIfNeeded() {
     # If we reached counter=10 and the output is still different than the expected one, then exit.
     if [[ "$counter" == 9 ]] && [[ "$opOutput" != *"$expMsg"* ]]; then
       echo "- RESULT -> FAILURE: Table creation should have $result, but it didn't..."
-      echo "- Stopping the docker env and exiting..."
-      ./stop_docker_env.sh "$abs_path"
+      echo "- Exiting..."
       exit 1
     fi
   done

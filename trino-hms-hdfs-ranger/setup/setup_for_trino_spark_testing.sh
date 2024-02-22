@@ -4,6 +4,8 @@ source "./testlib.sh"
 
 abs_path=$1
 
+./docker/stop_docker_env.sh "$abs_path"
+
 ./setup/setup_docker_env.sh "$abs_path"
 
 ./docker/start_docker_env.sh "$abs_path"

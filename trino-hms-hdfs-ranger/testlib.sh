@@ -437,7 +437,7 @@ createHdfsTestData() {
   dir_name=$1
 
   docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir "/$dir_name"
-  docker exec -it "$DN1_HOSTNAME" hdfs dfs -put NOTICE.txt "/$dir_name"
+  docker exec -it "$DN1_HOSTNAME" hdfs dfs -put test.csv "/$dir_name"
 }
 
 executeTrinoCommand() {
@@ -450,7 +450,7 @@ createTrinoTable() {
   table_name=$1
   hdfs_dir_name=$2
 
-  executeTrinoCommand "create table hive.default.$table_name (column1 varchar,column2 int) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'TEXTFILE');"
+  executeTrinoCommand "create table hive.default.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
 }
 
 selectDataFromTrinoTable() {

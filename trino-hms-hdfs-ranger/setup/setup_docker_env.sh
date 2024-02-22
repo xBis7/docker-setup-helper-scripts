@@ -47,3 +47,16 @@ hive_generated_entrypoint_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-
 execCmdAndHandleErrorIfNeeded "chmod u+x $hive_generated_entrypoint_path/entrypoint.sh"
 echo "Permissions updated."
 
+hdfs_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6"
+if ls "$hdfs_path" | grep 'test.csv'; then
+  echo "Test file already exists under Hadoop."
+else
+  echo "Copying test file under Hadoop env."
+  if cp test.csv "$hdfs_path/test.csv"; then
+    echo "Copying test file under Hadoop env succeeded."
+  else
+    echo "Copying test file under Hadoop env failed. Exiting..."
+    exit 1
+  fi
+fi
+

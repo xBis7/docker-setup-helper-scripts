@@ -5,11 +5,11 @@ source "./testlib.sh"
 abs_path=$1
 
 # Ranger paths
-ranger_common_jar_path="$abs_path/$PROJECT_RANGER/agents-common/target/ranger-plugins-common-3.0.0-SNAPSHOT-jar-with-dependencies.jar"
-ranger_audit_jar_path="$abs_path/$PROJECT_RANGER/agents-audit/target/ranger-plugins-audit-3.0.0-SNAPSHOT.jar"
+ranger_common_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_JAR"
+ranger_audit_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_AUDIT_JAR"
 
-ranger_hdfs_jar_path="$abs_path/$PROJECT_RANGER/hdfs-agent/target/ranger-hdfs-plugin-3.0.0-SNAPSHOT.jar"
-ranger_hive_jar_path="$abs_path/$PROJECT_RANGER/hive-agent/target/ranger-hive-plugin-3.0.0-SNAPSHOT.jar"
+ranger_hdfs_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_HDFS_JAR"
+ranger_hive_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_HIVE_JAR"
 
 ranger_hdfs_audit_conf_path="$abs_path/$PROJECT_RANGER/hdfs-agent/conf/ranger-hdfs-audit.xml"
 ranger_hdfs_security_conf_path="$abs_path/$PROJECT_RANGER/hdfs-agent/conf/ranger-hdfs-security.xml"

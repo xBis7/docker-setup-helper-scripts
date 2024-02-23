@@ -64,6 +64,63 @@ TRINO_HOSTNAME_V1="trino-spark_trino-coordinator_1"
 SPARK_MASTER_HOSTNAME_V1="trino-spark_spark-master_1"
 SPARK_WORKER1_HOSTNAME_V1="trino-spark_spark-worker_1"
 
+# Ranger jars names
+RANGER_COMMON_JAR_NAME="ranger-plugins-common-3.0.0-SNAPSHOT-jar-with-dependencies.jar"
+RANGER_AUDIT_JAR_NAME="ranger-plugins-audit-3.0.0-SNAPSHOT.jar"
+
+RANGER_HDFS_JAR_NAME="ranger-hdfs-plugin-3.0.0-SNAPSHOT.jar"
+RANGER_HIVE_JAR_NAME="ranger-hive-plugin-3.0.0-SNAPSHOT.jar"
+
+# Ranger jars, paths from Ranger project root
+RANGER_COMMON_JAR="agents-common/target/$RANGER_COMMON_JAR_NAME"
+RANGER_AUDIT_JAR="agents-audit/target/$RANGER_AUDIT_JAR_NAME"
+
+RANGER_HDFS_JAR="hdfs-agent/target/$RANGER_HDFS_JAR_NAME"
+RANGER_HIVE_JAR="hive-agent/target/$RANGER_HIVE_JAR_NAME"
+
+# Hive jars names
+HIVE_BEELINE_JAR_NAME="hive-beeline-3.1.3.jar"
+HIVE_CLI_JAR_NAME="hive-cli-3.1.3.jar"
+HIVE_COMMON_JAR_NAME="hive-common-3.1.3.jar"
+HIVE_EXEC_CORE_JAR_NAME="hive-exec-3.1.3-core.jar"
+HIVE_EXEC_JAR_NAME="hive-exec-3.1.3.jar"
+HIVE_JDBC_STANDALONE_JAR_NAME="hive-jdbc-3.1.3-standalone.jar"
+HIVE_JDBC_JAR_NAME="hive-jdbc-3.1.3.jar"
+HIVE_LLAP_COMMON_JAR_NAME="hive-llap-common-3.1.3.jar"
+HIVE_METASTORE_JAR_NAME="hive-metastore-3.1.3.jar"
+HIVE_SERDE_JAR_NAME="hive-serde-3.1.3.jar"
+HIVE_SERVICE_RPC_JAR_NAME="hive-service-rpc-3.1.3.jar"
+HIVE_SHIMS_JAR_NAME="hive-shims-3.1.3.jar"
+HIVE_SHIMS_COMMON_JAR_NAME="hive-shims-common-3.1.3.jar"
+HIVE_SHIMS_SCHEDULER_JAR_NAME="hive-shims-scheduler-3.1.3.jar"
+HIVE_SPARK_CLIENT_JAR_NAME="hive-spark-client-3.1.3.jar"
+HIVE_STANDALONE_METASTORE_JAR_NAME="hive-standalone-metastore-3.1.3.jar"
+
+# We probably don't need those. Don't copy them for now. They are both under 'ql/target'
+HIVE_EXEC_FALLBACKAUTHORIZER_JAR_NAME="hive-exec-3.1.3-fallbackauthorizer.jar"
+HIVE_ORIGINAL_EXEC_JAR_NAME="original-hive-exec-3.1.3.jar"
+
+# Hive jars, paths from Hive project root
+HIVE_BEELINE_JAR="beeline/target/$HIVE_BEELINE_JAR_NAME"
+HIVE_CLI_JAR="cli/target/$HIVE_CLI_JAR_NAME"
+HIVE_COMMON_JAR="common/target/$HIVE_COMMON_JAR_NAME"
+HIVE_EXEC_CORE_JAR="ql/target/$HIVE_EXEC_CORE_JAR_NAME"
+HIVE_EXEC_JAR="ql/target/$HIVE_EXEC_JAR_NAME"
+HIVE_JDBC_STANDALONE_JAR="jdbc/target/$HIVE_JDBC_STANDALONE_JAR_NAME"
+HIVE_JDBC_JAR="jdbc/target/$HIVE_JDBC_JAR_NAME"
+HIVE_LLAP_COMMON_JAR="llap-common/target/$HIVE_LLAP_COMMON_JAR_NAME"
+HIVE_METASTORE_JAR="metastore/target/$HIVE_METASTORE_JAR_NAME"
+HIVE_SERDE_JAR="serde/target/$HIVE_SERDE_JAR_NAME"
+HIVE_SERVICE_RPC_JAR="service-rpc/target/$HIVE_SERVICE_RPC_JAR_NAME"
+HIVE_SHIMS_JAR="shims/aggregator/target/$HIVE_SHIMS_JAR_NAME"
+HIVE_SHIMS_COMMON_JAR="shims/common/target/$HIVE_SHIMS_COMMON_JAR_NAME"
+HIVE_SHIMS_SCHEDULER_JAR="shims/scheduler/target/$HIVE_SHIMS_SCHEDULER_JAR_NAME"
+HIVE_SPARK_CLIENT_JAR="spark-client/target/$HIVE_SPARK_CLIENT_JAR_NAME"
+HIVE_STANDALONE_METASTORE_JAR="standalone-metastore/target/$HIVE_STANDALONE_METASTORE_JAR_NAME"
+
+# Calcite jar
+CALCITE_CORE_JAR_NAME="calcite-core-1.36.0.jar"
+
 getHostnameFromName() {
   name=$1
 
@@ -96,29 +153,92 @@ getHostnameFromName() {
   fi
 }
 
+cpJarIfNotExist() {
+  path_to_copy=$1
+  jar_path=$2
+  jar_name=$3
+
+  if find "$path_to_copy" -type f | grep -E "/$jar_name$"; then
+    echo "Jar '$jar_name' exists."
+  else
+    echo "Jar '$jar_name' doesn't exist. Copying..."
+    execCmdAndHandleErrorIfNeeded "cp $jar_path $path_to_copy"
+  fi
+}
+
 setupSparkJarsIfNeeded() {
   abs_path=$1
 
   dir_base_path="$abs_path/$CURRENT_REPO/compose/trino-spark/conf/spark"
-  dir_name="hive-jars"
+  jars_dir_name="hive-jars"
+  jars_dir_path="$dir_base_path/$jars_dir_name"
 
   # Check if the directory exists.
-  if find "$dir_base_path" -type d | grep -E "/$dir_name$"; then
-    echo "Directory '$dir_name' exists."
+  if find "$dir_base_path" -type d | grep -E "/$jars_dir_name$"; then
+    echo "Directory '$jars_dir_name' exists."
   else
-    echo "Directory '$dir_name' doesn't exist. Creating..."
-    execCmdAndHandleErrorIfNeeded "mkdir $dir_base_path/$dir_name"
+    echo "Directory '$jars_dir_name' doesn't exist. Creating..."
+    execCmdAndHandleErrorIfNeeded "mkdir $jars_dir_path"
   fi
 
+  # Download calcite core jar if it doesn't exist.
+  if find "$jars_dir_path" -type f | grep -E "/$CALCITE_CORE_JAR_NAME$"; then
+    echo "Jar '$CALCITE_CORE_JAR_NAME' exists."
+  else
+    echo "Jar '$CALCITE_CORE_JAR_NAME' doesn't exist. Downloading..."
+    calcite_download_url="https://repo1.maven.org/maven2/org/apache/calcite/calcite-core/1.36.0/calcite-core-1.36.0.jar"
+    if curl -o "$jars_dir_path/$CALCITE_CORE_JAR_NAME" "$calcite_download_url"; then
+      echo "Downloading '$CALCITE_CORE_JAR_NAME' succeeded."
+    else
+      echo "Downloading '$CALCITE_CORE_JAR_NAME' failed. Exiting..."
+      exit 1
+    fi
+  fi
 
-
-  # Check if the directory is empty.
-
+  echo ""
   # Copy jars from Hive.
+  hive_beeline_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_BEELINE_JAR"
+  hive_cli_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_CLI_JAR"
+  hive_common_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_COMMON_JAR"
+  hive_exec_core_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_EXEC_CORE_JAR"
+  hive_exec_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_EXEC_JAR"
+  hive_jdbc_standalone_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_JDBC_STANDALONE_JAR"
+  hive_jdbc_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_JDBC_JAR"
+  hive_llap_common_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_LLAP_COMMON_JAR"
+  hive_metastore_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_METASTORE_JAR"
+  hive_serde_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_SERDE_JAR"
+  hive_service_rpc_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_SERVICE_RPC_JAR"
+  hive_shims_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_SHIMS_JAR"
+  hive_shims_common_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_SHIMS_COMMON_JAR"
+  hive_shims_scheduler_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_SHIMS_SCHEDULER_JAR"
+  hive_spark_client_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_SPARK_CLIENT_JAR"
+  hive_standalone_metastore_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_STANDALONE_METASTORE_JAR"
+
+  cpJarIfNotExist "$jars_dir_path" "$hive_beeline_jar_path" "$HIVE_BEELINE_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_cli_jar_path" "$HIVE_CLI_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_common_jar_path" "$HIVE_COMMON_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_exec_core_jar_path" "$HIVE_EXEC_CORE_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_exec_jar_path" "$HIVE_EXEC_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_jdbc_standalone_jar_path" "$HIVE_JDBC_STANDALONE_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_jdbc_jar_path" "$HIVE_JDBC_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_llap_common_jar_path" "$HIVE_LLAP_COMMON_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_metastore_jar_path" "$HIVE_METASTORE_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_serde_jar_path" "$HIVE_SERDE_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_service_rpc_jar_path" "$HIVE_SERVICE_RPC_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_shims_jar_path" "$HIVE_SHIMS_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_shims_common_jar_path" "$HIVE_SHIMS_COMMON_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_shims_scheduler_jar_path" "$HIVE_SHIMS_SCHEDULER_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_spark_client_jar_path" "$HIVE_SPARK_CLIENT_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_jar_path" "$HIVE_STANDALONE_METASTORE_JAR_NAME"
 
   # Copy jars from Ranger.
+  ranger_common_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_JAR"
+  ranger_audit_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_AUDIT_JAR"
+  ranger_hive_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_HIVE_JAR"
 
-  # Download calcite core jar.
+  cpJarIfNotExist "$jars_dir_path" "$ranger_common_jar_path" "$RANGER_COMMON_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$ranger_audit_jar_path" "$RANGER_AUDIT_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$ranger_hive_jar_path" "$RANGER_HIVE_JAR_NAME"
 }
 
 handleRangerEnv() {

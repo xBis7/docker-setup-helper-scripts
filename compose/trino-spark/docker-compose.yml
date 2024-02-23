@@ -10,7 +10,7 @@ services:
       - ./conf/core-site.xml:/etc/hadoop/conf/core-site.xml:ro
       - ./conf/hdfs-site.xml:/etc/hadoop/conf/hdfs-site.xml:ro
     networks:
-      - hadoop-net
+      - ranger-net
 
   spark-master:
     image: 'apache/spark:3.5.0'
@@ -34,7 +34,6 @@ services:
       - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
     networks:
       - ranger-net
-      - hadoop-net
 
   spark-worker:
     image: 'apache/spark:3.5.0'
@@ -44,7 +43,7 @@ services:
       - spark-master
     environment:
       - SPARK_WORKER_CORES=1  # Number of cores to use on each worker
-      - SPARK_WORKER_MEMORY=4g  # Amount of memory to use on each worker
+      - SPARK_WORKER_MEMORY=2g  # Amount of memory to use on each worker
       - SPARK_WORKER_WEBUI_PORT=8081
       - SPARK_LOCAL_IP=spark-worker
     volumes:
@@ -59,12 +58,8 @@ services:
       - ./conf/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
     networks:
       - ranger-net
-      - hadoop-net
 
 networks:
   ranger-net:
     name: rangernw
-    external: true
-  hadoop-net:
-    name: hadoopnw
     external: true

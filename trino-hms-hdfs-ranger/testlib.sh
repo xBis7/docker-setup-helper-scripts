@@ -93,6 +93,20 @@ getHostnameFromName() {
   fi
 }
 
+setupSparkJarsIfNeeded() {
+  abs_path=$1
+
+  # Check if the directory exists.
+
+  # Check if the directory is empty.
+
+  # Copy jars from Hive.
+
+  # Copy jars from Ranger.
+
+  # Download calcite core jar.
+}
+
 handleRangerEnv() {
   abs_path=$1
   op=$2
@@ -205,6 +219,9 @@ handleTrinoSparkEnv() {
   cd $trino_spark_docker_path
 
   if [ "$op" == "start" ]; then
+    # Setup the Spark jars if they don't exist.
+    setupSparkJarsIfNeeded "$abs_path"
+
     echo ""
     echo "Starting '$PROJECT_TRINO / $PROJECT_SPARK' env."
 

@@ -230,15 +230,6 @@ setupSparkJarsIfNeeded() {
   cpJarIfNotExist "$jars_dir_path" "$hive_shims_scheduler_jar_path" "$HIVE_SHIMS_SCHEDULER_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_spark_client_jar_path" "$HIVE_SPARK_CLIENT_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_jar_path" "$HIVE_STANDALONE_METASTORE_JAR_NAME"
-
-  # Copy jars from Ranger.
-  ranger_common_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_JAR"
-  ranger_audit_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_AUDIT_JAR"
-  ranger_hive_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_HIVE_JAR"
-
-  cpJarIfNotExist "$jars_dir_path" "$ranger_common_jar_path" "$RANGER_COMMON_JAR_NAME"
-  cpJarIfNotExist "$jars_dir_path" "$ranger_audit_jar_path" "$RANGER_AUDIT_JAR_NAME"
-  cpJarIfNotExist "$jars_dir_path" "$ranger_hive_jar_path" "$RANGER_HIVE_JAR_NAME"
 }
 
 handleRangerEnv() {

@@ -7,6 +7,9 @@ PROJECT_HIVE="hive"
 PROJECT_TRINO="trino"
 PROJECT_SPARK="spark"
 
+# Current repo paths
+CURRENT_REPO="docker-setup-helper-scripts"
+
 # Project branches
 RANGER_BRANCH="ranger-docker-hdfs"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
@@ -96,7 +99,18 @@ getHostnameFromName() {
 setupSparkJarsIfNeeded() {
   abs_path=$1
 
+  dir_base_path="$abs_path/$CURRENT_REPO/compose/trino-spark/conf/spark"
+  dir_name="hive-jars"
+
   # Check if the directory exists.
+  if find "$dir_base_path" -type d | grep -E "/$dir_name$"; then
+    echo "Directory '$dir_name' exists."
+  else
+    echo "Directory '$dir_name' doesn't exist. Creating..."
+    execCmdAndHandleErrorIfNeeded "mkdir $dir_base_path/$dir_name"
+  fi
+
+
 
   # Check if the directory is empty.
 
@@ -485,6 +499,8 @@ alterTrinoTable() {
 
 # TODO: modify scripts to use this method for every command execution.
 execCmdAndHandleErrorIfNeeded() {
+  # cmd will be a string and therefore we need to handle it properly.
+  # We need to call $($cmd), so that it will be treated as a command.
   cmd=$1
   action_msg=$2
 
@@ -498,7 +514,7 @@ execCmdAndHandleErrorIfNeeded() {
     echo "$action_msg."
   fi
 
-  if $cmd; then
+  if $($cmd); then
     echo "$action_msg succeeded."
     echo ""
   else

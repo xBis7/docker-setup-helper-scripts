@@ -19,5 +19,5 @@ java_8_home=$5
 
 # Run the test script. That script also starts the docker env 
 # and stops it at the end or in any case of failure.
-./test/test_all.sh "$abs_path"
+./tests/test_all.sh "$abs_path"
 

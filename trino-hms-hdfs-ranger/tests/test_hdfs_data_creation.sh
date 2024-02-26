@@ -22,4 +22,5 @@ if createHdfsTestData "$HDFS_DIR"; then
 else
   echo ""
   echo "- RESULT -> FAILURE: HDFS test data creation failed."
+  exit 1
 fi

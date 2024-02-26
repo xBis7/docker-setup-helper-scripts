@@ -2,6 +2,6 @@
 
 source "./testlib.sh"
 
-abs_path=$1
+failMsg="Permission denied: user [spark] does not have [CREATE] privilege on [default/$SPARK_TABLE]"
 
-setupSparkJarsIfNeeded "$abs_path"
+retryOperationIfNeeded "createSparkTable $SPARK_TABLE $HDFS_DIR" "$failMsg" "true"

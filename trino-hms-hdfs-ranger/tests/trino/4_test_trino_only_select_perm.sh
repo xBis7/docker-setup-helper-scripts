@@ -15,7 +15,7 @@ sleep 30
 echo ""
 echo "- INFO: [select] should succeed."
 
-successMsg="Apache Hadoop"
+successMsg="\"1\",\" dog\""
 
 retryOperationIfNeeded "selectDataFromTrinoTable $TRINO_TABLE" "$successMsg" "false"
 

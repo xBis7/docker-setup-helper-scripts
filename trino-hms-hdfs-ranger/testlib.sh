@@ -20,13 +20,14 @@ DEFAULT_POLICIES="1_defaults"
 DEFAULT_AND_NO_HIVE="2_defaults_no_hive_perm_defaultdb"
 HDFS_ACCESS="3_hdfs_all"
 HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
-HDFS_AND_HIVE_LIMITED_SPARK_URL="4_1_hive_limited_spark_url"
 HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
 HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
 
 # Const shared variables
-TRINO_TABLE="test_table"
+TRINO_TABLE="trino_test_table"
 NEW_TRINO_TABLE_NAME="new_$TRINO_TABLE"
+SPARK_TABLE="spark_test_table"
+NEW_SPARK_TABLE_NAME="new_$SPARK_TABLE"
 HDFS_DIR="test"
 
 # Container names
@@ -513,10 +514,28 @@ createHdfsTestData() {
   docker exec -it "$DN1_HOSTNAME" hdfs dfs -put test.csv "/$dir_name"
 }
 
+createSparkTable() {
+  table_name=$1
+  hdfs_dir_name=$2
+
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.read.text(\\\"hdfs://namenode:8020/$hdfs_dir_name\\\").write.option(\\\"path\\\", \\\"hdfs://namenode/opt/hive/data\\\").mode(\\\"overwrite\\\").format(\\\"csv\\\").saveAsTable(\\\"$table_name\\\")\" | bin/spark-shell"
+}
+
+selectDataFromSparkTable() {
+  table_name=$1
+  
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"SELECT * FROM $table_name\\\").show()\" | bin/spark-shell"
+}
+
 executeTrinoCommand() {
   cmd=$1
 
-  docker exec -it "$TRINO_HOSTNAME" trino --execute="$cmd"
+  if docker exec -it "$TRINO_HOSTNAME" trino --execute="$cmd"; then
+    echo "Trino '$cmd' succeeded."
+  else
+    echo "Trino '$cmd' failed. Exiting..."
+    exit 1
+  fi
 }
 
 createTrinoTable() {
@@ -569,6 +588,7 @@ retryOperationIfNeeded() {
   cmd=$1
   expMsg=$2
   expFailure=$3
+  notExpMsg=$4
 
   result=""
 
@@ -578,32 +598,77 @@ retryOperationIfNeeded() {
     result="succeeded"
   fi
 
-  echo "- INFO: Some wait time might be needed for trino to pick up the policy update. Retry a few times if needed."
+  echo "- INFO: Some wait time might be needed for the policy update to get picked up. Retry a few times if needed."
   echo ""
 
   counter=0
 
   while [[ "$counter" < 9 ]]; do
 
+    echo "- INFO: Counter=$counter" 
+
     opOutput="$($cmd)"
 
-    echo "- INFO: Counter=$counter | out: $opOutput"
+    # echo "$opOutput" | grep -E "$failMsg"
+    # ret=$?
 
-    if [[ "$opOutput" == *"$expMsg"* ]]; then
-      echo ""
-      echo "- RESULT -> SUCCESS: Operation $result as expected."
-      echo "- Output: $opOutput"
-      break
-    fi
+    # if [ "$ret" == 0 ]; then
 
-    sleep 3
-    counter=$(($counter + 1))
+    
+    if [ "$notExpMsg" == "true" ]; then
+      # Tried to parameterize the condition but it didn't work well.
+      # TODO: fix that!
+      if [[ "$opOutput" != *"$expMsg"* ]]; then
+        echo ""
+        echo "- Output: $opOutput"
+        echo ""
+        echo "- Not expected msg: $expMsg"
+        echo ""
+        echo "- RESULT -> SUCCESS: Operation $result as expected."
+        break
+      fi
 
-    # If we reached counter=10 and the output is still different than the expected one, then exit.
-    if [[ "$counter" == 9 ]] && [[ "$opOutput" != *"$expMsg"* ]]; then
-      echo "- RESULT -> FAILURE: Table creation should have $result, but it didn't..."
-      echo "- Exiting..."
-      exit 1
+      sleep 3
+      counter=$(($counter + 1))
+
+      # If we reached counter=10 and the output is still different than the expected one, then exit.
+      if [[ "$counter" == 9 ]] && [[ "$opOutput" == *"$expMsg"* ]]; then
+        echo ""
+        echo "- INFO: out= $opOutput"
+        echo ""
+        echo ""
+        echo ""
+        echo ""
+        echo "- RESULT -> FAILURE: Operation should have $result, but it didn't..."
+        echo "- Exiting..."
+        exit 1
+      fi
+    else
+      if [[ "$opOutput" == *"$expMsg"* ]]; then
+        echo ""
+        echo "- Output: $opOutput"
+        echo ""
+        echo "- Expected Msg: $expMsg"
+        echo ""
+        echo "- RESULT -> SUCCESS: Operation $result as expected."
+        break
+      fi
+
+      sleep 3
+      counter=$(($counter + 1))
+
+      # If we reached counter=10 and the output is still different than the expected one, then exit.
+      if [[ "$counter" == 9 ]] && [[ "$opOutput" != *"$expMsg"* ]]; then
+        echo ""
+        echo "- INFO: out= $opOutput"
+        echo ""
+        echo ""
+        echo ""
+        echo ""
+        echo "- RESULT -> FAILURE: Operation should have $result, but it didn't..."
+        echo "- Exiting..."
+        exit 1
+      fi
     fi
   done
 }

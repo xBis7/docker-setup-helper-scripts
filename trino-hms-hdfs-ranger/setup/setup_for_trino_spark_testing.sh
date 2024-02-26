@@ -12,7 +12,7 @@ abs_path=$1
 
 # This dump is 
 # "$HDFS_AND_HIVE_ALL" + some very limited for URL based auth in Hive.
-./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_LIMITED_SPARK_URL"
+./setup/load_ranger_policies.sh "$abs_path" "$DEFAULT_AND_NO_HIVE"
 
 if createHdfsTestData "$HDFS_DIR"; then
   echo ""

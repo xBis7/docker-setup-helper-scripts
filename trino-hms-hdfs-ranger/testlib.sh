@@ -527,6 +527,7 @@ selectDataFromSparkTable() {
   docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"SELECT * FROM $table_name\\\").show()\" | bin/spark-shell"
 }
 
+# TODO: remove this.
 executeTrinoCommand() {
   cmd=$1
 
@@ -542,20 +543,20 @@ createTrinoTable() {
   table_name=$1
   hdfs_dir_name=$2
 
-  executeTrinoCommand "create table hive.default.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
+  docker exec -it "$TRINO_HOSTNAME" trino --execute="create table hive.default.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
 }
 
 selectDataFromTrinoTable() {
   table_name=$1
   
-  executeTrinoCommand "select * from hive.default.$table_name;"
+  docker exec -it "$TRINO_HOSTNAME" trino --execute="select * from hive.default.$table_name;"
 }
 
 alterTrinoTable() {
   old_table_name=$1
   new_table_name=$2
 
-  executeTrinoCommand "alter table hive.default.$old_table_name rename to $new_table_name;"
+  docker exec -it "$TRINO_HOSTNAME" trino --execute="alter table hive.default.$old_table_name rename to $new_table_name;"
 }
 
 # TODO: modify scripts to use this method for every command execution.

@@ -2,6 +2,8 @@
 
 source "./testlib.sh"
 
+set -e
+
 abs_path=$1
 
 # Load the default Ranger policies.

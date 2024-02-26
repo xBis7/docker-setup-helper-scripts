@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 abs_path=$1
 project=$2
 

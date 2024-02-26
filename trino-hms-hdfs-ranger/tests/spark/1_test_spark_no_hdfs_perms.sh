@@ -2,6 +2,8 @@
 
 source "./testlib.sh"
 
+set -e
+
 # Trino user is postgres.
 echo "- INFO: Users need access to both the actual data and the metadata."
 echo "- INFO: User 'spark' shouldn't be able to create a table without HDFS access."

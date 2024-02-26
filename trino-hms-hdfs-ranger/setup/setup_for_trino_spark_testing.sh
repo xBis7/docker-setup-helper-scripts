@@ -2,6 +2,8 @@
 
 source "./testlib.sh"
 
+set -e
+
 abs_path=$1
 
 ./docker/stop_docker_env.sh "$abs_path"

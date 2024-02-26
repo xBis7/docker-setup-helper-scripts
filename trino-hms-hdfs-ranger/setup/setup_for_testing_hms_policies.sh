@@ -2,6 +2,8 @@
 
 source "./testlib.sh"
 
+set -e
+
 abs_path=$1
 
 ./setup/setup_for_trino_spark_testing.sh "$abs_path"

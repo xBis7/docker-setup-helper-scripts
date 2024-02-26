@@ -90,6 +90,14 @@ if [ "$buildRanger" == 0 ]; then
     fi
     exit 1
   fi
+
+  if cp -r "$abs_path/$PROJECT_RANGER"/target/* "$abs_path/$PROJECT_RANGER"/dev-support/ranger-docker/dist/; then
+    echo "Copying ranger tarballs under docker dist succeeded."
+    echo ""
+  else
+    echo "Copying ranger tarballs under docker dist failed. Exiting..."
+    exit 1
+  fi
 fi
 
 # Hadoop
@@ -110,11 +118,12 @@ if [ "$buildHadoop" == 0 ]; then
     echo "'$PROJECT_HADOOP' build succeeded."
     echo ""
   else
-    if [ "$output | grep -q 'JAVA_HOME'" ]; then
+    if echo "$output" | grep -E 'JAVA_HOME'; then
       echo ""
       echo "Error with JAVA_HOME. Printing some useful info for debugging."
       echo "Current JAVA_HOME is: $JAVA_HOME"
       echo "Path provided is: $java_8_home"
+      echo "Output: $output"
       echo "Exiting..."
       exit 1
     fi

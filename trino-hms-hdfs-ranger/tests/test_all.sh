@@ -2,6 +2,8 @@
 
 source "./testlib.sh"
 
+set -e
+
 abs_path=$1
 component=$2
 
@@ -23,7 +25,7 @@ if [ "$component" == "spark" ]; then
   echo "### TEST_5 ###"
   ./tests/spark/4_test_spark_only_select_perm.sh "$abs_path"
 
-  echo "### TEST_6 ###"
+  # echo "### TEST_6 ###"
   # ./tests/spark/5_test_spark_select_alter_perm.sh "$abs_path"
 else
   echo "### TEST_2 ###"

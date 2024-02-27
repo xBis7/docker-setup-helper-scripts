@@ -19,4 +19,4 @@ echo "- INFO: [alter] should now succeed."
 
 successMsg="RENAME TABLE"
 
-retryOperationIfNeeded "alterTrinoTable $TRINO_TABLE $NEW_TRINO_TABLE_NAME" "$successMsg" "false"
+retryOperationIfNeeded "$abs_path" "alterTrinoTable $TRINO_TABLE $NEW_TRINO_TABLE_NAME" "$successMsg" "false"

@@ -666,10 +666,11 @@ createOrUpdateLastSuccessFile() {
 }
 
 retryOperationIfNeeded() {
-  cmd=$1
-  expMsg=$2
-  expFailure=$3
-  notExpMsg=$4
+  abs_path=$1
+  cmd=$2
+  expMsg=$3
+  expFailure=$4
+  notExpMsg=$5
 
   result=""
 

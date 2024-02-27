@@ -16,4 +16,4 @@ echo "- INFO: Ranger policies updated."
 
 successMsg="CREATE TABLE"
 
-retryOperationIfNeeded "createTrinoTable $TRINO_TABLE $HDFS_DIR" "$successMsg" "false"
+retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR" "$successMsg" "false"

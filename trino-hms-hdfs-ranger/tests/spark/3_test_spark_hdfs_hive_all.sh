@@ -18,4 +18,4 @@ echo "- INFO: Ranger policies updated."
 # then check that message doesn't contain Permission denied.
 notExpMsg="Permission denied"
 
-retryOperationIfNeeded "createSparkTable $SPARK_TABLE $HDFS_DIR" "$notExpMsg" "false" "true"
+retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR" "$notExpMsg" "false" "true"

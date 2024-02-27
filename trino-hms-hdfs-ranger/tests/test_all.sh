@@ -19,7 +19,7 @@ echo "### TEST_1 ###"
 
 if [ "$component" == "spark" ]; then
   echo "### TEST_2 ###"
-  ./tests/spark/1_test_spark_no_hdfs_perms.sh
+  ./tests/spark/1_test_spark_no_hdfs_perms.sh "$abs_path"
 
   echo "### TEST_3 ###"
   ./tests/spark/2_test_spark_hdfs_perms_no_hive_perms.sh "$abs_path"
@@ -34,7 +34,7 @@ if [ "$component" == "spark" ]; then
   ./tests/spark/5_test_spark_select_alter_perm.sh "$abs_path"
 else
   echo "### TEST_2 ###"
-  ./tests/trino/1_test_trino_no_hdfs_perms.sh
+  ./tests/trino/1_test_trino_no_hdfs_perms.sh "$abs_path"
 
   echo "### TEST_3 ###"
   ./tests/trino/2_test_trino_hdfs_perms_no_hive_perms.sh "$abs_path"

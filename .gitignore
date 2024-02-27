@@ -1,4 +1,8 @@
 .vscode
 
+tmp_output.txt
+
 compose/trino-spark/conf/spark/spark-events
 compose/trino-spark/conf/spark/hive-jars
+
+trino-hms-hdfs-ranger/test_func.sh

@@ -10,6 +10,8 @@ if [ "$java_8_home" == "" ]; then
   java_8_home="/usr/lib/jvm/java-8-openjdk-amd64"
 fi
 
+mvn_success_msg="[INFO] BUILD SUCCESS"
+
 buildRanger=1
 buildHadoop=1
 buildHive=1
@@ -20,13 +22,13 @@ elif [ "$build_project" == "hadoop" ]; then
   buildHadoop=0
 elif [ "$build_project" == "hms" ]; then
   buildHive=0
-elif [ "$build_project" == "ranger/hadoop" ]; then
+elif [[ "$build_project" == "ranger/hadoop" || "$build_project" == "hadoop/ranger" ]]; then
   buildRanger=0
   buildHadoop=0
-elif [ "$build_project" == "hadoop/hms" ]; then
+elif [[ "$build_project" == "hadoop/hms" || "$build_project" == "hms/hadoop" ]]; then
   buildHadoop=0
   buildHive=0
-elif [ "$build_project" == "ranger/hms" ]; then
+elif [[ "$build_project" == "ranger/hms" || "$build_project" == "hms/ranger" ]]; then
   buildRanger=0
   buildHive=0
 elif [[ "$build_project" == "all" || "$build_project" == "" ]]; then
@@ -40,8 +42,11 @@ else
   echo "'hadoop'        -> building just Hadoop"
   echo "'hms'           -> building just HiveMetastore"
   echo "'ranger/hadoop' -> building Ranger and Hadoop"
+  echo "'hadoop/ranger' -> building Ranger and Hadoop"
   echo "'hadoop/hms'    -> building Hadoop and HiveMetastore"
+  echo "'hms/hadoop'    -> building Hadoop and HiveMetastore"
   echo "'ranger/hms'    -> building Ranger and HiveMetastore"
+  echo "'hms/ranger'    -> building Ranger and HiveMetastore"
   echo "'all' or empty  -> building all projects"
   # exit 1
   # We don't need to exit. If we ended up in the else statement,
@@ -64,31 +69,32 @@ if [ "$buildRanger" == 0 ]; then
   if [ "$RANGER_PATCH" != "" ]; then
     # We have `set -e`. If this fails, the script will exit.
     patch -p1 < $RANGER_PATCH
+    echo "Project successfully patched."
+    echo ""
   else
     echo "There is no available patch. Proceeding with the project build."
+    echo ""
   fi
 
-  output=$(mvn clean compile package install --batch-mode -DskipTests -DskipShade)
-  status=$?
+  mvn clean compile package install --batch-mode -DskipTests -DskipShade 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
 
-  if [ "$status" == 0 ]; then
+  if grep -F "$mvn_success_msg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
     echo ""
     echo "'$PROJECT_RANGER' build succeeded."
     echo ""
-  else
-    if [ "$output | grep -q 'JAVA_HOME'" ]; then
+
+    if cp -r "$abs_path/$PROJECT_RANGER"/target/* "$abs_path/$PROJECT_RANGER"/dev-support/ranger-docker/dist/; then
+      echo "Copying ranger tarballs under docker dist succeeded."
       echo ""
-      echo "Error with JAVA_HOME. Printing some useful info for debugging."
-      echo "Current JAVA_HOME is: $JAVA_HOME"
-      echo "Path provided is: $java_8_home"
-      echo "Exiting..."
+    else
+      echo "Copying ranger tarballs under docker dist failed. Exiting..."
       exit 1
     fi
-
+  else
     echo ""
     echo "'$PROJECT_RANGER' build failed."
 
-    if [ "$output | grep -q 'on project ranger-distro: Failed'" ]; then
+    if grep -q 'on project ranger-distro: Failed' "$abs_path/$CURRENT_REPO/$TMP_FILE"; then
       echo ""
       echo "Project failure in 'ranger-distro', is a commmon failure, retry once and it will succeed."
       echo "Run these commands: "
@@ -97,14 +103,6 @@ if [ "$buildRanger" == 0 ]; then
       echo ""
       echo "After it succeeds, rerun this script for the rest of the projects that you need to build."
     fi
-    exit 1
-  fi
-
-  if cp -r "$abs_path/$PROJECT_RANGER"/target/* "$abs_path/$PROJECT_RANGER"/dev-support/ranger-docker/dist/; then
-    echo "Copying ranger tarballs under docker dist succeeded."
-    echo ""
-  else
-    echo "Copying ranger tarballs under docker dist failed. Exiting..."
     exit 1
   fi
 fi
@@ -124,27 +122,20 @@ if [ "$buildHadoop" == 0 ]; then
   if [ "$HADOOP_PATCH" != "" ]; then
     # We have `set -e`. If this fails, the script will exit.
     patch -p1 < $HADOOP_PATCH
+    echo "Project successfully patched."
+    echo ""
   else
     echo "There is no available patch. Proceeding with the project build."
+    echo ""
   fi
 
-  output=$(mvn clean install --batch-mode -Dmaven.javadoc.skip=true -DskipTests -DskipShade -Pdist,src)
-  status=$?
+  mvn clean install --batch-mode -Dmaven.javadoc.skip=true -DskipTests -DskipShade -Pdist,src 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
 
-  if [ "$status" == 0 ]; then
+  if grep -F "$mvn_success_msg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
     echo ""
     echo "'$PROJECT_HADOOP' build succeeded."
     echo ""
   else
-    if echo "$output" | grep -E 'JAVA_HOME'; then
-      echo ""
-      echo "Error with JAVA_HOME. Printing some useful info for debugging."
-      echo "Current JAVA_HOME is: $JAVA_HOME"
-      echo "Path provided is: $java_8_home"
-      echo "Output: $output"
-      echo "Exiting..."
-      exit 1
-    fi
     echo ""
     echo "'$PROJECT_HADOOP' build failed."
     exit 1
@@ -166,26 +157,20 @@ if [ "$buildHive" == 0 ]; then
   if [ "$HIVE_PATCH" != "" ]; then
     # We have `set -e`. If this fails, the script will exit.
     patch -p1 < $HIVE_PATCH
+    echo "Project successfully patched."
+    echo ""
   else
     echo "There is no available patch. Proceeding with the project build."
+    echo ""
   fi
 
-  output=$(mvn clean install package --batch-mode -DskipTests -Pdist)
-  status=$?
+  mvn clean install package --batch-mode -DskipTests -Pdist 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
 
-  if [ "$status" == 0 ]; then
+  if grep -F "$mvn_success_msg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
     echo ""
     echo "'$PROJECT_HIVE' build succeeded."
     echo ""
   else
-    if [ "$output | grep -q 'JAVA_HOME'" ]; then
-      echo ""
-      echo "Error with JAVA_HOME. Printing some useful info for debugging."
-      echo "Current JAVA_HOME is: $JAVA_HOME"
-      echo "Path provided is: $java_8_home"
-      echo "Exiting..."
-      exit 1
-    fi
     echo ""
     echo "'$PROJECT_HIVE' build failed."
     exit 1

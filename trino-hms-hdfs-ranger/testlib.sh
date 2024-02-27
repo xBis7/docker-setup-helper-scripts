@@ -29,6 +29,8 @@ NEW_TRINO_TABLE_NAME="new_$TRINO_TABLE"
 SPARK_TABLE="spark_test_table"
 NEW_SPARK_TABLE_NAME="new_$SPARK_TABLE"
 HDFS_DIR="test"
+TMP_FILE="tmp_output.txt"
+LAST_SUCCESS_FILE="lastSuccess.txt"
 
 # Container names
 # Compose V2
@@ -383,12 +385,10 @@ checkProjectExists() {
   path=$1
   project=$2
 
-  res=$(ls $path | grep $project)
-
-  if [ "$res" == "" ]; then
-    echo 1
-  else
+  if ls $path | grep $project; then
     echo 0
+  else
+    echo 1
   fi
 }
 
@@ -398,7 +398,7 @@ exitIfProjectNotExist() {
 
   res=$(checkProjectExists "$path" "$project")
 
-  if [ "$res" == "" ]; then
+  if [ "$res" == 1 ]; then
     echo "Project '$project' doesn't exist. Exiting..."
     exit 1
   else
@@ -463,11 +463,11 @@ updateProjectRepo() {
     exit 1
   fi
 
-  curr_ranger_branch=$(git branch --show-current)
+  curr_branch=$(git branch --show-current)
 
-  if [ "$curr_ranger_branch" != "$github_branch" ]; then
+  if [ "$curr_branch" != "$github_branch" ]; then
     echo ""
-    echo "Current branch is $curr_ranger_branch."
+    echo "Current branch is $curr_branch."
     
     if [ "$github_remote_user" == "origin" ]; then
       # If we go 'git checkout origin/branch', then it will checkout
@@ -534,18 +534,6 @@ alterSparkTable() {
   docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"ALTER TABLE $old_table_name RENAME TO $new_table_name\\\")\" | bin/spark-shell"
 }
 
-# TODO: remove this.
-executeTrinoCommand() {
-  cmd=$1
-
-  if docker exec -it "$TRINO_HOSTNAME" trino --execute="$cmd"; then
-    echo "Trino '$cmd' succeeded."
-  else
-    echo "Trino '$cmd' failed. Exiting..."
-    exit 1
-  fi
-}
-
 createTrinoTable() {
   table_name=$1
   hdfs_dir_name=$2
@@ -566,7 +554,9 @@ alterTrinoTable() {
   docker exec -it "$TRINO_HOSTNAME" trino --execute="alter table hive.default.$old_table_name rename to $new_table_name;"
 }
 
-# TODO: modify scripts to use this method for every command execution.
+# Currently, `set -e` has been set on top of every script.
+# Therefore, on any failure, the script will exit.
+# For that reason, this method might not be needed and probably can be deleted.
 execCmdAndHandleErrorIfNeeded() {
   # cmd will be a string and therefore we need to handle it properly.
   # We need to call $($cmd), so that it will be treated as a command.
@@ -592,6 +582,89 @@ execCmdAndHandleErrorIfNeeded() {
   fi
 }
 
+createOrUpdateLastSuccessFile() {
+  abs_path=$1
+
+  cd "$abs_path/$CURRENT_REPO"
+
+  # Check if file exists
+  if find . -type f | grep -E "/$LAST_SUCCESS_FILE$"; then
+    echo "File '$LAST_SUCCESS_FILE' exists."
+
+    echo "Cleaning the file."
+    # Clean the file.
+    echo -e "" > "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  else
+    echo "File '$LAST_SUCCESS_FILE' doesn't exist. Creating..."
+    touch "$LAST_SUCCESS_FILE"
+  fi
+
+  # Current repo
+  echo ""
+  
+  curr_branch=$(git branch --show-current)
+  echo "Current branch for repo '$CURRENT_REPO' is '$curr_branch'."
+  
+  curr_commit_SHA=$(git rev-parse HEAD | awk NF)
+  echo "Current commit SHA for repo '$CURRENT_REPO' is '$curr_commit_SHA'."
+
+  # Write text to the file.
+  echo "## $CURRENT_REPO ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "Branch: $curr_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "Commit: $curr_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+
+  # Ranger
+  echo ""
+  cd "$abs_path/$PROJECT_RANGER"
+  
+  ranger_branch=$(git branch --show-current)
+  echo "Current branch for repo '$PROJECT_RANGER' is '$ranger_branch'."
+
+  ranger_commit_SHA=$(git rev-parse HEAD | awk NF)
+  echo "Current branch for repo '$PROJECT_RANGER' is '$ranger_commit_SHA'."
+
+  # Write text to the file.
+  echo "## $PROJECT_RANGER ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "Branch: $ranger_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "Commit: $ranger_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+
+  # Hadoop
+  echo ""
+  cd "$abs_path/$PROJECT_HADOOP"
+  
+  hadoop_branch=$(git branch --show-current)
+  echo "Current branch for repo '$PROJECT_HADOOP' is '$hadoop_branch'."
+
+  hadoop_commit_SHA=$(git rev-parse HEAD | awk NF)
+  echo "Current branch for repo '$PROJECT_HADOOP' is '$hadoop_commit_SHA'."
+
+  # Write text to the file.
+  echo "## $PROJECT_HADOOP ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "Branch: $hadoop_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "Commit: $hadoop_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+
+  # Hive
+  echo ""
+  cd "$abs_path/$PROJECT_HIVE"
+  hive_branch=$(git branch --show-current)
+  echo "Current branch for repo '$PROJECT_HIVE' is '$hive_branch'."
+
+  hive_commit_SHA=$(git rev-parse HEAD | awk NF)
+  echo "Current branch for repo '$PROJECT_HIVE' is '$hive_commit_SHA'."
+
+  # Write text to the file.
+  echo "## $PROJECT_HIVE ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "Branch: $hive_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "Commit: $hive_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+}
+
 retryOperationIfNeeded() {
   cmd=$1
   expMsg=$2
@@ -615,12 +688,11 @@ retryOperationIfNeeded() {
 
     echo "- INFO: Counter=$counter" 
 
-    tmp_file="tmp_output.txt"
-    $cmd 2>&1 | tee $tmp_file
+    $cmd 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
     
     if [ "$notExpMsg" == "true" ]; then
       # '> /dev/null' hides the grep output. Remove it to reveal the output.
-      if !(grep -F "$expMsg" "$tmp_file" > /dev/null); then
+      if !(grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null); then
         echo ""
         # echo "- Output: $opOutput"
         echo ""
@@ -634,7 +706,7 @@ retryOperationIfNeeded() {
       counter=$(($counter + 1))
 
       # If we reached counter=10 and the output is still different than the expected one, then exit.
-      if [ "$counter" == 9 ] && grep -F "$expMsg" "$tmp_file" > /dev/nul; then
+      if [ "$counter" == 9 ] && grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/nul; then
         echo ""
         # echo "- INFO: out= $opOutput"
         echo ""
@@ -646,7 +718,7 @@ retryOperationIfNeeded() {
         exit 1
       fi
     else
-      if grep -F "$expMsg" "$tmp_file" > /dev/null; then
+      if grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
         echo ""
         # echo "- Output: $opOutput"
         echo ""
@@ -660,7 +732,7 @@ retryOperationIfNeeded() {
       counter=$(($counter + 1))
 
       # If we reached counter=10 and the output is still different than the expected one, then exit.
-      if [ "$counter" == 9 ] && !(grep -F "$expMsg" "$tmp_file" > /dev/null); then
+      if [ "$counter" == 9 ] && !(grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null); then
         echo ""
         # echo "- INFO: out= $opOutput"
         echo ""

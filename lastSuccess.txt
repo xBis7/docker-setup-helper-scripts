@@ -1,0 +1,20 @@
+
+## docker-setup-helper-scripts ##
+Branch: latest
+Commit: 994e02061d219cf957eb49c83712e2b1655b9d4c
+
+
+## ranger ##
+Branch: ranger-docker-hdfs
+Commit: a8af9731e634ab7015bcaf1c23de3e5f8a40fdd4
+
+
+## hadoop ##
+Branch: hadoop-3.3.6-docker
+Commit: 8d310aa3e642cf3c3964415de9fa044e04d23fc6
+
+
+## hive ##
+Branch: branch-3.1-build-fixed
+Commit: cb0be4f4029e8fed9bdf0694e058307e386aabac
+

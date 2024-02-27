@@ -1,6 +1,6 @@
 ## Basic Instructions
 
-You can execute `run_all.sh` to execute all scripts or just run each one of them.
+All scripts must be executed from `trino-hms-hdfs-ranger` root otherwise most of them will fail since almost each one of them depends on another.
 
 ### run_all.sh
 
@@ -81,8 +81,8 @@ Currently the following dumps exist:
 
 * `1_defaults`, default policies, hadoopdev and hivedev
 * `2_defaults_no_hive_perm_defaultdb`, defaults + all access has been removed for hive defaultdb
-* `3_postgres_hdfs`, 2_defaults_no_hive_perm_defaultdb + allowing all HDFS access to user postges
-* `4_hive_defaultdb_all`, 3_postgres_hdfs + all access to hive defaultdb for user postgres
+* `3_hdfs_all`, 2_defaults_no_hive_perm_defaultdb + allowing all HDFS access to user postges
+* `4_hive_defaultdb_all`, 3_hdfs_all + all access to hive defaultdb for user postgres
 * `5_hive_defaultdb_select`, 3_postgres_hdfs + user postgres has only select access to defaultdb
 * `6_hive_defaultdb_select_alter`, 3_postgres_hdfs + user postgres has select, alter access to defaultdb
 

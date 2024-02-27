@@ -1,1 +1,4 @@
 .vscode
+
+compose/trino-spark/conf/spark/spark-events
+compose/trino-spark/conf/spark/hive-jars

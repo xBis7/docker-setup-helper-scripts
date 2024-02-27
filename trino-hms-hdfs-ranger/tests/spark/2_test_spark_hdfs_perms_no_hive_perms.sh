@@ -19,4 +19,4 @@ echo "- INFO: Ranger policies updated."
 
 failMsg="Permission denied: user [spark] does not have [CREATE] privilege on [default/$SPARK_TABLE]"
 
-retryOperationIfNeeded "createSparkTable $SPARK_TABLE $HDFS_DIR" "$failMsg" "true"
+retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR" "$failMsg" "true"

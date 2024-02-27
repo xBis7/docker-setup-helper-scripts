@@ -13,7 +13,7 @@ CURRENT_REPO="docker-setup-helper-scripts"
 # Project branches
 RANGER_BRANCH="ranger-docker-hdfs"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
-HIVE_BRANCH="branch-3.1-build-fixed"
+HIVE_BRANCH="hive4-latest"
 
 # Dump file names
 DEFAULT_POLICIES="1_defaults"
@@ -82,26 +82,28 @@ RANGER_HDFS_JAR="hdfs-agent/target/$RANGER_HDFS_JAR_NAME"
 RANGER_HIVE_JAR="hive-agent/target/$RANGER_HIVE_JAR_NAME"
 
 # Hive jars names
-HIVE_BEELINE_JAR_NAME="hive-beeline-3.1.3.jar"
-HIVE_CLI_JAR_NAME="hive-cli-3.1.3.jar"
-HIVE_COMMON_JAR_NAME="hive-common-3.1.3.jar"
-HIVE_EXEC_CORE_JAR_NAME="hive-exec-3.1.3-core.jar"
-HIVE_EXEC_JAR_NAME="hive-exec-3.1.3.jar"
-HIVE_JDBC_STANDALONE_JAR_NAME="hive-jdbc-3.1.3-standalone.jar"
-HIVE_JDBC_JAR_NAME="hive-jdbc-3.1.3.jar"
-HIVE_LLAP_COMMON_JAR_NAME="hive-llap-common-3.1.3.jar"
-HIVE_METASTORE_JAR_NAME="hive-metastore-3.1.3.jar"
-HIVE_SERDE_JAR_NAME="hive-serde-3.1.3.jar"
-HIVE_SERVICE_RPC_JAR_NAME="hive-service-rpc-3.1.3.jar"
-HIVE_SHIMS_JAR_NAME="hive-shims-3.1.3.jar"
-HIVE_SHIMS_COMMON_JAR_NAME="hive-shims-common-3.1.3.jar"
+HIVE_BEELINE_JAR_NAME="hive-beeline-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_CLI_JAR_NAME="hive-cli-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_COMMON_JAR_NAME="hive-common-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_EXEC_CORE_JAR_NAME="hive-exec-4.0.0-beta-2-SNAPSHOT-core.jar"
+HIVE_EXEC_JAR_NAME="hive-exec-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_JDBC_STANDALONE_JAR_NAME="hive-jdbc-4.0.0-beta-2-SNAPSHOT-standalone.jar"
+HIVE_JDBC_JAR_NAME="hive-jdbc-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_LLAP_COMMON_JAR_NAME="hive-llap-common-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_METASTORE_JAR_NAME="hive-metastore-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_SERDE_JAR_NAME="hive-serde-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_SERVICE_RPC_JAR_NAME="hive-service-rpc-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_SHIMS_JAR_NAME="hive-shims-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_SHIMS_COMMON_JAR_NAME="hive-shims-common-4.0.0-beta-2-SNAPSHOT.jar"
 HIVE_SHIMS_SCHEDULER_JAR_NAME="hive-shims-scheduler-3.1.3.jar"
 HIVE_SPARK_CLIENT_JAR_NAME="hive-spark-client-3.1.3.jar"
-HIVE_STANDALONE_METASTORE_JAR_NAME="hive-standalone-metastore-3.1.3.jar"
+HIVE_STANDALONE_METASTORE_SERVER_JAR_NAME="hive-standalone-metastore-server-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_STANDALONE_METASTORE_BENCHMARKS_JAR_NAME="hive-metastore-benchmarks-4.0.0-beta-2-SNAPSHOT.jar"
+HIVE_STANDALONE_METASTORE_TOOLS_COMMON_JAR_NAME="metastore-tools-common-4.0.0-beta-2-SNAPSHOT.jar"
 
 # We probably don't need those. Don't copy them for now. They are both under 'ql/target'
-HIVE_EXEC_FALLBACKAUTHORIZER_JAR_NAME="hive-exec-3.1.3-fallbackauthorizer.jar"
-HIVE_ORIGINAL_EXEC_JAR_NAME="original-hive-exec-3.1.3.jar"
+HIVE_EXEC_FALLBACKAUTHORIZER_JAR_NAME="hive-exec-4.0.0-beta-2-SNAPSHOT-fallbackauthorizer.jar"
+HIVE_ORIGINAL_EXEC_JAR_NAME="original-hive-exec-4.0.0-beta-2-SNAPSHOT.jar"
 
 # Hive jars, paths from Hive project root
 HIVE_BEELINE_JAR="beeline/target/$HIVE_BEELINE_JAR_NAME"
@@ -119,7 +121,9 @@ HIVE_SHIMS_JAR="shims/aggregator/target/$HIVE_SHIMS_JAR_NAME"
 HIVE_SHIMS_COMMON_JAR="shims/common/target/$HIVE_SHIMS_COMMON_JAR_NAME"
 HIVE_SHIMS_SCHEDULER_JAR="shims/scheduler/target/$HIVE_SHIMS_SCHEDULER_JAR_NAME"
 HIVE_SPARK_CLIENT_JAR="spark-client/target/$HIVE_SPARK_CLIENT_JAR_NAME"
-HIVE_STANDALONE_METASTORE_JAR="standalone-metastore/target/$HIVE_STANDALONE_METASTORE_JAR_NAME"
+HIVE_STANDALONE_METASTORE_SERVER_JAR="standalone-metastore/metastore-server/target/$HIVE_STANDALONE_METASTORE_SERVER_JAR_NAME"
+HIVE_STANDALONE_METASTORE_BENCHMARKS_JAR="standalone-metastore/metastore-tools/metastore-benchmarks/target/$HIVE_STANDALONE_METASTORE_BENCHMARKS_JAR_NAME"
+HIVE_STANDALONE_METASTORE_TOOLS_COMMON_JAR="standalone-metastore/metastore-tools/tools-common/target/$HIVE_STANDALONE_METASTORE_TOOLS_COMMON_JAR_NAME"
 
 # Calcite jar
 CALCITE_CORE_JAR_NAME="calcite-core-1.36.0.jar"
@@ -215,12 +219,14 @@ setupSparkJarsIfNeeded() {
   hive_shims_common_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_SHIMS_COMMON_JAR"
   hive_shims_scheduler_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_SHIMS_SCHEDULER_JAR"
   hive_spark_client_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_SPARK_CLIENT_JAR"
-  hive_standalone_metastore_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_STANDALONE_METASTORE_JAR"
+  hive_standalone_metastore_server_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_STANDALONE_METASTORE_SERVER_JAR"
+  hive_standalone_metastore_benchmarks_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_STANDALONE_METASTORE_BENCHMARKS_JAR"
+  hive_standalone_metastore_tools_common_jar_path="$abs_path/$PROJECT_HIVE/$HIVE_STANDALONE_METASTORE_TOOLS_COMMON_JAR"
 
   cpJarIfNotExist "$jars_dir_path" "$hive_beeline_jar_path" "$HIVE_BEELINE_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_cli_jar_path" "$HIVE_CLI_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_common_jar_path" "$HIVE_COMMON_JAR_NAME"
-  cpJarIfNotExist "$jars_dir_path" "$hive_exec_core_jar_path" "$HIVE_EXEC_CORE_JAR_NAME"
+  # cpJarIfNotExist "$jars_dir_path" "$hive_exec_core_jar_path" "$HIVE_EXEC_CORE_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_exec_jar_path" "$HIVE_EXEC_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_jdbc_standalone_jar_path" "$HIVE_JDBC_STANDALONE_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_jdbc_jar_path" "$HIVE_JDBC_JAR_NAME"
@@ -232,7 +238,9 @@ setupSparkJarsIfNeeded() {
   cpJarIfNotExist "$jars_dir_path" "$hive_shims_common_jar_path" "$HIVE_SHIMS_COMMON_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_shims_scheduler_jar_path" "$HIVE_SHIMS_SCHEDULER_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_spark_client_jar_path" "$HIVE_SPARK_CLIENT_JAR_NAME"
-  cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_jar_path" "$HIVE_STANDALONE_METASTORE_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_server_jar_path" "$HIVE_STANDALONE_METASTORE_SERVER_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_benchmarks_jar_path" "$HIVE_STANDALONE_METASTORE_BENCHMARKS_JAR_NAME"
+  cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_tools_common_jar_path" "$HIVE_STANDALONE_METASTORE_TOOLS_COMMON_JAR_NAME"
 }
 
 handleRangerEnv() {
@@ -303,7 +311,7 @@ handleHiveEnv() {
   abs_path=$1
   op=$2
 
-  hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/apache-hive-3.1.3-bin/compose/hive-metastore-ranger"
+  hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-4.0.0-beta-2-SNAPSHOT-bin/apache-hive-4.0.0-beta-2-SNAPSHOT-bin/compose/hive-metastore-ranger"
   cd $hive_docker_path
 
   if [ "$op" == "start" ]; then
@@ -666,10 +674,11 @@ createOrUpdateLastSuccessFile() {
 }
 
 retryOperationIfNeeded() {
-  cmd=$1
-  expMsg=$2
-  expFailure=$3
-  notExpMsg=$4
+  abs_path=$1
+  cmd=$2
+  expMsg=$3
+  expFailure=$4
+  notExpMsg=$5
 
   result=""
 

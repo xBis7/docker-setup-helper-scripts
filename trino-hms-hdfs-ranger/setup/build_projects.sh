@@ -59,6 +59,15 @@ if [ "$buildRanger" == 0 ]; then
   cd "$abs_path/$PROJECT_RANGER"
   export JAVA_HOME="$java_8_home"
 
+  echo ""  
+  echo "Checking for an available patch for the '$PROJECT_RANGER' project."
+  if [ "$RANGER_PATCH" != "" ]; then
+    # We have `set -e`. If this fails, the script will exit.
+    patch -p1 < $RANGER_PATCH
+  else
+    echo "There is no available patch. Proceeding with the project build."
+  fi
+
   output=$(mvn clean compile package install --batch-mode -DskipTests -DskipShade)
   status=$?
 
@@ -110,6 +119,15 @@ if [ "$buildHadoop" == 0 ]; then
   cd "$abs_path/$PROJECT_HADOOP"
   export JAVA_HOME="$java_8_home"
 
+  echo ""  
+  echo "Checking for an available patch for the '$PROJECT_HADOOP' project."
+  if [ "$HADOOP_PATCH" != "" ]; then
+    # We have `set -e`. If this fails, the script will exit.
+    patch -p1 < $HADOOP_PATCH
+  else
+    echo "There is no available patch. Proceeding with the project build."
+  fi
+
   output=$(mvn clean install --batch-mode -Dmaven.javadoc.skip=true -DskipTests -DskipShade -Pdist,src)
   status=$?
 
@@ -142,6 +160,15 @@ if [ "$buildHive" == 0 ]; then
 
   cd "$abs_path/$PROJECT_HIVE"
   export JAVA_HOME="$java_8_home"
+
+  echo ""  
+  echo "Checking for an available patch for the '$PROJECT_HIVE' project."
+  if [ "$HIVE_PATCH" != "" ]; then
+    # We have `set -e`. If this fails, the script will exit.
+    patch -p1 < $HIVE_PATCH
+  else
+    echo "There is no available patch. Proceeding with the project build."
+  fi
 
   output=$(mvn clean install package --batch-mode -DskipTests -Pdist)
   status=$?

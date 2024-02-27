@@ -527,6 +527,13 @@ selectDataFromSparkTable() {
   docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"SELECT * FROM $table_name\\\").show()\" | bin/spark-shell"
 }
 
+alterSparkTable() {
+  old_table_name=$1
+  new_table_name=$2
+
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"ALTER TABLE $old_table_name RENAME TO $new_table_name\\\")\" | bin/spark-shell"
+}
+
 # TODO: remove this.
 executeTrinoCommand() {
   cmd=$1
@@ -585,59 +592,7 @@ execCmdAndHandleErrorIfNeeded() {
   fi
 }
 
-retryTrinoOperationIfNeeded() {
-  cmd=$1
-  expMsg=$2
-  expFailure=$3
-
-  result=""
-
-  if [ "$expFailure" == "true" ]; then
-    result="failed"
-  else
-    result="succeeded"
-  fi
-
-  echo "- INFO: Some wait time might be needed for the policy update to get picked up. Retry a few times if needed."
-  echo ""
-
-  counter=0
-
-  while [[ "$counter" < 9 ]]; do
-
-    echo "- INFO: Counter=$counter"
-
-    # opOutput=$($cmd)
-
-    opOutput=$(echo "$($cmd)")
-
-    if [[ "$opOutput" == *"$expMsg"* ]]; then
-      echo ""
-      echo "- Output: $opOutput"
-      echo ""
-      echo "- RESULT -> SUCCESS: Operation $result as expected."
-      break
-    fi
-
-    sleep 3
-    counter=$(($counter + 1))
-
-    # If we reached counter=10 and the output is still different than the expected one, then exit.
-    if [[ "$counter" == 9 ]] && [[ "$opOutput" != *"$expMsg"* ]]; then
-      echo ""
-      echo "- INFO: out= $opOutput"
-      echo ""
-      echo ""
-      echo ""
-      echo ""
-      echo "- RESULT -> FAILURE: Operation should have $result, but it didn't..."
-      echo "- Exiting..."
-      exit 1
-    fi
-  done
-}
-
-retrySparkOperationIfNeeded() {
+retryOperationIfNeeded() {
   cmd=$1
   expMsg=$2
   expFailure=$3
@@ -660,20 +615,14 @@ retrySparkOperationIfNeeded() {
 
     echo "- INFO: Counter=$counter" 
 
-    opOutput="$($cmd)"
-
-    # echo "$opOutput" | grep -E "$failMsg"
-    # ret=$?
-
-    # if [ "$ret" == 0 ]; then
-
+    tmp_file="tmp_output.txt"
+    $cmd 2>&1 | tee $tmp_file
     
     if [ "$notExpMsg" == "true" ]; then
-      # Tried to parameterize the condition but it didn't work well.
-      # TODO: fix that!
-      if [[ "$opOutput" != *"$expMsg"* ]]; then
+      # '> /dev/null' hides the grep output. Remove it to reveal the output.
+      if !(grep -F "$expMsg" "$tmp_file" > /dev/null); then
         echo ""
-        echo "- Output: $opOutput"
+        # echo "- Output: $opOutput"
         echo ""
         echo "- Not expected msg: $expMsg"
         echo ""
@@ -685,9 +634,9 @@ retrySparkOperationIfNeeded() {
       counter=$(($counter + 1))
 
       # If we reached counter=10 and the output is still different than the expected one, then exit.
-      if [[ "$counter" == 9 ]] && [[ "$opOutput" == *"$expMsg"* ]]; then
+      if [ "$counter" == 9 ] && grep -F "$expMsg" "$tmp_file" > /dev/nul; then
         echo ""
-        echo "- INFO: out= $opOutput"
+        # echo "- INFO: out= $opOutput"
         echo ""
         echo ""
         echo ""
@@ -697,9 +646,9 @@ retrySparkOperationIfNeeded() {
         exit 1
       fi
     else
-      if [[ "$opOutput" == *"$expMsg"* ]]; then
+      if grep -F "$expMsg" "$tmp_file" > /dev/null; then
         echo ""
-        echo "- Output: $opOutput"
+        # echo "- Output: $opOutput"
         echo ""
         echo "- Expected Msg: $expMsg"
         echo ""
@@ -711,9 +660,9 @@ retrySparkOperationIfNeeded() {
       counter=$(($counter + 1))
 
       # If we reached counter=10 and the output is still different than the expected one, then exit.
-      if [[ "$counter" == 9 ]] && [[ "$opOutput" != *"$expMsg"* ]]; then
+      if [ "$counter" == 9 ] && !(grep -F "$expMsg" "$tmp_file" > /dev/null); then
         echo ""
-        echo "- INFO: out= $opOutput"
+        # echo "- INFO: out= $opOutput"
         echo ""
         echo ""
         echo ""
@@ -725,4 +674,5 @@ retrySparkOperationIfNeeded() {
     fi
   done
 }
+
 

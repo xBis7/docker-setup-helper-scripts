@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 github_user=$2
 github_remote_user=$3
-test=$4
+test_component=$4
 build_project=$5
 java_8_home=$6
 
@@ -21,6 +21,7 @@ java_8_home=$6
 ./setup/setup_docker_env.sh "$abs_path"
 
 # Run the test script. That script also starts the docker env 
-# and stops it at the end or in any case of failure.
-./tests/test_all.sh "$abs_path" "$test"
+# and stops it at the end by default. Handling the docker env is configurable
+# so that the user can run the tests in an already running env.
+./tests/test_all.sh "$abs_path" "$test_component" "true" "true"
 

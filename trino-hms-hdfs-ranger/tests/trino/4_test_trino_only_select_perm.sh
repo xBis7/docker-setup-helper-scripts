@@ -19,11 +19,11 @@ echo "- INFO: [select] should succeed."
 
 successMsg="\"1\",\" dog\""
 
-retryTrinoOperationIfNeeded "selectDataFromTrinoTable $TRINO_TABLE" "$successMsg" "false"
+retryOperationIfNeeded "selectDataFromTrinoTable $TRINO_TABLE" "$successMsg" "false"
 
 echo ""
 echo "- INFO: [alter] should fail."
 
 failMsg="Permission denied: user [postgres] does not have [ALTER] privilege"
 
-retryTrinoOperationIfNeeded "alterTrinoTable $TRINO_TABLE $NEW_TRINO_TABLE_NAME" "$failMsg" "true"
+retryOperationIfNeeded "alterTrinoTable $TRINO_TABLE $NEW_TRINO_TABLE_NAME" "$failMsg" "true"

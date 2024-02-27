@@ -19,11 +19,12 @@ echo "- INFO: [select] should succeed."
 
 successMsg="|  1, dog|"
 
-retrySparkOperationIfNeeded "selectDataFromSparkTable $SPARK_TABLE" "$successMsg" "false"
+retryOperationIfNeeded "selectDataFromSparkTable $SPARK_TABLE" "$successMsg" "false"
 
-# echo ""
-# echo "- INFO: [alter] should fail."
+echo ""
+echo "- INFO: [alter] should fail."
 
-# failMsg="Permission denied: user [spark] does not have [ALTER] privilege"
+failMsg="Permission denied: user [spark] does not have [ALTER] privilege on [default/$NEW_SPARK_TABLE_NAME]"
 
-# retrySparkOperationIfNeeded "alterSparkTable $SPARK_TABLE $NEW_SPARK_TABLE_NAME" "$failMsg" "true"
+retryOperationIfNeeded "alterSparkTable $SPARK_TABLE $NEW_SPARK_TABLE_NAME" "$failMsg" "true"
+

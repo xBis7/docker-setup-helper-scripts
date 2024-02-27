@@ -19,4 +19,4 @@ echo "- INFO: Ranger policies updated."
 
 failMsg="Permission denied: user [postgres] does not have [CREATE] privilege on"
 
-retryTrinoOperationIfNeeded "createTrinoTable $TRINO_TABLE $HDFS_DIR" "$failMsg" "true"
+retryOperationIfNeeded "createTrinoTable $TRINO_TABLE $HDFS_DIR" "$failMsg" "true"

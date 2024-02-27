@@ -16,4 +16,4 @@ failMsg='Permission denied: user=spark, access=WRITE, inode="/":hadoop:supergrou
 # We need to use single '' in the failMsg because it contains special characters e.g. /
 # That way it will be interpreted as a string literal and won't be expanded.
 
-retrySparkOperationIfNeeded "createSparkTable $SPARK_TABLE $HDFS_DIR" "$failMsg" "true"
+retryOperationIfNeeded "createSparkTable $SPARK_TABLE $HDFS_DIR" "$failMsg" "true"

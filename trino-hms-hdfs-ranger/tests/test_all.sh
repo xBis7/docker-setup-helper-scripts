@@ -6,8 +6,13 @@ set -e
 
 abs_path=$1
 component=$2
+prepare_env=$3
+stop_env=$4
 
-./docker/start_docker_env.sh "$abs_path"
+if [ "$prepare_env" == "true" ]; then
+  ./docker/stop_docker_env.sh "$abs_path"
+  ./docker/start_docker_env.sh "$abs_path"
+fi
 
 echo "### TEST_1 ###"
 ./tests/test_hdfs_data_creation.sh "$abs_path"
@@ -25,8 +30,8 @@ if [ "$component" == "spark" ]; then
   echo "### TEST_5 ###"
   ./tests/spark/4_test_spark_only_select_perm.sh "$abs_path"
 
-  # echo "### TEST_6 ###"
-  # ./tests/spark/5_test_spark_select_alter_perm.sh "$abs_path"
+  echo "### TEST_6 ###"
+  ./tests/spark/5_test_spark_select_alter_perm.sh "$abs_path"
 else
   echo "### TEST_2 ###"
   ./tests/trino/1_test_trino_no_hdfs_perms.sh
@@ -44,4 +49,6 @@ else
   ./tests/trino/5_test_trino_select_alter_perm.sh "$abs_path"
 fi
 
-./docker/stop_docker_env.sh "$abs_path"
+if [ "$stop_env" == "true" ]; then
+  ./docker/stop_docker_env.sh "$abs_path"
+fi

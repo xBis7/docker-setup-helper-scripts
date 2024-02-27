@@ -2,6 +2,6 @@
 
 source "./testlib.sh"
 
-failMsg="Permission denied: user [spark] does not have [CREATE] privilege on [default/$SPARK_TABLE]"
+failMsg="Permission denied: user [spark] does not have [ALTER] privilege on [default/$NEW_SPARK_TABLE_NAME]"
 
-retryOperationIfNeeded "createSparkTable $SPARK_TABLE $HDFS_DIR" "$failMsg" "true"
+retryOperationIfNeeded "alterSparkTable $SPARK_TABLE $NEW_SPARK_TABLE_NAME" "$failMsg" "true"

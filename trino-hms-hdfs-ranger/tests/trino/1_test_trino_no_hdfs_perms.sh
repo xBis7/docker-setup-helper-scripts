@@ -13,4 +13,4 @@ echo ""
 # Failure due to lack of HDFS permissions.
 failMsg="Permission denied: user [postgres] does not have [ALL] privilege on" # [hdfs://namenode:8020/$HDFS_DIR]"
 
-retryTrinoOperationIfNeeded "createTrinoTable $TRINO_TABLE $HDFS_DIR" "$failMsg" "true"
+retryOperationIfNeeded "createTrinoTable $TRINO_TABLE $HDFS_DIR" "$failMsg" "true"

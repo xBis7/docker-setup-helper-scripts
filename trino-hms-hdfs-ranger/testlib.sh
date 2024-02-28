@@ -11,7 +11,7 @@ PROJECT_SPARK="spark"
 CURRENT_REPO="docker-setup-helper-scripts"
 
 # Project branches
-RANGER_BRANCH="ranger-docker-hdfs"
+RANGER_BRANCH="ranger-docker-hive4"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
 HIVE_BRANCH="hive4-latest"
 
@@ -29,6 +29,7 @@ NEW_TRINO_TABLE_NAME="new_$TRINO_TABLE"
 SPARK_TABLE="spark_test_table"
 NEW_SPARK_TABLE_NAME="new_$SPARK_TABLE"
 HDFS_DIR="test"
+SPARK_EVENTS_DIR="spark-events"
 TMP_FILE="tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
 
@@ -361,11 +362,16 @@ handleTrinoSparkEnv() {
     echo ""
     echo "Starting '$PROJECT_TRINO / $PROJECT_SPARK' env."
 
-    echo "Creating /spark-events dir and changing permissions."
+    if find "$trino_spark_docker_path/conf/spark" -type d | grep -E "/$SPARK_EVENTS_DIR$"; then
+      echo "/$SPARK_EVENTS_DIR dir exists. Cleaning up..."
+      rm -r -f $trino_spark_docker_path/conf/spark/$SPARK_EVENTS_DIR
+    fi
+
+    echo "Creating /$SPARK_EVENTS_DIR dir and changing permissions."
     echo ""
 
-    mkdir $trino_spark_docker_path/conf/spark/spark-events
-    chmod 777 $trino_spark_docker_path/conf/spark/spark-events
+    mkdir $trino_spark_docker_path/conf/spark/$SPARK_EVENTS_DIR
+    chmod 777 $trino_spark_docker_path/conf/spark/$SPARK_EVENTS_DIR
 
     # This can be extended to scale to 3 spark workers.
     docker compose -f "$trino_spark_docker_path/docker-compose.yml" up -d --scale spark-worker=3
@@ -384,8 +390,8 @@ handleTrinoSparkEnv() {
     echo "'$PROJECT_TRINO / $PROJECT_SPARK' env stopped."
     echo ""
 
-    echo "Cleaning up /spark-events dir."
-    rm -r -f $trino_spark_docker_path/conf/spark/spark-events/
+    echo "Cleaning up /$SPARK_EVENTS_DIR dir."
+    rm -r -f $trino_spark_docker_path/conf/spark/$SPARK_EVENTS_DIR/
   fi
 }
 

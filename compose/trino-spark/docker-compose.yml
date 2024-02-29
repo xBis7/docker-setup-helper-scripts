@@ -2,6 +2,7 @@ version: '3.8'
 services:
   trino-coordinator:
     image: 'trinodb/trino:latest'
+    privileged: true
     hostname: trino-coordinator
     ports:
       - '8080:8080'

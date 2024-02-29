@@ -11,4 +11,4 @@ pid=$4
 
 hostname=$(getHostnameFromName "$container_name")
 
-docker exec -it "$hostname" profiler/bin/asprof --fdtransfer -d "$prof_time" -f /tmp/"$flamegraph_name".html "$pid"
+docker exec -it "$hostname" /profiler/bin/asprof --fdtransfer -d "$prof_time" -f /tmp/"$flamegraph_name".html "$pid"

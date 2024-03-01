@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  trino-coordinator:
+    image: 'trinodb/trino:latest'
+    privileged: true
+    hostname: trino-coordinator
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./etc:/etc/trino
+      - ./conf/core-site.xml:/etc/hadoop/conf/core-site.xml:ro
+      - ./conf/hdfs-site.xml:/etc/hadoop/conf/hdfs-site.xml:ro
+    networks:
+      - ranger-net
+
+networks:
+  ranger-net:
+    name: rangernw
+    external: true

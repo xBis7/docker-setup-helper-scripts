@@ -15,6 +15,7 @@ mvn_success_msg="[INFO] BUILD SUCCESS"
 buildRanger=1
 buildHadoop=1
 buildHive=1
+buildSpark=1
 
 if [ "$build_project" == "ranger" ]; then
   buildRanger=0
@@ -22,6 +23,9 @@ elif [ "$build_project" == "hadoop" ]; then
   buildHadoop=0
 elif [ "$build_project" == "hms" ]; then
   buildHive=0
+elif [ "$build_project" == "spark" ]; then
+  buildSpark=0
+# TODO: Add spark to the combinations.
 elif [[ "$build_project" == "ranger/hadoop" || "$build_project" == "hadoop/ranger" ]]; then
   buildRanger=0
   buildHadoop=0
@@ -35,12 +39,14 @@ elif [[ "$build_project" == "all" || "$build_project" == "" ]]; then
   buildRanger=0
   buildHadoop=0
   buildHive=0
+  buildSpark=0
 else
   echo "Invalid project parameter."
   echo "Try one of the following"
   echo "'ranger'        -> building just Ranger"
   echo "'hadoop'        -> building just Hadoop"
   echo "'hms'           -> building just HiveMetastore"
+  echo "'spark'         -> building just Spark"
   echo "'ranger/hadoop' -> building Ranger and Hadoop"
   echo "'hadoop/ranger' -> building Ranger and Hadoop"
   echo "'hadoop/hms'    -> building Hadoop and HiveMetastore"
@@ -176,3 +182,40 @@ if [ "$buildHive" == 0 ]; then
     exit 1
   fi
 fi
+
+# Spark
+if [ "$buildSpark" == 0 ]; then
+  exitIfProjectNotExist $abs_path $PROJECT_SPARK
+
+  echo ""
+  echo "Building '$PROJECT_SPARK' and creating dist."
+
+  cd "$abs_path/$PROJECT_SPARK"
+
+  echo ""  
+  echo "Checking for an available patch for the '$PROJECT_SPARK' project."
+  if [ "$SPARK_PATCH" != "" ]; then
+    # We have `set -e`. If this fails, the script will exit.
+    patch -p1 < $SPARK_PATCH
+    echo "Project successfully patched."
+    echo ""
+  else
+    echo "There is no available patch. Proceeding with the project build."
+    echo ""
+  fi
+
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
+
+  ./dev/make-distribution.sh --name custom-spark --pip -Phive -Phive-thriftserver 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
+
+  if grep -F "Finished: SUCCESS" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
+    echo ""
+    echo "'$PROJECT_SPARK' build succeeded."
+    echo ""
+  else
+    echo ""
+    echo "'$PROJECT_SPARK' build failed."
+    exit 1
+  fi
+fi
+

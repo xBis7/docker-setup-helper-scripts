@@ -14,7 +14,7 @@ CURRENT_REPO="docker-setup-helper-scripts"
 RANGER_BRANCH="ranger-docker-hive4"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
 HIVE_BRANCH="hive4-version-hack"
-SPARK_BRANCH="dev-env"
+SPARK_BRANCH="branch-3.5-dev-env"
 
 # Dump file names
 DEFAULT_POLICIES="1_defaults"
@@ -47,10 +47,10 @@ HMS_POSTGRES_HOSTNAME="hive-metastore-ranger-postgres-1"
 RANGER_HOSTNAME="ranger"
 RANGER_POSTGRES_HOSTNAME="ranger-postgres"
 
-TRINO_HOSTNAME="trino-spark-trino-coordinator-1"
+TRINO_HOSTNAME="trino-trino-coordinator-1"
 
-SPARK_MASTER_HOSTNAME="trino-spark-spark-master-1"
-SPARK_WORKER1_HOSTNAME="trino-spark-spark-worker-1"
+SPARK_MASTER_HOSTNAME="spark-spark-master-1"
+SPARK_WORKER1_HOSTNAME="spark-spark-worker-1"
 
 # Compose V1
 NAMENODE_HOSTNAME_V1="hadoop-ranger_namenode_1"
@@ -64,10 +64,10 @@ HMS_POSTGRES_HOSTNAME_V1="hive-metastore_ranger-postgres_1"
 RANGER_HOSTNAME_V1="ranger"
 RANGER_POSTGRES_HOSTNAME_V1="ranger-postgres"
 
-TRINO_HOSTNAME_V1="trino-spark_trino-coordinator_1"
+TRINO_HOSTNAME_V1="trino_trino-coordinator_1"
 
-SPARK_MASTER_HOSTNAME_V1="trino-spark_spark-master_1"
-SPARK_WORKER1_HOSTNAME_V1="trino-spark_spark-worker_1"
+SPARK_MASTER_HOSTNAME_V1="spark_spark-master_1"
+SPARK_WORKER1_HOSTNAME_V1="spark_spark-worker_1"
 
 # Ranger jars names
 RANGER_COMMON_JAR_NAME="ranger-plugins-common-3.0.0-SNAPSHOT-jar-with-dependencies.jar"

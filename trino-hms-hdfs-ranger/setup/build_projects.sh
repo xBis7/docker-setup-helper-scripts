@@ -35,6 +35,15 @@ elif [[ "$build_project" == "hadoop/hms" || "$build_project" == "hms/hadoop" ]];
 elif [[ "$build_project" == "ranger/hms" || "$build_project" == "hms/ranger" ]]; then
   buildRanger=0
   buildHive=0
+elif [[ "$build_project" == "ranger/spark" || "$build_project" == "spark/ranger" ]]; then
+  buildRanger=0
+  buildSpark=0
+elif [[ "$build_project" == "hadoop/spark" || "$build_project" == "spark/hadoop" ]]; then
+  buildHadoop=0
+  buildSpark=0
+elif [[ "$build_project" == "hms/spark" || "$build_project" == "spark/hms" ]]; then
+  buildHive=0
+  buildSpark=0
 elif [[ "$build_project" == "all" || "$build_project" == "" ]]; then
   buildRanger=0
   buildHadoop=0
@@ -53,6 +62,12 @@ else
   echo "'hms/hadoop'    -> building Hadoop and HiveMetastore"
   echo "'ranger/hms'    -> building Ranger and HiveMetastore"
   echo "'hms/ranger'    -> building Ranger and HiveMetastore"
+  echo "'ranger/spark'  -> building Ranger and Spark"
+  echo "'spark/ranger'  -> building Ranger and Spark"
+  echo "'hadoop/spark'  -> building Hadoop and Spark"
+  echo "'spark/hadoop'  -> building Hadoop and Spark"
+  echo "'hms/spark'     -> building Spark and HiveMetastore"
+  echo "'spark/hms'     -> building Spark and HiveMetastore"
   echo "'all' or empty  -> building all projects"
   # exit 1
   # We don't need to exit. If we ended up in the else statement,
@@ -206,7 +221,7 @@ if [ "$buildSpark" == 0 ]; then
 
   export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
-  ./dev/make-distribution.sh --name custom-spark --pip -Phive -Phive-thriftserver 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
+  ./dev/make-distribution.sh --name custom-spark --pip -Phive -Phive-thriftserver -Pyarn 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
 
   if grep -F "Finished: SUCCESS" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
     echo ""

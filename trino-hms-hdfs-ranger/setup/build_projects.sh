@@ -25,7 +25,6 @@ elif [ "$build_project" == "hms" ]; then
   buildHive=0
 elif [ "$build_project" == "spark" ]; then
   buildSpark=0
-# TODO: Add spark to the combinations.
 elif [[ "$build_project" == "ranger/hadoop" || "$build_project" == "hadoop/ranger" ]]; then
   buildRanger=0
   buildHadoop=0

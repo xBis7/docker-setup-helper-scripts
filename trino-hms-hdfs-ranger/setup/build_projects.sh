@@ -63,6 +63,7 @@ if [ "$buildRanger" == 0 ]; then
 
   cd "$abs_path/$PROJECT_RANGER"
   export JAVA_HOME="$java_8_home"
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_RANGER' project."
@@ -128,6 +129,7 @@ if [ "$buildHadoop" == 0 ]; then
 
   cd "$abs_path/$PROJECT_HADOOP"
   export JAVA_HOME="$java_8_home"
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_HADOOP' project."
@@ -163,6 +165,7 @@ if [ "$buildHive" == 0 ]; then
 
   cd "$abs_path/$PROJECT_HIVE"
   export JAVA_HOME="$java_8_home"
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_HIVE' project."

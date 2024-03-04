@@ -105,6 +105,18 @@ if [ "$buildRanger" == 0 ]; then
     fi
     exit 1
   fi
+
+  echo "Running ranger_in_docker script"
+  ranger_in_docker_success_msg="Now, You can run  access RANGER portal via http://localhost:6080 (admin/rangerR0cks!)"
+  ranger_in_docker up 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
+
+  if grep -F "$ranger_in_docker_success_msg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
+    echo "ranger_in_docker run successfully"
+    ranger_in_docker down
+  else
+    echo "ranger_in_docker didn't run successfully"
+    exit 1
+  fi
 fi
 
 # Hadoop

@@ -83,6 +83,7 @@ if [ "$buildRanger" == 0 ]; then
 
   cd "$abs_path/$PROJECT_RANGER"
   export JAVA_HOME="$java_8_home"
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_RANGER' project."
@@ -136,6 +137,7 @@ if [ "$buildHadoop" == 0 ]; then
 
   cd "$abs_path/$PROJECT_HADOOP"
   export JAVA_HOME="$java_8_home"
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_HADOOP' project."
@@ -171,6 +173,7 @@ if [ "$buildHive" == 0 ]; then
 
   cd "$abs_path/$PROJECT_HIVE"
   export JAVA_HOME="$java_8_home"
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_HIVE' project."
@@ -205,6 +208,7 @@ if [ "$buildSpark" == 0 ]; then
   echo "Building '$PROJECT_SPARK' and creating dist."
 
   cd "$abs_path/$PROJECT_SPARK"
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_SPARK' project."
@@ -217,8 +221,6 @@ if [ "$buildSpark" == 0 ]; then
     echo "There is no available patch. Proceeding with the project build."
     echo ""
   fi
-
-  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   ./dev/make-distribution.sh --name custom-spark --pip -Phive -Phive-thriftserver -Pyarn 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
 

@@ -4,7 +4,7 @@ source "./testlib.sh"
 
 set -e
 
-$abs_path=$1
+abs_path=$1
 
 # Trino user is postgres.
 echo "- INFO: Users need access to both the actual data and the metadata."

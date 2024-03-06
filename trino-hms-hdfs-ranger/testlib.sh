@@ -178,7 +178,7 @@ cpJarIfNotExist() {
 setupSparkJarsIfNeeded() {
   abs_path=$1
 
-  dir_base_path="$abs_path/$PROJECT_SPARK/dist/compose/spark/conf/"
+  dir_base_path="$abs_path/$PROJECT_SPARK/dist/compose/spark/conf"
   jars_dir_name="hive-jars"
   jars_dir_path="$dir_base_path/$jars_dir_name"
 

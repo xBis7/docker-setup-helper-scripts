@@ -121,6 +121,7 @@ if [ "$buildRanger" == 0 ]; then
       ./ranger_in_docker down
       exit 1
     fi
+  fi
 fi
 
 # Hadoop

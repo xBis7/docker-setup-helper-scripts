@@ -5,6 +5,7 @@ source "./testlib.sh"
 abs_path=$1
 build_project=$2
 java_8_home=$3
+ranger_image=$4
 
 if [ "$java_8_home" == "" ]; then
   java_8_home="/usr/lib/jvm/java-8-openjdk-amd64"
@@ -63,6 +64,7 @@ if [ "$buildRanger" == 0 ]; then
 
   cd "$abs_path/$PROJECT_RANGER"
   export JAVA_HOME="$java_8_home"
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_RANGER' project."
@@ -105,6 +107,21 @@ if [ "$buildRanger" == 0 ]; then
     fi
     exit 1
   fi
+
+  if [ "$ranger_image" == "true" ]; then
+    echo "Running ranger_in_docker script"
+    ranger_in_docker_success_msg="Now, You can run  access RANGER portal via http://localhost:6080 (admin/rangerR0cks!)"
+    ./ranger_in_docker up 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
+
+    if grep -F "$ranger_in_docker_success_msg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
+      echo "ranger_in_docker run successfully"
+      ./ranger_in_docker down
+    else
+      echo "ranger_in_docker didn't run successfully"
+      ./ranger_in_docker down
+      exit 1
+    fi
+  fi
 fi
 
 # Hadoop
@@ -116,6 +133,7 @@ if [ "$buildHadoop" == 0 ]; then
 
   cd "$abs_path/$PROJECT_HADOOP"
   export JAVA_HOME="$java_8_home"
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_HADOOP' project."
@@ -151,6 +169,7 @@ if [ "$buildHive" == 0 ]; then
 
   cd "$abs_path/$PROJECT_HIVE"
   export JAVA_HOME="$java_8_home"
+  export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_HIVE' project."

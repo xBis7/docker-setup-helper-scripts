@@ -58,7 +58,7 @@ fi
 
 if [ "$test_drop_db" == "true" ]; then
   # This will restart the environment and setup the necessary files for testing.
-  # There is also a flag for stopping the env at the end. 
+  # There is also a flag for stopping the env at the end.
   # Not setting that here because this script will stop the env anyway.
   ./tests/spark/database/test_database.sh "$abs_path" "true"
 fi

@@ -22,6 +22,7 @@ HDFS_ACCESS="3_hdfs_all"
 HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
 HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
 HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
+HDFS_AND_HIVE_DROP="7_hive_defaultdb_drop"
 
 # Const shared variables
 TRINO_TABLE="trino_test_table"
@@ -532,6 +533,12 @@ alterSparkTable() {
   new_table_name=$2
 
   docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"ALTER TABLE $old_table_name RENAME TO $new_table_name\\\")\" | bin/spark-shell"
+}
+
+dropSparkTable() {
+  table_name=$1
+
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP TABLE $table_name\\\").show()\" | bin/spark-shell"
 }
 
 createTrinoTable() {

@@ -537,15 +537,25 @@ createSparkTable() {
 
 selectDataFromSparkTable() {
   table_name=$1
-  
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"SELECT * FROM $table_name\\\").show()\" | bin/spark-shell"
+  db_name=$2
+
+  if [ "$db_name" == "" ]; then
+    db_name="default"
+  fi
+
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"SELECT * FROM $db_name.$table_name\\\").show()\" | bin/spark-shell"
 }
 
 alterSparkTable() {
   old_table_name=$1
   new_table_name=$2
+  db_name=$3
 
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"ALTER TABLE $old_table_name RENAME TO $new_table_name\\\")\" | bin/spark-shell"
+  if [ "$db_name" == "" ]; then
+    db_name="default"
+  fi
+
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"ALTER TABLE $db_name.$old_table_name RENAME TO $db_name.$new_table_name\\\")\" | bin/spark-shell"
 }
 
 dropSparkTable() {
@@ -571,25 +581,56 @@ dropDatabaseWithSpark() {
   fi
 }
 
-
 createTrinoTable() {
   table_name=$1
   hdfs_dir_name=$2
+  schema_name=$3
 
-  docker exec -it "$TRINO_HOSTNAME" trino --execute="create table hive.default.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
+  if [ "$schema_name" == "" ]; then
+    schema_name="default"
+  fi
+
+  docker exec -it "$TRINO_HOSTNAME" trino --execute="create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
 }
 
 selectDataFromTrinoTable() {
   table_name=$1
+  schema_name=$2
+
+  if [ "$schema_name" == "" ]; then
+    schema_name="default"
+  fi
   
-  docker exec -it "$TRINO_HOSTNAME" trino --execute="select * from hive.default.$table_name;"
+  docker exec -it "$TRINO_HOSTNAME" trino --execute="select * from hive.$schema_name.$table_name;"
 }
 
 alterTrinoTable() {
   old_table_name=$1
   new_table_name=$2
+  schema_name=$3
 
-  docker exec -it "$TRINO_HOSTNAME" trino --execute="alter table hive.default.$old_table_name rename to $new_table_name;"
+  if [ "$schema_name" == "" ]; then
+    schema_name="default"
+  fi
+
+  docker exec -it "$TRINO_HOSTNAME" trino --execute="alter table hive.$schema_name.$old_table_name rename to $new_table_name;"
+}
+
+createSchemaWithTrino() {
+  schema_name=$1
+
+  docker exec -it "$TRINO_HOSTNAME" trino --execute="CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/opt/hive/data/$schema_name/external/$schema_name.db');"
+}
+
+dropSchemaWithTrino() {
+  schema_name=$1
+  use_cascade=$2
+
+  if [ "$use_cascade" == "true" ]; then
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="DROP SCHEMA hive.$schema_name CASCADE;"
+  else
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="DROP SCHEMA hive.$schema_name;"
+  fi
 }
 
 # Currently, `set -e` has been set on top of every script.

@@ -538,7 +538,7 @@ alterSparkTable() {
 dropSparkTable() {
   table_name=$1
 
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP TABLE $table_name\\\").show()\" | bin/spark-shell"
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP TABLE $table_name\\\")\" | bin/spark-shell"
 }
 
 createTrinoTable() {

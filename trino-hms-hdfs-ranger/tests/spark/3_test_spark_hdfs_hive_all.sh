@@ -19,3 +19,12 @@ echo "- INFO: Ranger policies updated."
 notExpMsg="Permission denied"
 
 retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR" "$notExpMsg" "false" "true"
+
+# Create partitioned table
+successMsg="org.apache.spark.sql.DataFrame = []"
+sql="spark.sql(\\\"create table animals (id int, name string) using parquet partitioned by (name)\\\")"
+retryOperationIfNeeded "$abs_path" "performSparkSql $sql" "$successMsg" "false"
+
+# Add partition
+sql="spark.sql(\\\"alter table animals add partition (name='cow')\\\")"
+retryOperationIfNeeded "$abs_path" "performSparkSql $sql" "$successMsg" "false"

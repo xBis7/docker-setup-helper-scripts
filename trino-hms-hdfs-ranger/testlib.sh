@@ -517,6 +517,12 @@ createHdfsTestData() {
   docker exec -it "$DN1_HOSTNAME" hdfs dfs -put test.csv "/$dir_name"
 }
 
+performSparkSql() {
+  # Join all args with space
+  sql="$*"
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$sql\" | bin/spark-shell"
+}
+
 createSparkTable() {
   table_name=$1
   hdfs_dir_name=$2

@@ -22,7 +22,7 @@ HDFS_ACCESS="3_hdfs_all"
 HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
 HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
 HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
-HDFS_AND_HIVE_DROP="7_hive_defaultdb_drop"
+HDFS_AND_HIVE_SELECT_ALTER_DROP="7_hive_defaultdb_select_alter_drop"
 HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
 
 # Const shared variables

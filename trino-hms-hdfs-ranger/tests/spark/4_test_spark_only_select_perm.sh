@@ -24,7 +24,7 @@ retryOperationIfNeeded "$abs_path" "selectDataFromSparkTable $SPARK_TABLE" "$suc
 echo ""
 echo "- INFO: [alter] should fail."
 
-failMsg="Permission denied: user [spark] does not have [ALTER] privilege on [default/$NEW_SPARK_TABLE_NAME]"
+failMsg="Permission denied: user [spark] does not have [ALTER] privilege on [default/$SPARK_TABLE]"
 
 retryOperationIfNeeded "$abs_path" "alterSparkTable $SPARK_TABLE $NEW_SPARK_TABLE_NAME" "$failMsg" "true"
 

@@ -23,12 +23,14 @@ HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
 HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
 HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
 HDFS_AND_HIVE_DROP="7_hive_defaultdb_drop"
+HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
 
 # Const shared variables
 TRINO_TABLE="trino_test_table"
 NEW_TRINO_TABLE_NAME="new_$TRINO_TABLE"
 SPARK_TABLE="spark_test_table"
 NEW_SPARK_TABLE_NAME="new_$SPARK_TABLE"
+EXTERNAL_DB="poc_db"
 HDFS_DIR="test"
 TMP_FILE="tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
@@ -518,8 +520,13 @@ createHdfsTestData() {
 createSparkTable() {
   table_name=$1
   hdfs_dir_name=$2
+  db_name=$3
 
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.read.text(\\\"hdfs://namenode:8020/$hdfs_dir_name\\\").write.option(\\\"path\\\", \\\"hdfs://namenode/opt/hive/data\\\").mode(\\\"overwrite\\\").format(\\\"csv\\\").saveAsTable(\\\"$table_name\\\")\" | bin/spark-shell"
+  if [ "$db_name" == "" ]; then
+    db_name="default"
+  fi
+
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.read.text(\\\"hdfs://namenode:8020/$hdfs_dir_name\\\").write.option(\\\"path\\\", \\\"hdfs://namenode/opt/hive/data\\\").mode(\\\"overwrite\\\").format(\\\"csv\\\").saveAsTable(\\\"$db_name.$table_name\\\")\" | bin/spark-shell"
 }
 
 selectDataFromSparkTable() {
@@ -540,6 +547,24 @@ dropSparkTable() {
 
   docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP TABLE $table_name\\\")\" | bin/spark-shell"
 }
+
+createDatabaseWithSpark() {
+  db_name=$1
+
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"CREATE DATABASE $db_name LOCATION 'hdfs://namenode/opt/hive/data/$db_name/external/$db_name.db'\\\")\" | bin/spark-shell"
+}
+
+dropDatabaseWithSpark() {
+  db_name=$1
+  use_cascade=$2
+
+  if [ "$use_cascade" == "true" ]; then
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP DATABASE IF EXISTS $db_name CASCADE\\\")\" | bin/spark-shell"
+  else
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP DATABASE IF EXISTS $db_name\\\")\" | bin/spark-shell"
+  fi
+}
+
 
 createTrinoTable() {
   table_name=$1

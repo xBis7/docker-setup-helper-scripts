@@ -11,8 +11,8 @@ echo "- INFO: Updating Ranger policies. User [spark] will now have [select, alte
 
 ./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_SELECT_ALTER"
 
-# Wait 30 secs to make sure enough time has passed for the policies to get updated.
-sleep 30
+# Wait 15 secs to make sure enough time has passed for the policies to get updated.
+sleep 15
 
 echo ""
 echo "- INFO: [alter] should now succeed."

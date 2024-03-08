@@ -560,8 +560,13 @@ alterSparkTable() {
 
 dropSparkTable() {
   table_name=$1
+  db_name=$2
 
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP TABLE $table_name\\\")\" | bin/spark-shell"
+  if [ "$db_name" == "" ]; then
+    db_name="default"
+  fi
+
+  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP TABLE $db_name.$table_name\\\")\" | bin/spark-shell"
 }
 
 createDatabaseWithSpark() {
@@ -614,6 +619,17 @@ alterTrinoTable() {
   fi
 
   docker exec -it "$TRINO_HOSTNAME" trino --execute="alter table hive.$schema_name.$old_table_name rename to $new_table_name;"
+}
+
+dropTrinoTable() {
+  table_name=$1
+  schema_name=$2
+
+  if [ "$schema_name" == "" ]; then
+    schema_name="default"
+  fi
+
+  docker exec -it "$TRINO_HOSTNAME" trino --execute="drop table hive.$schema_name.$table_name;"
 }
 
 createSchemaWithTrino() {

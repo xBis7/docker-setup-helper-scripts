@@ -28,3 +28,9 @@ failMsg="Permission denied: user [spark] does not have [ALTER] privilege on [def
 
 retryOperationIfNeeded "$abs_path" "alterSparkTable $SPARK_TABLE $NEW_SPARK_TABLE_NAME" "$failMsg" "true"
 
+# Drop partition
+echo ""
+echo "- INFO: [alter] should fail."
+sql="spark.sql(\\\"alter table animals drop partition (name='cow')\\\")"
+failMsg="Permission denied: user [spark] does not have [ALTER] privilege on [default/animals]"
+retryOperationIfNeeded "$abs_path" "performSparkSql $sql" "$failMsg" "true"

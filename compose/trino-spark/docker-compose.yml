@@ -2,7 +2,9 @@ version: '3.8'
 services:
   trino-coordinator:
     image: 'trinodb/trino:latest'
-    privileged: true
+# Enable privileged mode for creating a flamegraph.
+# The extra permissions are needed for enabling CPU and kernel profiling on the container.
+#    privileged: true
     hostname: trino-coordinator
     ports:
       - '8080:8080'

@@ -8,6 +8,7 @@ services:
     hostname: trino-coordinator
     ports:
       - '8080:8080'
+      - '9999:9999' # Debugger
     volumes:
       - ./etc:/etc/trino
       - ./conf/core-site.xml:/etc/hadoop/conf/core-site.xml:ro

@@ -15,6 +15,7 @@ echo "- INFO: Updating Ranger policies. User [spark] will now have only [select]
 sleep 15
 
 echo ""
+echo "- INFO: Select from table"
 echo "- INFO: [select] should succeed."
 
 successMsg="|  1, dog|"
@@ -22,15 +23,29 @@ successMsg="|  1, dog|"
 retryOperationIfNeeded "$abs_path" "selectDataFromSparkTable $SPARK_TABLE" "$successMsg" "false"
 
 echo ""
+echo "- INFO: Rename table"
 echo "- INFO: [alter] should fail."
 
 failMsg="Permission denied: user [spark] does not have [ALTER] privilege on [default/$SPARK_TABLE]"
 
 retryOperationIfNeeded "$abs_path" "alterSparkTable $SPARK_TABLE $NEW_SPARK_TABLE_NAME" "$failMsg" "true"
 
-# Drop partition
 echo ""
+echo "- INFO: Drop partition"
 echo "- INFO: [alter] should fail."
 sql="spark.sql(\\\"alter table animals drop partition (name='cow')\\\")"
 failMsg="Permission denied: user [spark] does not have [ALTER] privilege on [default/animals]"
+retryOperationIfNeeded "$abs_path" "performSparkSql $sql" "$failMsg" "true"
+
+echo ""
+echo "- INFO: Insert into table"
+echo "- INFO: [alter] should fail."
+sql="spark.sql(\\\"insert into sports values(1, 'football')\\\")"
+failMsg="Permission denied: user [spark] does not have [ALTER] privilege on [default/sports]"
+retryOperationIfNeeded "$abs_path" "performSparkSql $sql" "$failMsg" "true"
+
+echo ""
+echo "- INFO: Truncate table"
+echo "- INFO: [alter] should fail."
+sql="spark.sql(\\\"truncate table sports\\\")"
 retryOperationIfNeeded "$abs_path" "performSparkSql $sql" "$failMsg" "true"

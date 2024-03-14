@@ -309,8 +309,13 @@ handleHadoopEnv() {
 handleHiveEnv() {
   abs_path=$1
   op=$2
+  hive_url_policies_enabled=$3
 
   hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/apache-hive-3.1.3-bin/compose/hive-metastore-ranger"
+  if [ "$hive_url_policies_enabled" == "true" ]; then
+      cp "$abs_path/$CURRENT_REPO/compose/hive/conf/ranger-hive-security_hive_url_policies_enabled.xml" "$hive_docker_path/conf/ranger-hive-security.xml"
+      echo "Hive configuration copied to repo."
+  fi
   cd $hive_docker_path
 
   if [ "$op" == "start" ]; then

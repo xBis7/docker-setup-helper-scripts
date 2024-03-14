@@ -315,8 +315,11 @@ handleHiveEnv() {
 
   hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/apache-hive-3.1.3-bin/compose/hive-metastore-ranger"
   if [ "$hive_url_policies_enabled" == "true" ]; then
+      cp "$hive_docker_path/conf/ranger-hive-security.xml" "$abs_path/$CURRENT_REPO/compose/hive/conf/ranger-hive-security.xml"
+      echo "Original ranger-hive-security configuration saved."
+
       cp "$abs_path/$CURRENT_REPO/compose/hive/conf/ranger-hive-security_hive_url_policies_enabled.xml" "$hive_docker_path/conf/ranger-hive-security.xml"
-      echo "Hive configuration copied to repo."
+      echo "ranger-hive-security configuration for Hive URL policies copied to Hive."
   fi
   cd $hive_docker_path
 
@@ -350,6 +353,9 @@ handleHiveEnv() {
     echo ""
     echo "'$PROJECT_HIVE' env stopped."
     echo ""
+
+    cp "$abs_path/$CURRENT_REPO/compose/hive/conf/ranger-hive-security.xml" "$hive_docker_path/conf/ranger-hive-security.xml"
+    echo "Original ranger-hive-security configuration restored."
   fi
 }
 

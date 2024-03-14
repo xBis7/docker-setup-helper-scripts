@@ -93,3 +93,6 @@ fi
 if [ "$stop_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"
 fi
+
+echo "Testing Hive URL policies"
+./tests/test_hive_url_policies.sh "$abs_path" "$component" "$prepare_env" "$stop_env"

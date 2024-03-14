@@ -23,6 +23,7 @@ HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
 HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
 HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
 HDFS_AND_HIVE_SELECT_ALTER_DROP="7_hive_defaultdb_select_alter_drop"
+HDFS_AND_HIVE_AND_CREATE_HIVE_URL="8_hdfs_hive_create_hive_url"
 HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
 
 # Const shared variables
@@ -126,6 +127,11 @@ HIVE_STANDALONE_METASTORE_JAR="standalone-metastore/target/$HIVE_STANDALONE_META
 
 # Calcite jar
 CALCITE_CORE_JAR_NAME="calcite-core-1.36.0.jar"
+
+# Table names
+TABLE_PERSONS="persons"
+TABLE_ANIMALS="animals"
+TABLE_SPORTS="sports"
 
 getHostnameFromName() {
   name=$1
@@ -305,8 +311,16 @@ handleHadoopEnv() {
 handleHiveEnv() {
   abs_path=$1
   op=$2
+  hive_url_policies_enabled=$3
 
   hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/apache-hive-3.1.3-bin/compose/hive-metastore-ranger"
+  if [ "$hive_url_policies_enabled" == "true" ]; then
+      mv "$hive_docker_path/conf/ranger-hive-security.xml" "$hive_docker_path/conf/ranger-hive-security-old.xml"
+      echo "Rename original ranger-hive-security configuration."
+
+      cp "$abs_path/$CURRENT_REPO/compose/hive/conf/ranger-hive-security_hive_url_policies_enabled.xml" "$hive_docker_path/conf/ranger-hive-security.xml"
+      echo "ranger-hive-security configuration for Hive URL policies copied to Hive."
+  fi
   cd $hive_docker_path
 
   if [ "$op" == "start" ]; then
@@ -339,6 +353,9 @@ handleHiveEnv() {
     echo ""
     echo "'$PROJECT_HIVE' env stopped."
     echo ""
+
+    mv "$hive_docker_path/conf/ranger-hive-security-old.xml" "$hive_docker_path/conf/ranger-hive-security.xml" 2>/dev/null || true
+    echo "Original ranger-hive-security configuration restored."
   fi
 }
 

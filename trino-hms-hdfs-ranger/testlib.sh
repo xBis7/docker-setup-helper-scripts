@@ -128,6 +128,9 @@ HIVE_STANDALONE_METASTORE_JAR="standalone-metastore/target/$HIVE_STANDALONE_META
 # Calcite jar
 CALCITE_CORE_JAR_NAME="calcite-core-1.36.0.jar"
 
+# Table names
+TABLE_PERSONS="persons"
+
 getHostnameFromName() {
   name=$1
 

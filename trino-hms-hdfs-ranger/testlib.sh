@@ -130,6 +130,8 @@ CALCITE_CORE_JAR_NAME="calcite-core-1.36.0.jar"
 
 # Table names
 TABLE_PERSONS="persons"
+TABLE_ANIMALS="animals"
+TABLE_SPORTS="sports"
 
 getHostnameFromName() {
   name=$1

@@ -26,3 +26,10 @@ else
   echo "- RESULT -> FAILURE: HDFS test data creation failed."
   exit 1
 fi
+
+echo ""
+if createTrinoDir; then
+  echo "- INFO: Creation of HDFS dir for storing Trino data succeeded."
+else
+  echo "- INFO: Creation of HDFS dir for storing Trino data failed."
+fi

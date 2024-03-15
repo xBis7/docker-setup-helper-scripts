@@ -52,6 +52,7 @@ SPARK_TABLE="spark_test_table"
 NEW_SPARK_TABLE_NAME="new_$SPARK_TABLE"
 EXTERNAL_DB="poc_db"
 HDFS_DIR="test"
+TRINO_DIR="trino_data"
 TMP_FILE="tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
 
@@ -572,6 +573,10 @@ createHdfsTestData() {
   docker exec -it "$DN1_HOSTNAME" hdfs dfs -put test.csv "/$dir_name"
 }
 
+createTrinoDir() {
+  docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir "/$TRINO_DIR"
+}
+
 performSparkSql() {
   # Join all args with space
   sql="$*"
@@ -639,6 +644,12 @@ dropDatabaseWithSpark() {
   else
     docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP DATABASE IF EXISTS $db_name\\\")\" | bin/spark-shell"
   fi
+}
+
+performTrinoCmd() {
+  # Join all args with space
+  cmd="$*"
+  docker exec -it "$TRINO_HOSTNAME" trino --execute="$cmd"
 }
 
 createTrinoTable() {

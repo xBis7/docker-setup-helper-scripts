@@ -26,7 +26,12 @@ if [ "$component" == "spark" ]; then
 
 else
   echo ""
-  # Add TRINO tests
+    echo "### TEST_1 ###"
+    ./tests/spark/hive_url_policies/1_test_no_hive_url_policies.sh "$abs_path"
+
+    echo ""
+    echo "### TEST_2 ###"
+    ./tests/spark/hive_url_policies/2_test_create_hive_url_policies.sh "$abs_path"
 fi
 
 if [ "$stop_env" == "true" ]; then

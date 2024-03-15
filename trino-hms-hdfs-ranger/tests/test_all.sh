@@ -90,9 +90,10 @@ else
   ./tests/trino/7_test_trino_drop_table_perm.sh "$abs_path"
 fi
 
+echo "Testing Hive URL policies"
+./tests/test_hive_url_policies.sh "$abs_path" "$component" "$prepare_env" "$stop_env"
+
 if [ "$stop_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"
 fi
 
-echo "Testing Hive URL policies"
-./tests/test_hive_url_policies.sh "$abs_path" "$component" "$prepare_env" "$stop_env"

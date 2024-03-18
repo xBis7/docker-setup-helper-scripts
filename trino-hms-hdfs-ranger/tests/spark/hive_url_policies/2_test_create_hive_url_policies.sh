@@ -11,9 +11,6 @@ echo "- INFO: Updating Ranger policies. User [spark] will have Write permission 
 ./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_AND_CREATE_HIVE_URL"
 
 echo ""
-echo "- INFO: Ranger policies updated."
-
-echo ""
 echo "- INFO: Create table"
 echo "- INFO: [create] should not fail."
 successMsg="org.apache.spark.sql.DataFrame = []"

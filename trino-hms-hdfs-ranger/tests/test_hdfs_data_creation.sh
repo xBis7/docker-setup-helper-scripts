@@ -18,18 +18,7 @@ echo ""
 echo "- INFO: HDFS user hadoop, should be able to create data with ranger default policies."
 echo ""
 
-if createHdfsTestData "$HDFS_DIR"; then
-  echo ""
-  echo "- RESULT -> SUCCESS: HDFS test data creation succeeded."
-else
-  echo ""
-  echo "- RESULT -> FAILURE: HDFS test data creation failed."
-  exit 1
-fi
+createHdfsDir "$HDFS_DIR"
+createHdfsFile "$HDFS_DIR"
 
-echo ""
-if createTrinoDir; then
-  echo "- INFO: Creation of HDFS dir for storing Trino data succeeded."
-else
-  echo "- INFO: Creation of HDFS dir for storing Trino data failed."
-fi
+createHdfsDir "$HIVE_WAREHOUSE_DIR"

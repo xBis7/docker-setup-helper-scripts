@@ -39,6 +39,7 @@ DEFAULT_POLICIES="1_defaults"
 DEFAULT_AND_NO_HIVE="2_defaults_no_hive_perm_defaultdb"
 HDFS_ACCESS="3_hdfs_all"
 HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
+TRINO_HDFS_AND_HIVE_ALL="4_trino_hdfs_hive_defaultdb_all"
 HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
 HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
 HDFS_AND_HIVE_SELECT_ALTER_DROP="7_hive_defaultdb_select_alter_drop"
@@ -52,7 +53,7 @@ SPARK_TABLE="spark_test_table"
 NEW_SPARK_TABLE_NAME="new_$SPARK_TABLE"
 EXTERNAL_DB="poc_db"
 HDFS_DIR="test"
-TRINO_DIR="trino_data"
+HIVE_WAREHOUSE_DIR="opt/hive/data"
 TMP_FILE="tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
 
@@ -566,15 +567,29 @@ updateProjectRepo() {
   echo ""
 }
 
-createHdfsTestData() {
+createHdfsDir() {
   dir_name=$1
 
-  docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir "/$dir_name"
-  docker exec -it "$DN1_HOSTNAME" hdfs dfs -put test.csv "/$dir_name"
+  echo ""
+  if docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir -p "/$dir_name"; then
+    echo "- INFO: Creation of HDFS dir:/$dir_name succeeded."
+  else
+    echo "- ERROR: Creation of HDFS dir:/$dir_name failed."
+    exit 1
+  fi
 }
 
-createTrinoDir() {
-  docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir "/$TRINO_DIR"
+createHdfsFile() {
+  dir_name=$1
+  file_name="test.csv"
+
+  echo ""
+  if docker exec -it "$DN1_HOSTNAME" hdfs dfs -put "$file_name" "/$dir_name"; then
+    echo "- INFO: Creation of HDFS file:/$dir_name/$file_name succeeded."
+  else
+    echo "- ERROR: Creation of HDFS file:/$dir_name/$file_name failed."
+    exit 1
+  fi
 }
 
 performSparkSql() {
@@ -909,4 +924,9 @@ retryOperationIfNeeded() {
   done
 }
 
-
+waitForPoliciesUpdate() {
+  wait_time_sec=15
+  echo ""
+  echo "- INFO: Waiting $wait_time_sec sec to make sure enough time has passed for the policies to get updated."
+  sleep "$wait_time_sec"
+}

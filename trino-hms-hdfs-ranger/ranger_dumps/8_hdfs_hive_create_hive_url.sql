@@ -3,7 +3,7 @@
 -- hadoopdev        | all-path                                      | /                 | hadoop, postgres, spark           | Read, Write, Execute
 -- hivedev          | all - database                                | public            | /                                 | Create
 -- hivedev          | all - database                                | /                 | hive                              | *
--- hivedev          | all - url                                     | spark, postgres   | write                             |
+-- hivedev          | all - url                                     | /                 | spark, postgres                   | Write
 -- hivedev          | all - *                                       | /                 | hive                              | *
 -- hivedev          | default database tables column                | /                 | postgres, spark                   | *
 -- hivedev          | Information_schema database tables columns    | public            | /                                 | select

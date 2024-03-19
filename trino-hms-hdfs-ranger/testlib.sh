@@ -55,6 +55,7 @@ EXTERNAL_DB="poc_db"
 HDFS_DIR="test"
 HIVE_WAREHOUSE_DIR="opt/hive/data"
 TMP_FILE="tmp_output.txt"
+PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
 
 # Container names

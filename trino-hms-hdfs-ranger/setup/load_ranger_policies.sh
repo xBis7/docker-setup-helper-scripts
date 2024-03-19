@@ -20,28 +20,31 @@ fi
 
 echo ""
 echo "Dropping the old populated ranger DB."
-if docker exec -it ranger-postgres psql -U postgres -d postgres -c "DROP DATABASE ranger" > /dev/null; then
+if docker exec -it ranger-postgres psql -U postgres -d postgres -c "DROP DATABASE ranger" > $PG_TMP_OUT_FILE; then
   echo "Dropping the old populated ranger DB succeeded."
 else
   echo "Dropping the old populated ranger DB failed. Exiting..."
+  cat $PG_TMP_OUT_FILE
   exit 1
 fi
 
 echo ""
 echo "Creating a new empty ranger DB."
-if docker exec -it ranger-postgres psql -U postgres -d postgres -c "CREATE DATABASE ranger" > /dev/null; then
+if docker exec -it ranger-postgres psql -U postgres -d postgres -c "CREATE DATABASE ranger" > $PG_TMP_OUT_FILE; then
   echo "Creating a new empty ranger DB succeeded."
 else
   echo "Creating a new empty ranger DB failed. Exiting..."
+  cat $PG_TMP_OUT_FILE
   exit 1
 fi
 
 echo ""
 echo "Copying dump file '$dump_file_name.sql' under the Ranger container."
-if docker cp "$dump_file_path" ranger-postgres:/dump.sql > /dev/null; then
+if docker cp "$dump_file_path" ranger-postgres:/dump.sql > $PG_TMP_OUT_FILE; then
   echo "Copying dump file '$dump_file_name.sql' under the Ranger container succeeded."
 else
   echo "Copying dump file '$dump_file_name.sql' under the Ranger container failed. Exiting..."
+  cat $PG_TMP_OUT_FILE
   exit 1
 fi
 

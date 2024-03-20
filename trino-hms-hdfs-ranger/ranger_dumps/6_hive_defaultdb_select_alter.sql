@@ -1,11 +1,7 @@
--- Service Name     | Policy Name                                   | Groups        | Users                             | Permissions
---------------------|-----------------------------------------------|---------------|-----------------------------------|---------------------
--- hadoopdev        | all-path                                      | -             | hadoop, postgres, spark, trino    | Read, Write, Execute
--- hivedev          | all - database                                | public        | -                                 | Create
--- hivedev          | all - database                                | -             | hive                              | *
--- hivedev          | all - *                                       | -             | hive                              | *
--- hivedev          | default database tables column                | -             | postgres, spark                   | select, Alter
--- hivedev          | Information_schema database tables columns    | public        | -                                 | select
+-- Service Name     | Policy Name                                   | Users                             | Permissions
+--------------------|-----------------------------------------------|-----------------------------------|---------------------
+-- hadoopdev        | all-path                                      | hadoop, postgres, spark, trino    | Read, Write, Execute
+-- hivedev          | default database tables column                | postgres, spark                   | select, Alter
 
 --
 -- PostgreSQL database dump

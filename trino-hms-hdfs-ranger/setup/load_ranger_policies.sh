@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "./testlib.sh"
+
 set -e
 
 # This script assumes that the docker env is setup and all containers are up and running.

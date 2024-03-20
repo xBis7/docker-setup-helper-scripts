@@ -16,7 +16,10 @@ services:
       - ranger-net
 
   spark-master:
-    image: 'apache/spark:3.5.0'
+    build:
+      context: ./spark
+      dockerfile: Dockerfile
+    image: 'apache/spark:v3.3.2-fixed'
     working_dir: /opt/spark
     command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
     hostname: spark-master
@@ -39,7 +42,10 @@ services:
       - ranger-net
 
   spark-worker:
-    image: 'apache/spark:3.5.0'
+    build:
+      context: ./spark
+      dockerfile: Dockerfile
+    image: 'apache/spark:v3.3.2-fixed'
     working_dir: /opt/spark
     command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     depends_on:

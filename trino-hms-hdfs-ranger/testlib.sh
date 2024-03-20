@@ -49,27 +49,10 @@ HMS_POSTGRES_HOSTNAME="hive-metastore-ranger-postgres-1"
 RANGER_HOSTNAME="ranger"
 RANGER_POSTGRES_HOSTNAME="ranger-postgres"
 
-TRINO_HOSTNAME="trino-spark-trino-coordinator-1"
+TRINO_HOSTNAME="trino-coordinator-1"
 
-SPARK_MASTER_HOSTNAME="trino-spark-spark-master-1"
-SPARK_WORKER1_HOSTNAME="trino-spark-spark-worker-1"
-
-# Compose V1
-NAMENODE_HOSTNAME_V1="hadoop-ranger_namenode_1"
-DN1_HOSTNAME_V1="hadoop-ranger_datanode_1"
-DN2_HOSTNAME_V1="hadoop-ranger_datanode_2"
-DN3_HOSTNAME_V1="hadoop-ranger_datanode_3"
-
-HMS_HOSTNAME_V1="hive-metastore-ranger_hive-metastore_1"
-HMS_POSTGRES_HOSTNAME_V1="hive-metastore_ranger-postgres_1"
-
-RANGER_HOSTNAME_V1="ranger"
-RANGER_POSTGRES_HOSTNAME_V1="ranger-postgres"
-
-TRINO_HOSTNAME_V1="trino-spark_trino-coordinator_1"
-
-SPARK_MASTER_HOSTNAME_V1="trino-spark_spark-master_1"
-SPARK_WORKER1_HOSTNAME_V1="trino-spark_spark-worker_1"
+SPARK_MASTER_HOSTNAME="spark-master-1"
+SPARK_WORKER1_HOSTNAME="spark-worker-1"
 
 # Ranger jars names
 RANGER_COMMON_JAR_NAME="ranger-plugins-common-3.0.0-SNAPSHOT-jar-with-dependencies.jar"
@@ -181,7 +164,7 @@ cpJarIfNotExist() {
 setupSparkJarsIfNeeded() {
   abs_path=$1
 
-  dir_base_path="$abs_path/$CURRENT_REPO/compose/trino-spark/conf/spark"
+  dir_base_path="$abs_path/$CURRENT_REPO/compose/spark/conf"
   jars_dir_name="hive-jars"
   jars_dir_path="$dir_base_path/$jars_dir_name"
 
@@ -328,16 +311,6 @@ handleHiveEnv() {
     echo "Starting '$PROJECT_HIVE' env."
     echo ""
 
-    # 'docker-compose' uses v1
-    # 'docker compose' uses v2, compose was integrated into the docker CLI tool as a plugin.
-    # Here we need to use v2 because one of the convention changes is that
-    # in v1 names are concatenated using '_' while in v2 this is done using '-'.
-    # Spark shell complains about the hive-metastore name because of the '_'.
-    # Changing to v2 solves the issue. Check the following exception:
-    # org.apache.hadoop.hive.metastore.api.MetaException: Got exception: java.net.URISyntaxException Illegal character in hostname at index 30: thrift://hive-metastore-ranger_hive-metastore_1.common-network:9083
-
-    # With compose v2, the command wasn't reading the path properly.
-    # Explicitly specifying the docker-compose file solved the issue.
     docker compose -f "$hive_docker_path/docker-compose.yaml" up -d
 
     echo ""
@@ -359,45 +332,68 @@ handleHiveEnv() {
   fi
 }
 
-handleTrinoSparkEnv() {
+handleTrinoEnv() {
   abs_path=$1
   op=$2
 
-  trino_spark_docker_path="$abs_path/docker-setup-helper-scripts/compose/trino-spark"
-  cd $trino_spark_docker_path
+  trino_path="$abs_path/docker-setup-helper-scripts/compose/trino"
+  docker_compose_path="$trino_path/docker/docker-compose.yml"
+
+  if [ "$op" == "start" ]; then
+    echo ""
+    echo "Starting '$PROJECT_TRINO' env."
+
+    docker compose -p trino -f $docker_compose_path up -d
+
+    echo ""
+    echo "'$PROJECT_TRINO' env started."
+  else
+    echo ""
+    echo "Stopping '$PROJECT_TRINO' env."
+
+    docker compose -p trino -f $docker_compose_path down
+
+    echo ""
+    echo "'$PROJECT_TRINO' env stopped."
+  fi
+}
+
+handleSparkEnv() {
+  abs_path=$1
+  op=$2
+
+  spark_path="$abs_path/$CURRENT_REPO/compose/spark"
+  docker_compose_path="$spark_path/docker/docker-compose.yml"
 
   if [ "$op" == "start" ]; then
     # Setup the Spark jars if they don't exist.
     setupSparkJarsIfNeeded "$abs_path"
 
     echo ""
-    echo "Starting '$PROJECT_TRINO / $PROJECT_SPARK' env."
+    echo "Starting '$PROJECT_SPARK' env."
 
+    echo ""
     echo "Creating /spark-events dir and changing permissions."
-    echo ""
 
-    mkdir $trino_spark_docker_path/conf/spark/spark-events
-    chmod 777 $trino_spark_docker_path/conf/spark/spark-events
+    mkdir $spark_path/conf/spark-events
+    chmod 777 $spark_path/conf/spark-events
 
-    # This can be extended to scale to 3 spark workers.
-    docker compose -f "$trino_spark_docker_path/docker-compose.yml" up -d --scale spark-worker=3
+    docker compose -p spark -f $docker_compose_path up -d --scale worker=3
 
     echo ""
-    echo "'$PROJECT_TRINO / $PROJECT_SPARK' env started."
-    echo ""
+    echo "'$PROJECT_SPARK' env started."
   else
     echo ""
-    echo "Stopping '$PROJECT_TRINO / $PROJECT_SPARK' env."
-    echo ""
+    echo "Stopping '$PROJECT_SPARK' env."
 
-    docker compose -f "$trino_spark_docker_path/docker-compose.yml" down
+
+    docker compose -p spark -f $docker_compose_path down
 
     echo ""
-    echo "'$PROJECT_TRINO / $PROJECT_SPARK' env stopped."
-    echo ""
+    echo "'$PROJECT_SPARK' env stopped."
 
-    echo "Cleaning up /spark-events dir."
-    rm -r -f $trino_spark_docker_path/conf/spark/spark-events/
+    echo "Cleaning up spark-events dir."
+    rm -r -f $spark_path/conf/spark-events
   fi
 }
 

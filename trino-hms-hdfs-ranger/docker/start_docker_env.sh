@@ -23,4 +23,6 @@ handleHadoopEnv "$abs_path" "start"
 
 handleHiveEnv "$abs_path" "start" "$hive_url_policies_enabled"
 
-handleTrinoSparkEnv "$abs_path" "start"
+handleTrinoEnv "$abs_path" "start"
+
+handleSparkEnv "$abs_path" "start"

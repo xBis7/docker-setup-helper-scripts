@@ -13,7 +13,7 @@ CURRENT_REPO="docker-setup-helper-scripts"
 # Project branches
 RANGER_BRANCH="ranger-docker-hdfs"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
-HIVE_BRANCH="branch-3.1-build-fixed"
+HIVE_BRANCH="branch-3.1-without-upgrade-acid-docker"
 
 # Dump file names
 DEFAULT_POLICIES="1_defaults"

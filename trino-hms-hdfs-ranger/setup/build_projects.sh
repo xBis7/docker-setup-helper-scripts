@@ -110,6 +110,7 @@ if [ "$buildRanger" == 0 ]; then
 
   if [ "$ranger_image" == "true" ]; then
     echo "Running ranger_in_docker script"
+    cd "$abs_path/$PROJECT_RANGER"
     ranger_in_docker_success_msg="Now, You can run  access RANGER portal via http://localhost:6080 (admin/rangerR0cks!)"
     ./ranger_in_docker up 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
 

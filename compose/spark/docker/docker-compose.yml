@@ -2,7 +2,7 @@ version: '3.8'
 services:
   master:
     build:
-      context: ./spark
+      context: .
       dockerfile: Dockerfile
     image: 'apache/spark:v3.3.2-fixed'
     working_dir: /opt/spark
@@ -28,7 +28,7 @@ services:
 
   worker:
     build:
-      context: ./spark
+      context: .
       dockerfile: Dockerfile
     image: 'apache/spark:v3.3.2-fixed'
     working_dir: /opt/spark

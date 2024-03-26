@@ -11,6 +11,7 @@ stop_env=$4
 
 if [ "$prepare_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"
+  ./setup/setup_docker_env.sh "$abs_path"
   ./docker/start_docker_env.sh "$abs_path"
 fi
 

@@ -173,10 +173,14 @@ cpJarIfNotExist() {
   jar_name=$3
 
   if find "$path_to_copy" -type f | grep -E "/$jar_name$"; then
-    echo "Jar '$jar_name' exists."
+    echo "Jar '$jar_name' exists on destination path."
   else
-    echo "Jar '$jar_name' doesn't exist. Copying..."
-    execCmdAndHandleErrorIfNeeded "cp $jar_path $path_to_copy"
+    if ! find "$jar_path" -type f | grep -E "/$jar_name$"; then
+      echo "Jar '$jar_name' doesn't exist on source path. This jar is not going to be copied."
+    else
+      echo "Jar '$jar_name' doesn't exist on destination path. Copying..."
+      execCmdAndHandleErrorIfNeeded "cp $jar_path $path_to_copy"
+    fi
   fi
 }
 

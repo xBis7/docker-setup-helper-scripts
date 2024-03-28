@@ -13,7 +13,26 @@ CURRENT_REPO="docker-setup-helper-scripts"
 # Project branches
 RANGER_BRANCH="ranger-docker-hdfs"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
-HIVE_BRANCH="branch-3.1-build-fixed"
+HIVE_BRANCH=
+
+# Builds
+HIVE_BUILD=
+
+configureHiveVersion() {
+  if [[ "${HIVE_VERSION}" == "4" ]]; then
+    echo "Configuring project for Hive 4."
+    HIVE_BRANCH="hive4-latest"
+    HIVE_BUILD="4.0.0-beta-2-SNAPSHOT"
+    RANGER_BRANCH="ranger-docker-hive4"
+  else
+    echo "Configuring project for Hive 3."
+    HIVE_BRANCH="branch-3.1-build-fixed"
+    HIVE_BUILD="3.1.3"
+    RANGER_BRANCH="ranger-docker-hdfs"
+  fi
+}
+
+configureHiveVersion
 
 # Dump file names
 DEFAULT_POLICIES="1_defaults"
@@ -49,27 +68,10 @@ HMS_POSTGRES_HOSTNAME="hive-metastore-ranger-postgres-1"
 RANGER_HOSTNAME="ranger"
 RANGER_POSTGRES_HOSTNAME="ranger-postgres"
 
-TRINO_HOSTNAME="trino-spark-trino-coordinator-1"
+TRINO_HOSTNAME="trino-coordinator-1"
 
-SPARK_MASTER_HOSTNAME="trino-spark-spark-master-1"
-SPARK_WORKER1_HOSTNAME="trino-spark-spark-worker-1"
-
-# Compose V1
-NAMENODE_HOSTNAME_V1="hadoop-ranger_namenode_1"
-DN1_HOSTNAME_V1="hadoop-ranger_datanode_1"
-DN2_HOSTNAME_V1="hadoop-ranger_datanode_2"
-DN3_HOSTNAME_V1="hadoop-ranger_datanode_3"
-
-HMS_HOSTNAME_V1="hive-metastore-ranger_hive-metastore_1"
-HMS_POSTGRES_HOSTNAME_V1="hive-metastore_ranger-postgres_1"
-
-RANGER_HOSTNAME_V1="ranger"
-RANGER_POSTGRES_HOSTNAME_V1="ranger-postgres"
-
-TRINO_HOSTNAME_V1="trino-spark_trino-coordinator_1"
-
-SPARK_MASTER_HOSTNAME_V1="trino-spark_spark-master_1"
-SPARK_WORKER1_HOSTNAME_V1="trino-spark_spark-worker_1"
+SPARK_MASTER_HOSTNAME="spark-master-1"
+SPARK_WORKER1_HOSTNAME="spark-worker-1"
 
 # Ranger jars names
 RANGER_COMMON_JAR_NAME="ranger-plugins-common-3.0.0-SNAPSHOT-jar-with-dependencies.jar"
@@ -86,26 +88,26 @@ RANGER_HDFS_JAR="hdfs-agent/target/$RANGER_HDFS_JAR_NAME"
 RANGER_HIVE_JAR="hive-agent/target/$RANGER_HIVE_JAR_NAME"
 
 # Hive jars names
-HIVE_BEELINE_JAR_NAME="hive-beeline-3.1.3.jar"
-HIVE_CLI_JAR_NAME="hive-cli-3.1.3.jar"
-HIVE_COMMON_JAR_NAME="hive-common-3.1.3.jar"
-HIVE_EXEC_CORE_JAR_NAME="hive-exec-3.1.3-core.jar"
-HIVE_EXEC_JAR_NAME="hive-exec-3.1.3.jar"
-HIVE_JDBC_STANDALONE_JAR_NAME="hive-jdbc-3.1.3-standalone.jar"
-HIVE_JDBC_JAR_NAME="hive-jdbc-3.1.3.jar"
-HIVE_LLAP_COMMON_JAR_NAME="hive-llap-common-3.1.3.jar"
-HIVE_METASTORE_JAR_NAME="hive-metastore-3.1.3.jar"
-HIVE_SERDE_JAR_NAME="hive-serde-3.1.3.jar"
-HIVE_SERVICE_RPC_JAR_NAME="hive-service-rpc-3.1.3.jar"
-HIVE_SHIMS_JAR_NAME="hive-shims-3.1.3.jar"
-HIVE_SHIMS_COMMON_JAR_NAME="hive-shims-common-3.1.3.jar"
+HIVE_BEELINE_JAR_NAME="hive-beeline-$HIVE_BUILD.jar"
+HIVE_CLI_JAR_NAME="hive-cli-$HIVE_BUILD.jar"
+HIVE_COMMON_JAR_NAME="hive-common-$HIVE_BUILD.jar"
+HIVE_EXEC_CORE_JAR_NAME="hive-exec-$HIVE_BUILD-core.jar"
+HIVE_EXEC_JAR_NAME="hive-exec-$HIVE_BUILD.jar"
+HIVE_JDBC_STANDALONE_JAR_NAME="hive-jdbc-$HIVE_BUILD-standalone.jar"
+HIVE_JDBC_JAR_NAME="hive-jdbc-$HIVE_BUILD.jar"
+HIVE_LLAP_COMMON_JAR_NAME="hive-llap-common-$HIVE_BUILD.jar"
+HIVE_METASTORE_JAR_NAME="hive-metastore-$HIVE_BUILD.jar"
+HIVE_SERDE_JAR_NAME="hive-serde-$HIVE_BUILD.jar"
+HIVE_SERVICE_RPC_JAR_NAME="hive-service-rpc-$HIVE_BUILD.jar"
+HIVE_SHIMS_JAR_NAME="hive-shims-$HIVE_BUILD.jar"
+HIVE_SHIMS_COMMON_JAR_NAME="hive-shims-common-$HIVE_BUILD.jar"
 HIVE_SHIMS_SCHEDULER_JAR_NAME="hive-shims-scheduler-3.1.3.jar"
 HIVE_SPARK_CLIENT_JAR_NAME="hive-spark-client-3.1.3.jar"
 HIVE_STANDALONE_METASTORE_JAR_NAME="hive-standalone-metastore-3.1.3.jar"
 
 # We probably don't need those. Don't copy them for now. They are both under 'ql/target'
-HIVE_EXEC_FALLBACKAUTHORIZER_JAR_NAME="hive-exec-3.1.3-fallbackauthorizer.jar"
-HIVE_ORIGINAL_EXEC_JAR_NAME="original-hive-exec-3.1.3.jar"
+HIVE_EXEC_FALLBACKAUTHORIZER_JAR_NAME="hive-exec-$HIVE_BUILD-fallbackauthorizer.jar"
+HIVE_ORIGINAL_EXEC_JAR_NAME="original-hive-exec-$HIVE_BUILD.jar"
 
 # Hive jars, paths from Hive project root
 HIVE_BEELINE_JAR="beeline/target/$HIVE_BEELINE_JAR_NAME"
@@ -171,19 +173,31 @@ cpJarIfNotExist() {
   jar_name=$3
 
   if find "$path_to_copy" -type f | grep -E "/$jar_name$"; then
-    echo "Jar '$jar_name' exists."
+    echo "Jar '$jar_name' exists on destination path."
   else
-    echo "Jar '$jar_name' doesn't exist. Copying..."
-    execCmdAndHandleErrorIfNeeded "cp $jar_path $path_to_copy"
+    if ! find "$jar_path" -type f | grep -E "/$jar_name$"; then
+      echo "Jar '$jar_name' doesn't exist on source path. This jar is not going to be copied."
+    else
+      echo "Jar '$jar_name' doesn't exist on destination path. Copying..."
+      execCmdAndHandleErrorIfNeeded "cp $jar_path $path_to_copy"
+    fi
   fi
 }
 
 setupSparkJarsIfNeeded() {
   abs_path=$1
 
-  dir_base_path="$abs_path/$CURRENT_REPO/compose/trino-spark/conf/spark"
+  dir_base_path="$abs_path/$CURRENT_REPO/compose/spark/conf"
   jars_dir_name="hive-jars"
   jars_dir_path="$dir_base_path/$jars_dir_name"
+  file_name_regex="hive-*-$HIVE_BUILD*"
+
+  # Check whether compatible jar files already exist. If not cleanup jars dir.
+  if ! find "$jars_dir_path" -type f -name "$file_name_regex" -print -quit | grep -q .; then
+    echo "File matching regex '$file_name_regex' does not exist in '$jars_dir_name'."
+    echo "Cleaning up '$jars_dir_name'..."
+    rm -rf "$jars_dir_path"/*
+  fi
 
   # Check if the directory exists.
   if find "$dir_base_path" -type d | grep -E "/$jars_dir_name$"; then
@@ -313,7 +327,8 @@ handleHiveEnv() {
   op=$2
   hive_url_policies_enabled=$3
 
-  hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-3.1.3-bin/apache-hive-3.1.3-bin/compose/hive-metastore-ranger"
+  hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD-bin/apache-hive-$HIVE_BUILD-bin/compose/hive-metastore-ranger"
+
   if [ "$hive_url_policies_enabled" == "true" ]; then
       mv "$hive_docker_path/conf/ranger-hive-security.xml" "$hive_docker_path/conf/ranger-hive-security-old.xml"
       echo "Rename original ranger-hive-security configuration."
@@ -359,45 +374,68 @@ handleHiveEnv() {
   fi
 }
 
-handleTrinoSparkEnv() {
+handleTrinoEnv() {
   abs_path=$1
   op=$2
 
-  trino_spark_docker_path="$abs_path/docker-setup-helper-scripts/compose/trino-spark"
-  cd $trino_spark_docker_path
+  trino_path="$abs_path/docker-setup-helper-scripts/compose/trino"
+  docker_compose_path="$trino_path/docker/docker-compose.yml"
+
+  if [ "$op" == "start" ]; then
+    echo ""
+    echo "Starting '$PROJECT_TRINO' env."
+
+    docker compose -p trino -f $docker_compose_path up -d
+
+    echo ""
+    echo "'$PROJECT_TRINO' env started."
+  else
+    echo ""
+    echo "Stopping '$PROJECT_TRINO' env."
+
+    docker compose -p trino -f $docker_compose_path down
+
+    echo ""
+    echo "'$PROJECT_TRINO' env stopped."
+  fi
+}
+
+handleSparkEnv() {
+  abs_path=$1
+  op=$2
+
+  spark_path="$abs_path/$CURRENT_REPO/compose/spark"
+  docker_compose_path="$spark_path/docker/docker-compose.yml"
 
   if [ "$op" == "start" ]; then
     # Setup the Spark jars if they don't exist.
     setupSparkJarsIfNeeded "$abs_path"
 
     echo ""
-    echo "Starting '$PROJECT_TRINO / $PROJECT_SPARK' env."
+    echo "Starting '$PROJECT_SPARK' env."
 
+    echo ""
     echo "Creating /spark-events dir and changing permissions."
-    echo ""
 
-    mkdir $trino_spark_docker_path/conf/spark/spark-events
-    chmod 777 $trino_spark_docker_path/conf/spark/spark-events
+    mkdir $spark_path/conf/spark-events
+    chmod 777 $spark_path/conf/spark-events
 
-    # This can be extended to scale to 3 spark workers.
-    docker compose -f "$trino_spark_docker_path/docker-compose.yml" up -d --scale spark-worker=3
+    docker compose -p spark -f $docker_compose_path up -d --scale worker=3
 
     echo ""
-    echo "'$PROJECT_TRINO / $PROJECT_SPARK' env started."
-    echo ""
+    echo "'$PROJECT_SPARK' env started."
   else
     echo ""
-    echo "Stopping '$PROJECT_TRINO / $PROJECT_SPARK' env."
-    echo ""
+    echo "Stopping '$PROJECT_SPARK' env."
 
-    docker compose -f "$trino_spark_docker_path/docker-compose.yml" down
+
+    docker compose -p spark -f $docker_compose_path down
 
     echo ""
-    echo "'$PROJECT_TRINO / $PROJECT_SPARK' env stopped."
-    echo ""
+    echo "'$PROJECT_SPARK' env stopped."
 
-    echo "Cleaning up /spark-events dir."
-    rm -r -f $trino_spark_docker_path/conf/spark/spark-events/
+    echo "Cleaning up spark-events dir."
+    rm -r -f $spark_path/conf/spark-events
   fi
 }
 

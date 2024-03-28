@@ -1,0 +1,59 @@
+version: '3.8'
+services:
+  master:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 'apache/spark:v3.3.2-fixed'
+    working_dir: /opt/spark
+    command: bin/spark-class org.apache.spark.deploy.master.Master -h spark-master
+    hostname: spark-master
+    ports:
+      - "9090:9090"  # Spark master UI
+      - "7077:7077"  # Spark master communication port
+    environment:
+      - SPARK_LOCAL_IP=spark-master
+    volumes:
+      - ../conf/hive-jars:/opt/spark/hive-jars
+      - ../conf/spark-events:/opt/spark/spark-events
+      - ../conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+      - ../conf/hive-site.xml:/opt/spark/conf/hive-site.xml:ro
+      - ../conf/ranger-hive-audit.xml:/opt/spark/conf/ranger-hive-audit.xml:ro
+      - ../conf/ranger-hive-security.xml:/opt/spark/conf/ranger-hive-security.xml:ro
+      - ../conf/ranger-policymgr-ssl.xml:/opt/spark/conf/ranger-policymgr-ssl.xml:ro
+      - ../../common/core-site.xml:/opt/spark/conf/core-site.xml:ro
+      - ../../common/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
+    networks:
+      - ranger-net
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 'apache/spark:v3.3.2-fixed'
+    working_dir: /opt/spark
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - master
+    environment:
+      - SPARK_WORKER_CORES=1  # Number of cores to use on each worker
+      - SPARK_WORKER_MEMORY=2g  # Amount of memory to use on each worker
+      - SPARK_WORKER_WEBUI_PORT=8081
+      - SPARK_LOCAL_IP=worker
+    volumes:
+      - ../conf/hive-jars:/opt/spark/hive-jars
+      - ../conf/spark-events:/opt/spark/spark-events
+      - ../conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf:ro
+      - ../conf/hive-site.xml:/opt/spark/conf/hive-site.xml:ro
+      - ../conf/ranger-hive-audit.xml:/opt/spark/conf/ranger-hive-audit.xml:ro
+      - ../conf/ranger-hive-security.xml:/opt/spark/conf/ranger-hive-security.xml:ro
+      - ../conf/ranger-policymgr-ssl.xml:/opt/spark/conf/ranger-policymgr-ssl.xml:ro
+      - ../../common/core-site.xml:/opt/spark/conf/core-site.xml:ro
+      - ../../common/hdfs-site.xml:/opt/spark/conf/hdfs-site.xml:ro
+    networks:
+      - ranger-net
+
+networks:
+  ranger-net:
+    name: rangernw
+    external: true

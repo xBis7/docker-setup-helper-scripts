@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  coordinator:
+    # We are using the latest version of trino, because the latest or penultimate is always used in production.
+    image: 'trinodb/trino:latest'
+    # Enable privileged mode for creating a flamegraph.
+    # The extra permissions are needed for enabling CPU and kernel profiling on the container.
+    #    privileged: true
+    hostname: trino-coordinator
+    ports:
+      - '8080:8080'
+    volumes:
+      - ../etc:/etc/trino
+      - ../../common/core-site.xml:/etc/hadoop/conf/core-site.xml:ro
+      - ../../common/hdfs-site.xml:/etc/hadoop/conf/hdfs-site.xml:ro
+    networks:
+      - ranger-net
+
+networks:
+  ranger-net:
+    name: rangernw
+    external: true

@@ -17,7 +17,9 @@ echo "- INFO: This test is run after the schema tests."
 echo "- INFO: The previous policies allow a user to create a table."
 echo "- INFO: Wait 15 secs, to make sure policy updates have been picked up."
 echo ""
-sleep 15
+# This test is flaky because policies do not get updated fast enough and table is created on the first run (before retry mechanism kicks in).
+# Because of that sleep time is increased to 30 seconds. It might be a good idea to do the same for other tests where wait time is necessary.
+sleep 30
 
 echo ""
 echo "- INFO: Ranger policies updated."

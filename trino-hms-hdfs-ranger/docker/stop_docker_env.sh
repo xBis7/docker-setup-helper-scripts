@@ -10,7 +10,9 @@ abs_path=$1
 # Ranger was started first but now we need to stop it
 # last so that the network will be properly removed.
 
-handleTrinoSparkEnv "$abs_path" "stop"
+handleTrinoEnv "$abs_path" "stop"
+
+handleSparkEnv "$abs_path" "stop"
 
 handleHiveEnv "$abs_path" "stop"
 

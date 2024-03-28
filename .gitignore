@@ -2,8 +2,7 @@
 .idea
 
 tmp_output.txt
+pg_tmp_output.txt
 
-compose/trino-spark/conf/spark/spark-events
-compose/trino-spark/conf/spark/hive-jars
-
-trino-hms-hdfs-ranger/test_func.sh
+compose/spark/conf/spark-events
+compose/spark/conf/hive-jars

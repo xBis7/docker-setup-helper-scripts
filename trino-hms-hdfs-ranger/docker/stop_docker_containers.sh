@@ -13,8 +13,10 @@ elif [ "$project" == "hadoop" ]; then
   handleHadoopEnv "$abs_path" "stop"
 elif [ "$project" == "hms" ]; then
   handleHiveEnv "$abs_path" "stop"
-elif [[ "$project" == "trino" || "$project" == "spark" ]]; then
-  handleTrinoSparkEnv "$abs_path" "stop"
+elif [[ "$project" == "trino" ]]; then
+  handleTrinoEnv "$abs_path" "stop"
+elif [[ "$project" == "spark" ]]; then
+  handleSparkEnv "$abs_path" "stop"
 else
   echo "Provided project is unknown."
   echo "Try one of the following: "

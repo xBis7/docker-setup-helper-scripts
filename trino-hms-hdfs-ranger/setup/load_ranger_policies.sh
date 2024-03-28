@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "./testlib.sh"
+
 set -e
 
 # This script assumes that the docker env is setup and all containers are up and running.
@@ -20,28 +22,31 @@ fi
 
 echo ""
 echo "Dropping the old populated ranger DB."
-if docker exec -it ranger-postgres psql -U postgres -d postgres -c "DROP DATABASE ranger"; then
+if docker exec -it ranger-postgres psql -U postgres -d postgres -c "DROP DATABASE ranger" > $PG_TMP_OUT_FILE; then
   echo "Dropping the old populated ranger DB succeeded."
 else
   echo "Dropping the old populated ranger DB failed. Exiting..."
+  cat $PG_TMP_OUT_FILE
   exit 1
 fi
 
 echo ""
 echo "Creating a new empty ranger DB."
-if docker exec -it ranger-postgres psql -U postgres -d postgres -c "CREATE DATABASE ranger"; then
+if docker exec -it ranger-postgres psql -U postgres -d postgres -c "CREATE DATABASE ranger" > $PG_TMP_OUT_FILE; then
   echo "Creating a new empty ranger DB succeeded."
 else
   echo "Creating a new empty ranger DB failed. Exiting..."
+  cat $PG_TMP_OUT_FILE
   exit 1
 fi
 
 echo ""
 echo "Copying dump file '$dump_file_name.sql' under the Ranger container."
-if docker cp "$dump_file_path" ranger-postgres:/dump.sql; then
+if docker cp "$dump_file_path" ranger-postgres:/dump.sql > $PG_TMP_OUT_FILE; then
   echo "Copying dump file '$dump_file_name.sql' under the Ranger container succeeded."
 else
   echo "Copying dump file '$dump_file_name.sql' under the Ranger container failed. Exiting..."
+  cat $PG_TMP_OUT_FILE
   exit 1
 fi
 
@@ -49,7 +54,9 @@ echo ""
 echo "Populate the empty ranger DB with the '$dump_file_name.sql' contents."
 # This is polluting the output a lot.
 # TODO: find a way to hide the output.
-if docker exec -it ranger-postgres psql -U rangeradmin -d ranger -f dump.sql; then
+# With -q option output is only partly hidden.
+# When using > /dev/null terminal is blocked and no output appears (command might not even execute fully).
+if docker exec -it ranger-postgres psql -U rangeradmin -d ranger -f dump.sql -q; then
   echo "Populate the empty ranger DB with the '$dump_file_name.sql' contents succeeded."
 else
   echo "Populate the empty ranger DB with the '$dump_file_name.sql' contents failed. Exiting..."

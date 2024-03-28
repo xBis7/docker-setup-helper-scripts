@@ -24,10 +24,5 @@ if [ "$restart_env" == "y" ]; then
   sleep 60
 fi
 
-if createHdfsTestData "$HDFS_DIR"; then
-  echo ""
-  echo "- RESULT: HDFS test data creation succeeded."
-else
-  echo ""
-  echo "- RESULT: HDFS test data creation failed."
-fi
+createHdfsDir "$HDFS_DIR"
+createHdfsFile "$HDFS_DIR"

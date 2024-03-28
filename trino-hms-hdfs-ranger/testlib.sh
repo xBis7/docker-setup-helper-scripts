@@ -188,9 +188,16 @@ setupSparkJarsIfNeeded() {
   abs_path=$1
 
   dir_base_path="$abs_path/$CURRENT_REPO/compose/spark/conf"
-  echo "$HIVE_BUILD"
-  jars_dir_name="hive$(echo $HIVE_BUILD | cut -c1)-jars"
+  jars_dir_name="hive-jars"
   jars_dir_path="$dir_base_path/$jars_dir_name"
+  file_name_regex="hive-*-$HIVE_BUILD*"
+
+  # Check whether compatible jar files already exist. If not cleanup jars dir.
+  if ! find "$jars_dir_path" -type f -name "$file_name_regex" -print -quit | grep -q .; then
+    echo "File matching regex '$file_name_regex' does not exist in '$jars_dir_name'."
+    echo "Cleaning up '$jars_dir_name'..."
+    rm -rf "$jars_dir_path"/*
+  fi
 
   # Check if the directory exists.
   if find "$dir_base_path" -type d | grep -E "/$jars_dir_name$"; then

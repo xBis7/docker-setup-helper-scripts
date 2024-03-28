@@ -336,6 +336,16 @@ handleHiveEnv() {
     echo "Starting '$PROJECT_HIVE' env."
     echo ""
 
+    # 'docker-compose' uses v1
+    # 'docker compose' uses v2, compose was integrated into the docker CLI tool as a plugin.
+    # Here we need to use v2 because one of the convention changes is that
+    # in v1 names are concatenated using '_' while in v2 this is done using '-'.
+    # Spark shell complains about the hive-metastore name because of the '_'.
+    # Changing to v2 solves the issue. Check the following exception:
+    # org.apache.hadoop.hive.metastore.api.MetaException: Got exception: java.net.URISyntaxException Illegal character in hostname at index 30: thrift://hive-metastore-ranger_hive-metastore_1.common-network:9083
+
+    # With compose v2, the command wasn't reading the path properly.
+    # Explicitly specifying the docker-compose file solved the issue.
     docker compose -f "$hive_docker_path/docker-compose.yaml" up -d
 
     echo ""

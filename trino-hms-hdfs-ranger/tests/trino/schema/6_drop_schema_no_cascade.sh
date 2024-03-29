@@ -13,4 +13,4 @@ echo "- INFO: Dropping a DB that's not empty, without using CASCADE, should fail
 
 failMsg="Cannot drop non-empty schema '$EXTERNAL_DB'"
 
-retryOperationIfNeeded "$abs_path" "dropSchemaWithTrino $EXTERNAL_DB" "$failMsg" "true"
+retryOperationIfNeeded "$abs_path" "dropSchemaWithTrino $EXTERNAL_DB false" "$failMsg" "true"

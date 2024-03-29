@@ -16,4 +16,4 @@ echo "- INFO: [drop] should succeed."
 
 successMsg="DROP TABLE"
 
-retryOperationIfNeeded "$abs_path" "dropTrinoTable $NEW_TRINO_TABLE_NAME" "$successMsg" "false"
+retryOperationIfNeeded "$abs_path" "dropTrinoTable $NEW_TRINO_TABLE_NAME $DEFAULT_DB" "$successMsg" "false"

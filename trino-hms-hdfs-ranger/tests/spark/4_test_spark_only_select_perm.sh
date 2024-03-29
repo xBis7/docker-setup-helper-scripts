@@ -20,7 +20,7 @@ echo "- INFO: [select] should succeed."
 
 successMsg="|  1, dog|"
 
-retryOperationIfNeeded "$abs_path" "selectDataFromSparkTable $SPARK_TABLE" "$successMsg" "false"
+retryOperationIfNeeded "$abs_path" "selectDataFromSparkTable $SPARK_TABLE $DEFAULT_DB" "$successMsg" "false"
 
 echo ""
 echo "- INFO: Rename table"
@@ -28,7 +28,7 @@ echo "- INFO: [alter] should fail."
 
 failMsg="Permission denied: user [spark] does not have [ALTER] privilege on [default/$SPARK_TABLE]"
 
-retryOperationIfNeeded "$abs_path" "alterSparkTable $SPARK_TABLE $NEW_SPARK_TABLE_NAME" "$failMsg" "true"
+retryOperationIfNeeded "$abs_path" "alterSparkTable $SPARK_TABLE $NEW_SPARK_TABLE_NAME $DEFAULT_DB" "$failMsg" "true"
 
 echo ""
 echo "- INFO: Drop partition"

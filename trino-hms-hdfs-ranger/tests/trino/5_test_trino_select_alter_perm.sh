@@ -31,7 +31,8 @@ echo ""
 echo "- INFO: Rename table $TRINO_TABLE."
 echo "- INFO: [alter] should now succeed."
 successMsg="RENAME TABLE"
-retryOperationIfNeeded "$abs_path" "alterTrinoTable $TRINO_TABLE $NEW_TRINO_TABLE_NAME" "$successMsg" "false"
+
+retryOperationIfNeeded "$abs_path" "alterTrinoTable $TRINO_TABLE $NEW_TRINO_TABLE_NAME $DEFAULT_DB" "$successMsg" "false"
 
 echo ""
 echo "- INFO: Insert into $TABLE_ANIMALS table."

@@ -13,6 +13,6 @@ echo ""
 
 failMsg="Permission denied: user [postgres] does not have [DROP] privilege on [$EXTERNAL_DB]"
 
-retryOperationIfNeeded "$abs_path" "dropSchemaWithTrino $EXTERNAL_DB" "$failMsg" "true"
+retryOperationIfNeeded "$abs_path" "dropSchemaWithTrino $EXTERNAL_DB false" "$failMsg" "true"
 
 

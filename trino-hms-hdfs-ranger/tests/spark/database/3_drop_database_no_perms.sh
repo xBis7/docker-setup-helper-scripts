@@ -14,6 +14,6 @@ echo ""
 
 failMsg="Permission denied: user [spark] does not have [DROP] privilege on [$EXTERNAL_DB]"
 
-retryOperationIfNeeded "$abs_path" "dropDatabaseWithSpark $EXTERNAL_DB" "$failMsg" "true"
+retryOperationIfNeeded "$abs_path" "dropDatabaseWithSpark $EXTERNAL_DB false" "$failMsg" "true"
 
 

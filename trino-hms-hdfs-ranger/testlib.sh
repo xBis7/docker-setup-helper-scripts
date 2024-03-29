@@ -20,12 +20,16 @@ HIVE_BUILD=
 
 configureHiveVersion() {
   if [[ "${HIVE_VERSION}" == "4" ]]; then
+    echo ""
     echo "Configuring project for Hive 4."
+    echo ""
     HIVE_BRANCH="hive4-latest"
     HIVE_BUILD="4.0.0-beta-2-SNAPSHOT"
     RANGER_BRANCH="ranger-docker-hive4"
   else
+    echo ""
     echo "Configuring project for Hive 3."
+    echo ""
     HIVE_BRANCH="branch-3.1-build-fixed"
     HIVE_BUILD="3.1.3"
     RANGER_BRANCH="ranger-docker-hdfs"
@@ -613,9 +617,30 @@ addHdfsTestFileUnderDir() {
 }
 
 performSparkSql() {
-  # Join all args with space
-  sql="$*"
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$sql\" | bin/spark-shell"
+  # Store all args in an array.
+  args=("$@")
+
+  # Initialize to empty, or declare it local.
+  print=""
+
+  # If the last arg is "true", then 'print' is set.
+  if [[ "${args[-1]}" == "true" ]]; then
+    echo "Print is set."
+    print="true"
+    # Remove the print arg from the array.
+    unset args[-1]
+  fi
+
+  # Join all array arguments into a string with spaces.
+  sql=$(printf "%s " "${args[@]}")
+  # Trim the trailing space.
+  sql=${sql% }
+
+  if [ "$print" == "true" ]; then
+    printCmdString "$sql"
+  else
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$sql\" | bin/spark-shell"
+  fi
 }
 
 createSparkTable() {

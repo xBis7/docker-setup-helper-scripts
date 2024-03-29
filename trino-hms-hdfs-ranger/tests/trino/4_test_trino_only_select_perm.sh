@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# For this test, prerequisite is that 3_test_trino_hdfs_hive_all.sh is run.
-
 source "./testlib.sh"
 
 set -e
@@ -17,7 +15,8 @@ echo ""
 echo "- INFO: Select from $TRINO_TABLE table."
 echo "- INFO: [select] should succeed."
 successMsg="\"1\",\" dog\""
-retryOperationIfNeeded "$abs_path" "selectDataFromTrinoTable $TRINO_TABLE" "$successMsg" "false"
+
+retryOperationIfNeeded "$abs_path" "selectDataFromTrinoTable $TRINO_TABLE $DEFAULT_DB" "$successMsg" "false"
 
 echo ""
 echo "- INFO: Insert into $TRINO_TABLE table."
@@ -30,7 +29,8 @@ echo ""
 echo "- INFO: Rename $TRINO_TABLE table."
 echo "- INFO: [alter] should fail."
 failMsg="Permission denied: user [postgres] does not have [ALTER] privilege"
-retryOperationIfNeeded "$abs_path" "alterTrinoTable $TRINO_TABLE $NEW_TRINO_TABLE_NAME" "$failMsg" "true"
+
+retryOperationIfNeeded "$abs_path" "alterTrinoTable $TRINO_TABLE $NEW_TRINO_TABLE_NAME $DEFAULT_DB" "$failMsg" "true"
 
 echo ""
 echo "- INFO: Insert into $TABLE_ANIMALS table."

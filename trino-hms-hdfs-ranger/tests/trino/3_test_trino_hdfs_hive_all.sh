@@ -25,4 +25,5 @@ waitForPoliciesUpdate
 echo ""
 echo "- INFO: Create $TRINO_TABLE table non-managed by Hive."
 successMsg="CREATE TABLE"
-retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR" "$successMsg" "false"
+
+retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR $DEFAULT_DB" "$successMsg" "false"

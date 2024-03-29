@@ -21,7 +21,7 @@ echo "- INFO: [create] should succeed."
 # then check that message doesn't contain Permission denied.
 notExpMsg="Permission denied"
 
-retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR" "$notExpMsg" "false" "true"
+retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR $DEFAULT_DB" "$notExpMsg" "false" "true"
 
 echo ""
 echo "- INFO: Create partitioned table"

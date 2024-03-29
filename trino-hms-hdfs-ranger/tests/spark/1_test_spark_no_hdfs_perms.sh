@@ -18,4 +18,4 @@ failMsg='Permission denied: user=spark, access=WRITE'
 # We need to use single '' in the failMsg because it contains special characters e.g. /
 # That way it will be interpreted as a string literal and won't be expanded.
 
-retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR" "$failMsg" "true"
+retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR $DEFAULT_DB" "$failMsg" "true"

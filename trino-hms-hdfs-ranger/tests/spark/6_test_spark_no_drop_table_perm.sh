@@ -14,4 +14,4 @@ echo "- INFO: [drop] should fail."
 
 failMsg="Permission denied: user [spark] does not have [DROP] privilege on [default/$NEW_SPARK_TABLE_NAME]"
 
-retryOperationIfNeeded "$abs_path" "dropSparkTable $NEW_SPARK_TABLE_NAME" "$failMsg" "true"
+retryOperationIfNeeded "$abs_path" "dropSparkTable $NEW_SPARK_TABLE_NAME $DEFAULT_DB" "$failMsg" "true"

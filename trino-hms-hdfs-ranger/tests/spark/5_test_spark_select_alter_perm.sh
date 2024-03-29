@@ -20,7 +20,7 @@ echo "- INFO: [alter] should now succeed."
 
 successMsg="org.apache.spark.sql.DataFrame = []"
 
-retryOperationIfNeeded "$abs_path" "alterSparkTable $SPARK_TABLE $NEW_SPARK_TABLE_NAME" "$successMsg" "false"
+retryOperationIfNeeded "$abs_path" "alterSparkTable $SPARK_TABLE $NEW_SPARK_TABLE_NAME $DEFAULT_DB" "$successMsg" "false"
 
 echo ""
 echo "- INFO: Drop partition"

@@ -17,8 +17,8 @@ echo "- INFO: Updating Ranger policies. Users [spark/postgres] will now have all
 # then check that message doesn't contain Permission denied.
 sparkNotExpMsg="Permission denied"
 
-retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR" "$sparkNotExpMsg" "false" "true"
+retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR $DEFAULT_DB" "$sparkNotExpMsg" "false" "true"
 
 trinoSuccessMsg="CREATE TABLE"
 
-retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR" "$successMsg" "false"
+retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR $DEFAULT_DB" "$successMsg" "false"

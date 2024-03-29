@@ -16,4 +16,4 @@ echo "- INFO: [drop] should succeed."
 
 successMsg="org.apache.spark.sql.DataFrame = []"
 
-retryOperationIfNeeded "$abs_path" "dropSparkTable $NEW_SPARK_TABLE_NAME" "$successMsg" "false"
+retryOperationIfNeeded "$abs_path" "dropSparkTable $NEW_SPARK_TABLE_NAME $DEFAULT_DB" "$successMsg" "false"

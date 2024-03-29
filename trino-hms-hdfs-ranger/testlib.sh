@@ -52,6 +52,7 @@ NEW_TRINO_TABLE_NAME="new_$TRINO_TABLE"
 SPARK_TABLE="spark_test_table"
 NEW_SPARK_TABLE_NAME="new_$SPARK_TABLE"
 EXTERNAL_DB="poc_db"
+DEFAULT_DB="default"
 HDFS_DIR="test"
 HIVE_WAREHOUSE_DIR="opt/hive/data"
 TMP_FILE="tmp_output.txt"
@@ -568,15 +569,22 @@ updateProjectRepo() {
   echo ""
 }
 
-createHdfsDir() {
-  dir_name=$1
+printCmdString() {
+  str=$1
 
   echo ""
-  if docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir -p "/$dir_name"; then
-    echo "- INFO: Creation of HDFS dir:/$dir_name succeeded."
+  echo "Command being run: -- '$str'"
+  echo ""
+}
+
+createHdfsDir() {
+  dir_name=$1
+  print=$2
+
+  if [ "$print" == "true" ]; then
+    printCmdString "hdfs dfs -mkdir /$dir_name"
   else
-    echo "- ERROR: Creation of HDFS dir:/$dir_name failed."
-    exit 1
+    docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir "/$dir_name"
   fi
 }
 
@@ -593,6 +601,17 @@ createHdfsFile() {
   fi
 }
 
+addHdfsTestFileUnderDir() {
+  dir_name=$1
+  print=$2
+
+  if [ "$print" == "true" ]; then
+    printCmdString "hdfs dfs -put test.csv /$dir_name"
+  else
+    docker exec -it "$DN1_HOSTNAME" hdfs dfs -put test.csv "/$dir_name"
+  fi
+}
+
 performSparkSql() {
   # Join all args with space
   sql="$*"
@@ -603,62 +622,80 @@ createSparkTable() {
   table_name=$1
   hdfs_dir_name=$2
   db_name=$3
+  print=$4
 
-  if [ "$db_name" == "" ]; then
-    db_name="default"
+  if [ "$print" == "true" ]; then
+    printCmdString "spark.read.text(\"hdfs://namenode:8020/$hdfs_dir_name\").write.option(\"path\", \"hdfs://namenode/opt/hive/data\").mode(\"overwrite\").format(\"csv\").saveAsTable(\"$db_name.$table_name\")"
+  else
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.read.text(\\\"hdfs://namenode:8020/$hdfs_dir_name\\\").write.option(\\\"path\\\", \\\"hdfs://namenode/opt/hive/data\\\").mode(\\\"overwrite\\\").format(\\\"csv\\\").saveAsTable(\\\"$db_name.$table_name\\\")\" | bin/spark-shell"
   fi
-
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.read.text(\\\"hdfs://namenode:8020/$hdfs_dir_name\\\").write.option(\\\"path\\\", \\\"hdfs://namenode/opt/hive/data\\\").mode(\\\"overwrite\\\").format(\\\"csv\\\").saveAsTable(\\\"$db_name.$table_name\\\")\" | bin/spark-shell"
 }
 
 selectDataFromSparkTable() {
   table_name=$1
   db_name=$2
+  print=$3
 
-  if [ "$db_name" == "" ]; then
-    db_name="default"
+  if [ "$print" == "true" ]; then
+    printCmdString "spark.sql(\"SELECT * FROM $db_name.$table_name\").show()"
+  else
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"SELECT * FROM $db_name.$table_name\\\").show()\" | bin/spark-shell"
   fi
-
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"SELECT * FROM $db_name.$table_name\\\").show()\" | bin/spark-shell"
 }
 
 alterSparkTable() {
   old_table_name=$1
   new_table_name=$2
   db_name=$3
+  print=$4
 
-  if [ "$db_name" == "" ]; then
-    db_name="default"
+  if [ "$print" == "true" ]; then
+    printCmdString "spark.sql(\"ALTER TABLE $db_name.$old_table_name RENAME TO $db_name.$new_table_name\")"
+  else
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"ALTER TABLE $db_name.$old_table_name RENAME TO $db_name.$new_table_name\\\")\" | bin/spark-shell"
   fi
-
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"ALTER TABLE $db_name.$old_table_name RENAME TO $db_name.$new_table_name\\\")\" | bin/spark-shell"
 }
 
 dropSparkTable() {
   table_name=$1
   db_name=$2
+  print=$3
 
-  if [ "$db_name" == "" ]; then
-    db_name="default"
+  if [ "$print" == "true" ]; then
+    printCmdString "spark.sql(\"DROP TABLE $db_name.$table_name\")"
+  else
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP TABLE $db_name.$table_name\\\")\" | bin/spark-shell"
   fi
-
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP TABLE $db_name.$table_name\\\")\" | bin/spark-shell"
 }
 
 createDatabaseWithSpark() {
   db_name=$1
+  print=$2
 
-  docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"CREATE DATABASE $db_name LOCATION 'hdfs://namenode/opt/hive/data/$db_name/external/$db_name.db'\\\")\" | bin/spark-shell"
+  if [ "$print" == "true" ]; then
+    printCmdString "spark.sql(\"CREATE DATABASE $db_name LOCATION 'hdfs://namenode/opt/hive/data/$db_name/external/$db_name.db'\")"
+  else
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"CREATE DATABASE $db_name LOCATION 'hdfs://namenode/opt/hive/data/$db_name/external/$db_name.db'\\\")\" | bin/spark-shell"
+  fi
 }
 
 dropDatabaseWithSpark() {
   db_name=$1
   use_cascade=$2
+  print=$3
 
   if [ "$use_cascade" == "true" ]; then
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP DATABASE IF EXISTS $db_name CASCADE\\\")\" | bin/spark-shell"
+    if [ "$print" == "true" ]; then
+      printCmdString "spark.sql(\"DROP DATABASE IF EXISTS $db_name CASCADE\")"
+    else
+      docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP DATABASE IF EXISTS $db_name CASCADE\\\")\" | bin/spark-shell"
+    fi
   else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP DATABASE IF EXISTS $db_name\\\")\" | bin/spark-shell"
+    if [ "$print" == "true" ]; then
+      printCmdString "spark.sql(\"DROP DATABASE IF EXISTS $db_name\")"
+    else
+      docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP DATABASE IF EXISTS $db_name\\\")\" | bin/spark-shell"
+    fi
   fi
 }
 
@@ -672,62 +709,80 @@ createTrinoTable() {
   table_name=$1
   hdfs_dir_name=$2
   schema_name=$3
+  print=$4
 
-  if [ "$schema_name" == "" ]; then
-    schema_name="default"
+  if [ "$print" == "true" ]; then
+    printCmdString "create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
+  else
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
   fi
-
-  docker exec -it "$TRINO_HOSTNAME" trino --execute="create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
 }
 
 selectDataFromTrinoTable() {
   table_name=$1
   schema_name=$2
+  print=$3
 
-  if [ "$schema_name" == "" ]; then
-    schema_name="default"
+  if [ "$print" == "true" ]; then
+    printCmdString "select * from hive.$schema_name.$table_name;"
+  else
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="select * from hive.$schema_name.$table_name;"
   fi
-  
-  docker exec -it "$TRINO_HOSTNAME" trino --execute="select * from hive.$schema_name.$table_name;"
 }
 
 alterTrinoTable() {
   old_table_name=$1
   new_table_name=$2
   schema_name=$3
+  print=$4
 
-  if [ "$schema_name" == "" ]; then
-    schema_name="default"
+  if [ "$print" == "true" ]; then
+    printCmdString "alter table hive.$schema_name.$old_table_name rename to $new_table_name;"
+  else
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="alter table hive.$schema_name.$old_table_name rename to $new_table_name;"
   fi
-
-  docker exec -it "$TRINO_HOSTNAME" trino --execute="alter table hive.$schema_name.$old_table_name rename to $new_table_name;"
 }
 
 dropTrinoTable() {
   table_name=$1
   schema_name=$2
+  print=$3
 
-  if [ "$schema_name" == "" ]; then
-    schema_name="default"
+  if [ "$print" == "true" ]; then
+    printCmdString "drop table hive.$schema_name.$table_name;"
+  else
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="drop table hive.$schema_name.$table_name;"
   fi
-
-  docker exec -it "$TRINO_HOSTNAME" trino --execute="drop table hive.$schema_name.$table_name;"
 }
 
 createSchemaWithTrino() {
   schema_name=$1
+  print=$2
 
-  docker exec -it "$TRINO_HOSTNAME" trino --execute="CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/opt/hive/data/$schema_name/external/$schema_name.db');"
+  if [ "$print" == "true" ]; then
+    printCmdString "CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/opt/hive/data/$schema_name/external/$schema_name.db');"
+  else
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/opt/hive/data/$schema_name/external/$schema_name.db');"
+  fi
 }
 
 dropSchemaWithTrino() {
   schema_name=$1
   use_cascade=$2
+  print=$3
 
   if [ "$use_cascade" == "true" ]; then
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="DROP SCHEMA hive.$schema_name CASCADE;"
+    if [ "$print" == "true" ]; then
+      printCmdString "DROP SCHEMA hive.$schema_name CASCADE;"
+    else
+      docker exec -it "$TRINO_HOSTNAME" trino --execute="DROP SCHEMA hive.$schema_name CASCADE;"
+    fi
   else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="DROP SCHEMA hive.$schema_name;"
+    if [ "$print" == "true" ]; then
+      printCmdString "DROP SCHEMA hive.$schema_name;"
+    else
+      docker exec -it "$TRINO_HOSTNAME" trino --execute="DROP SCHEMA hive.$schema_name;"
+    fi
   fi
 }
 
@@ -866,13 +921,45 @@ retryOperationIfNeeded() {
 
     echo "- INFO: Counter=$counter" 
 
+    # If we print the command being run, right before every execution
+    # then the print will be stored in the tmp file along with the stdout.
+    # This is going to make retryOperationIfNeeded() result in unexpected failures.
+    #
+    # E.g.
+    # * We want to create a schema in trino
+    # * The expected output is just the phrase 'CREATE SCHEMA'
+    # * The command to create a schema, starts with the phrase 'CREATE SCHEMA ...'
+    # * We do a 'grep' on the tmp file to check that the output contains 'CREATE SCHEMA'
+    # * The command failed and the output is some error
+    # * 'CREATE SCHEMA' exists in the command, which is present in the tmp file.
+    # * 'grep' succeeds, exit status will be 0 regardless of the output.
+    #
+    # To fix that, each method will either print the command or execute it.
+    # We will call each method twice. Once with the print parameter and once without.
+    $cmd "true"
+
+    echo ""
+    echo "### Stdout- {"
+    echo ""
+
+    # Use the 'tee' command, which prints the output in the stdout
+    # and writes it in a file at the same time.
     $cmd 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
-    
+
+    echo ""
+    echo "} -Stdout ###"
+    echo ""
+
     if [ "$notExpMsg" == "true" ]; then
       # '> /dev/null' hides the grep output. Remove it to reveal the output.
       if !(grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null); then
+        # echo "- DEBUG: Exit code NotExp-Suc-Grep: $?"
+        # echo ""
+        # echo "- DEBUG: NotExp-Suc-Output= "
+        # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
+        # echo "- DEBUG: Exit code NotExp-Suc-Output: $?"
         echo ""
-        # echo "- Output: $opOutput"
+        echo ""
         echo ""
         echo "- Not expected msg: $expMsg"
         echo ""
@@ -885,9 +972,11 @@ retryOperationIfNeeded() {
 
       # If we reached counter=10 and the output is still different than the expected one, then exit.
       if [ "$counter" == 9 ] && grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/nul; then
-        echo ""
-        # echo "- INFO: out= $opOutput"
-        echo ""
+        # echo "- DEBUG: Exit code NotExp-Fail-Grep: $?"
+        # echo ""
+        # echo "- DEBUG: NotExp-Fail-Output= "
+        # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
+        # echo "- DEBUG: Exit code NotExp-Fail-Output: $?"
         echo ""
         echo ""
         echo ""
@@ -897,8 +986,13 @@ retryOperationIfNeeded() {
       fi
     else
       if grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
+        # echo "- DEBUG: Exit code Suc-Grep: $?"
+        # echo ""
+        # echo "- DEBUG: Suc-Output= "
+        # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
+        # echo "- DEBUG: Exit code Suc-Output: $?"
         echo ""
-        # echo "- Output: $opOutput"
+        echo ""
         echo ""
         echo "- Expected Msg: $expMsg"
         echo ""
@@ -911,9 +1005,11 @@ retryOperationIfNeeded() {
 
       # If we reached counter=10 and the output is still different than the expected one, then exit.
       if [ "$counter" == 9 ] && !(grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null); then
-        echo ""
-        # echo "- INFO: out= $opOutput"
-        echo ""
+        # echo "- DEBUG: Exit code Fail-Grep: $?"
+        # echo ""
+        # echo "- DEBUG: Fail-Output= "
+        # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
+        # echo "- DEBUG: Exit code Fail-Output: $?"
         echo ""
         echo ""
         echo ""

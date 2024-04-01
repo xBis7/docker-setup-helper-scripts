@@ -83,8 +83,7 @@ else
 
   echo ""
   echo "### TEST_7 ###"
-  echo "TODO: Fix the output and then enable the test."
-  # ./tests/trino/6_test_trino_no_drop_table_perm.sh "$abs_path"
+   ./tests/trino/6_test_trino_no_drop_table_perm.sh "$abs_path"
 
   echo ""
   echo "### TEST_8 ###"

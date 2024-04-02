@@ -13,6 +13,7 @@ if [ "$prepare_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"
   ./setup/setup_docker_env.sh "$abs_path"
   ./docker/start_docker_env.sh "$abs_path" "true"
+  createHdfsDir "$HIVE_WAREHOUSE_DIR"
 fi
 
 if [ "$component" == "spark" ]; then
@@ -26,7 +27,12 @@ if [ "$component" == "spark" ]; then
 
 else
   echo ""
-  # Add TRINO tests
+  echo "### TEST_1 ###"
+  ./tests/trino/hive_url_policies/1_test_no_hive_url_policies.sh "$abs_path"
+
+  echo ""
+  echo "### TEST_2 ###"
+  ./tests/trino/hive_url_policies/2_test_create_hive_url_policies.sh "$abs_path"
 fi
 
 if [ "$stop_env" == "true" ]; then

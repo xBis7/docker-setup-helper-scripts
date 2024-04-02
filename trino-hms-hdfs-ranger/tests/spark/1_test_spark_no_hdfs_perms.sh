@@ -13,7 +13,7 @@ echo "- INFO: All policies are to their defaults and Hive access to default DB h
 echo ""
 
 # Failure due to lack of HDFS permissions.
-failMsg='Permission denied: user=spark, access=WRITE, inode="/":hadoop:supergroup:drwxr-xr-x'
+failMsg='Permission denied: user=spark, access=WRITE'
 
 # We need to use single '' in the failMsg because it contains special characters e.g. /
 # That way it will be interpreted as a string literal and won't be expanded.

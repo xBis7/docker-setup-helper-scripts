@@ -20,6 +20,7 @@ notExpMsg="Permission denied"
 retryOperationIfNeeded "$abs_path" "createHdfsDir $HDFS_DIR" "$notExpMsg" "false" "true"
 
 notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "addHdfsTestFileUnderDir $HDFS_DIR" "$notExpMsg" "false" "true"
+retryOperationIfNeeded "$abs_path" "createHdfsFile $HDFS_DIR" "$notExpMsg" "false" "true"
 
-createHdfsDir "$HIVE_WAREHOUSE_DIR"
+notExpMsg="Permission denied"
+retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_WAREHOUSE_DIR" "$notExpMsg" "false" "true"

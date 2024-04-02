@@ -13,7 +13,7 @@ if [ "$prepare_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"
   ./setup/setup_docker_env.sh "$abs_path"
   ./docker/start_docker_env.sh "$abs_path" "true"
-  createHdfsDir "$HIVE_WAREHOUSE_DIR"
+  createHdfsDir "$HIVE_WAREHOUSE_DIR" # This isn't called with retryOperationIfNeeded and it won't print any descriptive output.
 fi
 
 if [ "$component" == "spark" ]; then

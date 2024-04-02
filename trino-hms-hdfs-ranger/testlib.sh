@@ -62,6 +62,7 @@ HIVE_WAREHOUSE_DIR="opt/hive/data"
 TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
+PRINT_CMD=""
 
 # Container names
 # Compose V2
@@ -142,9 +143,6 @@ CALCITE_CORE_JAR_NAME="calcite-core-1.36.0.jar"
 TABLE_PERSONS="persons"
 TABLE_ANIMALS="animals"
 TABLE_SPORTS="sports"
-
-# Shared Variables
-PRINT_CMD=""
 
 getHostnameFromName() {
   name=$1
@@ -598,54 +596,26 @@ createHdfsDir() {
   dir_name=$1
 
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "hdfs dfs -mkdir /$dir_name"
+    printCmdString "hdfs dfs -mkdir -p /$dir_name"
   else
-    docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir "/$dir_name"
+    docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir -p "/$dir_name"
   fi
 }
 
 createHdfsFile() {
   dir_name=$1
-  file_name="test.csv"
-
-  echo ""
-  if docker exec -it "$DN1_HOSTNAME" hdfs dfs -put "$file_name" "/$dir_name"; then
-    echo "- INFO: Creation of HDFS file:/$dir_name/$file_name succeeded."
-  else
-    echo "- ERROR: Creation of HDFS file:/$dir_name/$file_name failed."
-    exit 1
-  fi
-}
-
-addHdfsTestFileUnderDir() {
-  dir_name=$1
+  file_name=${2:-"test.csv"} # Provide a default value if not set.
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "hdfs dfs -put test.csv /$dir_name"
   else
-    docker exec -it "$DN1_HOSTNAME" hdfs dfs -put test.csv "/$dir_name"
+    docker exec -it "$DN1_HOSTNAME" hdfs dfs -put "$file_name" "/$dir_name"
   fi
 }
 
 performSparkSql() {
-  # Store all args in an array.
-  args=("$@")
-
-  # Initialize to empty, or declare it local.
-  print=""
-
-  # If the last arg is "true", then 'print' is set.
-  if [[ "${args[-1]}" == "true" ]]; then
-    echo "Print is set."
-    print="true"
-    # Remove the print arg from the array.
-    unset args[-1]
-  fi
-
-  # Join all array arguments into a string with spaces.
-  sql=$(printf "%s " "${args[@]}")
-  # Trim the trailing space.
-  sql=${sql% }
+  # Join all args with space
+  sql="$*"
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "$sql"
@@ -731,8 +701,13 @@ dropDatabaseWithSpark() {
 
 performTrinoCmd() {
   # Join all args with space
-  cmd="$*"
-  docker exec -it "$TRINO_HOSTNAME" trino --execute="$cmd"
+  trino_cmd="$*"
+
+  if [ "$PRINT_CMD" == "true" ]; then
+    printCmdString "$trino_cmd"
+  else
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="$trino_cmd"
+  fi
 }
 
 createTrinoTable() {
@@ -993,6 +968,7 @@ retryOperationIfNeeded() {
         echo "- Not expected msg: $expMsg"
         echo ""
         echo "- RESULT -> SUCCESS: Operation $result as expected."
+        echo "---------------------------------------------------"
         break
       fi
 
@@ -1026,6 +1002,7 @@ retryOperationIfNeeded() {
         echo "- Expected Msg: $expMsg"
         echo ""
         echo "- RESULT -> SUCCESS: Operation $result as expected."
+        echo "---------------------------------------------------"
         break
       fi
 

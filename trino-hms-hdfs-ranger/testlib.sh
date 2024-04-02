@@ -725,10 +725,12 @@ createTrinoTable() {
   hdfs_dir_name=$2
   schema_name=$3
 
+  c="create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
+    printCmdString "$c"
   else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
   fi
 }
 
@@ -736,10 +738,12 @@ selectDataFromTrinoTable() {
   table_name=$1
   schema_name=$2
 
+  c="select * from hive.$schema_name.$table_name;"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "select * from hive.$schema_name.$table_name;"
+    printCmdString "$c"
   else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="select * from hive.$schema_name.$table_name;"
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
   fi
 }
 
@@ -748,10 +752,12 @@ alterTrinoTable() {
   new_table_name=$2
   schema_name=$3
 
+  c="alter table hive.$schema_name.$old_table_name rename to $new_table_name;"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "alter table hive.$schema_name.$old_table_name rename to $new_table_name;"
+    printCmdString "$c"
   else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="alter table hive.$schema_name.$old_table_name rename to $new_table_name;"
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
   fi
 }
 
@@ -759,20 +765,24 @@ dropTrinoTable() {
   table_name=$1
   schema_name=$2
 
+  c="drop table hive.$schema_name.$table_name;"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "drop table hive.$schema_name.$table_name;"
+    printCmdString "$c"
   else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="drop table hive.$schema_name.$table_name;"
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
   fi
 }
 
 createSchemaWithTrino() {
   schema_name=$1
 
+  c="CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/opt/hive/data/$schema_name/external/$schema_name.db');"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/opt/hive/data/$schema_name/external/$schema_name.db');"
+    printCmdString "$c"
   else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/opt/hive/data/$schema_name/external/$schema_name.db');"
+    docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
   fi
 }
 
@@ -781,16 +791,22 @@ dropSchemaWithTrino() {
   use_cascade=$2
 
   if [ "$use_cascade" == "true" ]; then
+
+    c="DROP SCHEMA hive.$schema_name CASCADE;"
+
     if [ "$PRINT_CMD" == "true" ]; then
-      printCmdString "DROP SCHEMA hive.$schema_name CASCADE;"
+      printCmdString "$c"
     else
-      docker exec -it "$TRINO_HOSTNAME" trino --execute="DROP SCHEMA hive.$schema_name CASCADE;"
+      docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
     fi
   else
+
+    c="DROP SCHEMA hive.$schema_name;"
+
     if [ "$PRINT_CMD" == "true" ]; then
-      printCmdString "DROP SCHEMA hive.$schema_name;"
+      printCmdString "$c"
     else
-      docker exec -it "$TRINO_HOSTNAME" trino --execute="DROP SCHEMA hive.$schema_name;"
+      docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
     fi
   fi
 }
@@ -904,6 +920,8 @@ createOrUpdateLastSuccessFile() {
   echo "Branch: $hive_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "Commit: $hive_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+
+  # TODO: add Spark.
 }
 
 retryOperationIfNeeded() {

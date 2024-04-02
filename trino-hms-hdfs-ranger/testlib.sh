@@ -585,10 +585,12 @@ printCmdString() {
 createHdfsDir() {
   dir_name=$1
 
+  c="hdfs dfs -mkdir -p /$dir_name"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "hdfs dfs -mkdir -p /$dir_name"
+    printCmdString "$c"
   else
-    docker exec -it "$DN1_HOSTNAME" hdfs dfs -mkdir -p "/$dir_name"
+    docker exec -it "$DN1_HOSTNAME" bash -c "$c"
   fi
 }
 
@@ -596,10 +598,12 @@ createHdfsFile() {
   dir_name=$1
   file_name=${2:-"test.csv"} # Provide a default value if not set.
 
+  c="hdfs dfs -put $file_name /$dir_name"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "hdfs dfs -put test.csv /$dir_name"
+    printCmdString "$c"
   else
-    docker exec -it "$DN1_HOSTNAME" hdfs dfs -put "$file_name" "/$dir_name"
+    docker exec -it "$DN1_HOSTNAME" bash -c "$c"
   fi
 }
 
@@ -619,10 +623,12 @@ createSparkTable() {
   hdfs_dir_name=$2
   db_name=$3
 
+  c="spark.read.text(\\\"hdfs://namenode:8020/$hdfs_dir_name\\\").write.option(\\\"path\\\", \\\"hdfs://namenode/opt/hive/data\\\").mode(\\\"overwrite\\\").format(\\\"csv\\\").saveAsTable(\\\"$db_name.$table_name\\\")"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "spark.read.text(\"hdfs://namenode:8020/$hdfs_dir_name\").write.option(\"path\", \"hdfs://namenode/opt/hive/data\").mode(\"overwrite\").format(\"csv\").saveAsTable(\"$db_name.$table_name\")"
+    printCmdString "$c"
   else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.read.text(\\\"hdfs://namenode:8020/$hdfs_dir_name\\\").write.option(\\\"path\\\", \\\"hdfs://namenode/opt/hive/data\\\").mode(\\\"overwrite\\\").format(\\\"csv\\\").saveAsTable(\\\"$db_name.$table_name\\\")\" | bin/spark-shell"
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
   fi
 }
 
@@ -630,10 +636,12 @@ selectDataFromSparkTable() {
   table_name=$1
   db_name=$2
 
+  c="spark.sql(\\\"SELECT * FROM $db_name.$table_name\\\").show()"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "spark.sql(\"SELECT * FROM $db_name.$table_name\").show()"
+    printCmdString "$c"
   else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"SELECT * FROM $db_name.$table_name\\\").show()\" | bin/spark-shell"
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
   fi
 }
 
@@ -642,10 +650,12 @@ alterSparkTable() {
   new_table_name=$2
   db_name=$3
 
+  c="spark.sql(\\\"ALTER TABLE $db_name.$old_table_name RENAME TO $db_name.$new_table_name\\\")"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "spark.sql(\"ALTER TABLE $db_name.$old_table_name RENAME TO $db_name.$new_table_name\")"
+    printCmdString "$c"
   else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"ALTER TABLE $db_name.$old_table_name RENAME TO $db_name.$new_table_name\\\")\" | bin/spark-shell"
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
   fi
 }
 
@@ -653,20 +663,24 @@ dropSparkTable() {
   table_name=$1
   db_name=$2
 
+  c="spark.sql(\\\"DROP TABLE $db_name.$table_name\\\")"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "spark.sql(\"DROP TABLE $db_name.$table_name\")"
+    printCmdString "$c"
   else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP TABLE $db_name.$table_name\\\")\" | bin/spark-shell"
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
   fi
 }
 
 createDatabaseWithSpark() {
   db_name=$1
 
+  c="spark.sql(\\\"CREATE DATABASE $db_name LOCATION 'hdfs://namenode/opt/hive/data/$db_name/external/$db_name.db'\\\")"
+
   if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "spark.sql(\"CREATE DATABASE $db_name LOCATION 'hdfs://namenode/opt/hive/data/$db_name/external/$db_name.db'\")"
+    printCmdString "$c"
   else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"CREATE DATABASE $db_name LOCATION 'hdfs://namenode/opt/hive/data/$db_name/external/$db_name.db'\\\")\" | bin/spark-shell"
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
   fi
 }
 
@@ -675,16 +689,22 @@ dropDatabaseWithSpark() {
   use_cascade=$2
 
   if [ "$use_cascade" == "true" ]; then
+
+    c="spark.sql(\\\"DROP DATABASE IF EXISTS $db_name CASCADE\\\")"
+
     if [ "$PRINT_CMD" == "true" ]; then
-      printCmdString "spark.sql(\"DROP DATABASE IF EXISTS $db_name CASCADE\")"
+      printCmdString "$c"
     else
-      docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP DATABASE IF EXISTS $db_name CASCADE\\\")\" | bin/spark-shell"
+      docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
     fi
   else
+
+    c="spark.sql(\\\"DROP DATABASE IF EXISTS $db_name\\\")"
+
     if [ "$PRINT_CMD" == "true" ]; then
-      printCmdString "spark.sql(\"DROP DATABASE IF EXISTS $db_name\")"
+      printCmdString "$c"
     else
-      docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"spark.sql(\\\"DROP DATABASE IF EXISTS $db_name\\\")\" | bin/spark-shell"
+      docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
     fi
   fi
 }

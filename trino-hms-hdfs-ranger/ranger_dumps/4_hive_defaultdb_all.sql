@@ -1,3 +1,8 @@
+-- Service Name     | Policy Name                                   | Users                             | Permissions
+--------------------|-----------------------------------------------|-----------------------------------|---------------------
+-- hadoopdev        | all-path                                      | hadoop, postgres, spark           | Read, Write, Execute
+-- hivedev          | default database tables column                | postgres, spark                   | *
+
 --
 -- PostgreSQL database dump
 --
@@ -22,7 +27,8 @@ SET row_security = off;
 
 CREATE FUNCTION public.getmodulesidbyname(input_val character varying) RETURNS bigint
     LANGUAGE sql
-    AS $_$ SELECT x_modules_master.id FROM x_modules_master
+    AS $_$ SELECT x_modules_master.id FROM x_modules_master
+
 WHERE x_modules_master.module = $1; $_$;
 
 
@@ -34,7 +40,8 @@ ALTER FUNCTION public.getmodulesidbyname(input_val character varying) OWNER TO r
 
 CREATE FUNCTION public.getxportaluidbyloginid(input_val character varying) RETURNS bigint
     LANGUAGE sql
-    AS $_$ SELECT x_portal_user.id FROM x_portal_user
+    AS $_$ SELECT x_portal_user.id FROM x_portal_user
+
 WHERE x_portal_user.login_id = $1; $_$;
 
 

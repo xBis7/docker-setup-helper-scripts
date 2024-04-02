@@ -11,9 +11,6 @@ echo "- INFO: Updating Ranger policies. User [spark] will not have Write permiss
 ./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_ALL"
 
 echo ""
-echo "- INFO: Ranger policies updated."
-
-echo ""
 echo "- INFO: Create table"
 echo "- INFO: [create] should fail."
 failMsg="Permission denied: user [spark] does not have [WRITE] privilege on [[hdfs://namenode/opt/hive/data/$TABLE_PERSONS, hdfs://namenode/opt/hive/data/$TABLE_PERSONS/]]"

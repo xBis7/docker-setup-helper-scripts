@@ -193,13 +193,23 @@ setupSparkJarsIfNeeded() {
   dir_base_path="$abs_path/$CURRENT_REPO/compose/spark/conf"
   jars_dir_name="hive-jars"
   jars_dir_path="$dir_base_path/$jars_dir_name"
-  file_name_regex="hive-*-$HIVE_BUILD*"
+  hive_jar_regex_prefix="hive-*"
+  # Flag to track if any file does not contain $HIVE_BUILD
+  delete_files=false
 
-  # Check whether compatible jar files already exist. If not cleanup jars dir.
-  if ! find "$jars_dir_path" -type f -name "$file_name_regex" -print -quit | grep -q .; then
-    echo "File matching regex '$file_name_regex' does not exist in '$jars_dir_name'."
-    echo "Cleaning up '$jars_dir_name'..."
-    rm -rf "$jars_dir_path"/*
+  for file in $jars_dir_path/$hive_jar_regex_prefix; do
+    if [[ ! $file =~ $HIVE_BUILD ]]; then
+      delete_files=true
+      break # Exit the loop as one file not matching is enough to decide on deletion
+    fi
+  done
+
+  if [ "$delete_files" = true ]; then
+    echo "Not all jar files contain the build identifier. Removing files..."
+    rm -rf $jars_dir_path/$hive_jar_regex_prefix
+    echo "Files removed."
+  else
+    echo "All jar files contain the build identifier."
   fi
 
   # Check if the directory exists.

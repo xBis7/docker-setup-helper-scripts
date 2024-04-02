@@ -926,7 +926,7 @@ retryOperationIfNeeded() {
 }
 
 waitForPoliciesUpdate() {
-  wait_time_sec=15
+  wait_time_sec=30
   echo ""
   echo "- INFO: Waiting $wait_time_sec sec to make sure enough time has passed for the policies to get updated."
   sleep "$wait_time_sec"

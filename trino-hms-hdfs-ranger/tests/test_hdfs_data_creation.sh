@@ -18,22 +18,10 @@ echo ""
 echo "- INFO: HDFS user hadoop, should be able to create data with ranger default policies."
 echo ""
 
-# Print cmd first.
-createHdfsDir "$HDFS_DIR" "true"
+notExpMsg="Permission denied"
+retryOperationIfNeeded "$abs_path" "createHdfsDir $HDFS_DIR" "$notExpMsg" "false" "true"
 
-if createHdfsDir "$HDFS_DIR"; then
-  # Print cmd first.
-  addHdfsTestFileUnderDir "$HDFS_DIR" "true"
-  if addHdfsTestFileUnderDir "$HDFS_DIR"; then
-    echo ""
-    echo "- RESULT: HDFS test data creation succeeded."
-  else
-    echo ""
-    echo "- RESULT: HDFS test data creation failed."
-  fi
-else
-  echo ""
-  echo "- RESULT: HDFS test data creation failed."
-fi
+notExpMsg="Permission denied"
+retryOperationIfNeeded "$abs_path" "addHdfsTestFileUnderDir $HDFS_DIR" "$notExpMsg" "false" "true"
 
 createHdfsDir "$HIVE_WAREHOUSE_DIR"

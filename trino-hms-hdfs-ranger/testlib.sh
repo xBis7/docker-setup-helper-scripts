@@ -940,6 +940,7 @@ retryOperationIfNeeded() {
   expMsg=$3
   expFailure=$4
   msgNotPresent=$5
+  exp_exit_code=1
 
   result=""
 
@@ -947,6 +948,7 @@ retryOperationIfNeeded() {
     result="failed"
   else
     result="succeeded"
+    exp_exit_code=0
   fi
 
   echo ""
@@ -987,10 +989,19 @@ retryOperationIfNeeded() {
     # Use the 'tee' command, which prints the output in the stdout
     # and writes it in a file at the same time.
     $cmd 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
+    exit_code=${PIPESTATUS[0]}
 
     echo ""
     echo "} -Stdout ###"
     echo ""
+
+    if [ $exit_code -ne $exp_exit_code ]; then
+      echo ""
+      echo "- Unexpected exit code. Actual: $exit_code. Expected: $exp_exit_code."
+      sleep 3
+      counter=$(($counter + 1))
+      continue
+    fi
 
     if [ "$msgNotPresent" == "true" ]; then
       # '> /dev/null' hides the grep output. Remove it to reveal the output.

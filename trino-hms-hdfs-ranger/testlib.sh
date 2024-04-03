@@ -81,6 +81,8 @@ TRINO_HOSTNAME="trino-coordinator-1"
 
 SPARK_MASTER_HOSTNAME="spark-master-1"
 SPARK_WORKER1_HOSTNAME="spark-worker-1"
+SPARK_TEST_FILENAME="test.scala"
+SPARK_TEST_PATH="tests/spark"
 
 # Ranger jars names
 RANGER_COMMON_JAR_NAME="ranger-plugins-common-3.0.0-SNAPSHOT-jar-with-dependencies.jar"
@@ -1081,4 +1083,21 @@ waitForPoliciesUpdate() {
   echo ""
   echo "- INFO: Waiting $wait_time_sec sec to make sure enough time has passed for the policies to get updated."
   sleep "$wait_time_sec"
+}
+
+cpSparkTest() {
+  testFilePath=$1
+
+  docker cp "$testFilePath" "$SPARK_MASTER_HOSTNAME":/opt/spark/"$SPARK_TEST_FILENAME"
+}
+
+runSparkTest() {
+  testFileName=$1
+  message="Running Spark test file: $testFileName"
+
+  if [ "$PRINT_CMD" == "true" ]; then
+      printCmdString "$message"
+  else
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell -I test.scala"
+  fi
 }

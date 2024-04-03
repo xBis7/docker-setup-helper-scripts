@@ -8,10 +8,9 @@ abs_path=$1
 
 echo ""
 echo "- INFO: User [spark] has no Hive perms. Creating a table under db '$EXTERNAL_DB' should fail."
-echo ""
-
-# Failure due to lack of Hive metastore permissions.
-
-failMsg="Permission denied: user [spark] does not have [CREATE] privilege on [$EXTERNAL_DB/$SPARK_TABLE]"
-
-retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR $EXTERNAL_DB" "$failMsg" "true"
+echo "- INFO: Create table."
+echo "- INFO: User [spark] shouldn't be able to create table."
+testFileName="4_test.scala"
+cpSparkTest $(pwd)/$SPARK_TEST_PATH/database/$testFileName
+successMsg="Test passed"
+retryOperationIfNeeded "$abs_path" "runSparkTest $testFileName" "$successMsg" "false"

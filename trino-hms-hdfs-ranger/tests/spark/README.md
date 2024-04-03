@@ -1,0 +1,1 @@
+When running Spark tests, it is important not to be connected to Spark shell.

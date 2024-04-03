@@ -7,9 +7,10 @@ set -e
 abs_path=$1
 
 echo ""
-echo "- INFO: User [spark] has the correct HDFS and Hive permissions to drop a DB."
-echo "- INFO: Dropping a DB that's not empty with CASCADE, should succeed."
-
-successMsg="res0: org.apache.spark.sql.DataFrame = []"
-
-retryOperationIfNeeded "$abs_path" "dropDatabaseWithSpark $EXTERNAL_DB true" "$successMsg" "false"
+echo "- INFO: Reusing policies."
+echo "- INFO: Drop database."
+echo "- INFO: User [spark] should be able to drop non-empty database with 'cascade'."
+testFileName="7_test.scala"
+cpSparkTest $(pwd)/$SPARK_TEST_PATH/database/$testFileName
+successMsg="Test passed"
+retryOperationIfNeeded "$abs_path" "runSparkTest $testFileName" "$successMsg" "false"

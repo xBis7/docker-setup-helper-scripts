@@ -6,16 +6,10 @@ set -e
 
 abs_path=$1
 
-# Trino user is postgres.
-echo "- INFO: Users need access to both the actual data and the metadata."
-echo "- INFO: User 'spark' shouldn't be able to create a table without HDFS access."
-echo "- INFO: All policies are to their defaults and Hive access to default DB has been removed for group public."
-echo ""
-
-# Failure due to lack of HDFS permissions.
-failMsg='Permission denied: user=spark, access=WRITE'
-
-# We need to use single '' in the failMsg because it contains special characters e.g. /
-# That way it will be interpreted as a string literal and won't be expanded.
-
-retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR $DEFAULT_DB" "$failMsg" "true"
+echo "- INFO: Reusing policies."
+echo "- INFO: Create table."
+echo "- INFO: User [spark] shouldn't be able to create table."
+testFileName="1_test.scala"
+cpSparkTest $(pwd)/$SPARK_TEST_PATH/$testFileName
+successMsg="Test passed"
+retryOperationIfNeeded "$abs_path" "runSparkTest $testFileName" "$successMsg" "false"

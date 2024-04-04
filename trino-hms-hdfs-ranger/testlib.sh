@@ -870,10 +870,15 @@ retryOperationIfNeeded() {
   echo ""
 
   counter=0
+  while [[ "$counter" -le 10 ]]; do
+    if [ "$counter" -eq 10 ]; then
+      echo ""
+      echo "- RESULT -> FAILURE: Operation exceeded the retry limit. Exiting..."
+      echo "---------------------------------------------------"
+      exit 1
+    fi
 
-  while [[ "$counter" < 9 ]]; do
-
-    echo "- INFO: Counter=$counter" 
+    echo "- INFO: Counter=$counter"
 
     # If we print the command being run, right before every execution
     # then the print will be stored in the tmp file along with the stdout.
@@ -900,6 +905,8 @@ retryOperationIfNeeded() {
     echo "### Stdout- {"
     echo ""
 
+    sleep 3
+
     # Use the 'tee' command, which prints the output in the stdout
     # and writes it in a file at the same time.
     $cmd 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
@@ -911,80 +918,49 @@ retryOperationIfNeeded() {
 
     if [ $exit_code -ne $exp_exit_code ]; then
       echo ""
-      echo "- Unexpected exit code. Actual: $exit_code. Expected: $exp_exit_code."
-      sleep 3
+      echo "- Unexpected exit code. Expected: $exp_exit_code. Actual: $exit_code."
       counter=$(($counter + 1))
       continue
     fi
 
     if [ "$msgNotPresent" == "true" ]; then
       # '> /dev/null' hides the grep output. Remove it to reveal the output.
+      echo ""
+      echo "- Not expected msg: $expMsg"
+      echo ""
       if !(grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null); then
         # echo "- DEBUG: Exit code NotExp-Suc-Grep: $?"
         # echo ""
         # echo "- DEBUG: NotExp-Suc-Output= "
         # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
         # echo "- DEBUG: Exit code NotExp-Suc-Output: $?"
-        echo ""
-        echo ""
-        echo ""
-        echo "- Not expected msg: $expMsg"
-        echo ""
         echo "- RESULT -> SUCCESS: Operation $result as expected."
         echo "---------------------------------------------------"
         break
+      else
+        echo "- RESULT -> FAILURE: Operation $result not as expected."
+        echo "---------------------------------------------------"
+        counter=$(($counter + 1))
+        continue
       fi
-
-      sleep 3
-      counter=$(($counter + 1))
-
-      # If we reached counter=10 and the output is still different than the expected one, then exit.
-      if [ "$counter" == 9 ] && grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/nul; then
+    else
+      echo ""
+      echo "- Expected Msg: $expMsg"
+      echo ""
+      if grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
         # echo "- DEBUG: Exit code NotExp-Fail-Grep: $?"
         # echo ""
         # echo "- DEBUG: NotExp-Fail-Output= "
         # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
         # echo "- DEBUG: Exit code NotExp-Fail-Output: $?"
-        echo ""
-        echo ""
-        echo ""
-        echo "- RESULT -> FAILURE: Operation should have $result, but it didn't..."
-        echo "- Exiting..."
-        exit 1
-      fi
-    else
-      if grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
-        # echo "- DEBUG: Exit code Suc-Grep: $?"
-        # echo ""
-        # echo "- DEBUG: Suc-Output= "
-        # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
-        # echo "- DEBUG: Exit code Suc-Output: $?"
-        echo ""
-        echo ""
-        echo ""
-        echo "- Expected Msg: $expMsg"
-        echo ""
         echo "- RESULT -> SUCCESS: Operation $result as expected."
         echo "---------------------------------------------------"
         break
-      fi
-
-      sleep 3
-      counter=$(($counter + 1))
-
-      # If we reached counter=10 and the output is still different than the expected one, then exit.
-      if [ "$counter" == 9 ] && !(grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null); then
-        # echo "- DEBUG: Exit code Fail-Grep: $?"
-        # echo ""
-        # echo "- DEBUG: Fail-Output= "
-        # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
-        # echo "- DEBUG: Exit code Fail-Output: $?"
-        echo ""
-        echo ""
-        echo ""
-        echo "- RESULT -> FAILURE: Operation should have $result, but it didn't..."
-        echo "- Exiting..."
-        exit 1
+      else
+        echo "- RESULT -> FAILURE: Operation $result not as expected."
+        echo "---------------------------------------------------"
+        counter=$(($counter + 1))
+        continue
       fi
     fi
   done

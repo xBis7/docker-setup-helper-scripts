@@ -981,11 +981,13 @@ cpSparkTest() {
 
 runSparkTest() {
   testFileName=$1
+  sql_arg=$(echo -n "$2" | base64 --decode)
+  msg_arg=$(echo -n "$3" | base64 --decode)
   message="Running Spark test file: $testFileName"
 
   if [ "$PRINT_CMD" == "true" ]; then
       printCmdString "$message"
   else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell -I test.scala"
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell --conf spark.app.sql=\"$sql_arg\" --conf spark.app.msg=\"$msg_arg\" -I test.scala"
   fi
 }

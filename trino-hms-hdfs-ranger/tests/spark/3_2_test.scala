@@ -1,5 +1,10 @@
+val sqlStr = spark.conf.get("spark.app.sql", "default_sql_value")
+val msgStr = spark.conf.get("spark.app.msg", "default_msg_value")
+
+println(s"Str: $sqlStr")
+
 try {
-  spark.sql("create table animals (id int, name string) using parquet partitioned by (name)")
+  spark.sql(sqlStr)
   println("Test passed")
   sys.exit(0)
 } catch {

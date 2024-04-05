@@ -624,20 +624,6 @@ createHdfsFile() {
   fi
 }
 
-createSparkTable() {
-  table_name=$1
-  hdfs_dir_name=$2
-  db_name=$3
-
-  c="spark.read.text(\\\"hdfs://namenode:8020/$hdfs_dir_name\\\").write.option(\\\"path\\\", \\\"hdfs://namenode/opt/hive/data\\\").mode(\\\"overwrite\\\").format(\\\"csv\\\").saveAsTable(\\\"$db_name.$table_name\\\")"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
-  fi
-}
-
 performTrinoCmd() {
   # Join all args with space
   trino_cmd="$*"
@@ -998,6 +984,8 @@ runSparkTest() {
 }
 
 # This function is created to allow for substitutes or changes if base64 works differently on different systems.
+# We can achieve the correct variable substitution and space handling by encoding and decoding the string.
+# -w 0, makes sure that the line length is ignored.
 base64encode() {
   input=$1
 

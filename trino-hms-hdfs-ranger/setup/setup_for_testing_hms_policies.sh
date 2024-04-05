@@ -10,15 +10,15 @@ abs_path=$1
 
 echo ""
 echo "- INFO: Updating Ranger policies. Users [spark/postgres] will now have all access to Hive default DB."
-
 ./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_ALL"
+waitForPoliciesUpdate
 
-# It should only contain a WARN. Since we can't check that it only contains the WARN,
-# then check that message doesn't contain Permission denied.
-sparkNotExpMsg="Permission denied"
-
-retryOperationIfNeeded "$abs_path" "createSparkTable $SPARK_TABLE $HDFS_DIR $DEFAULT_DB" "$sparkNotExpMsg" "false" "true"
+echo ""
+echo "- INFO: Create table."
+echo "- INFO: User [spark] should be able to create table."
+cpSparkTest $abs_path/$CURRENT_REPO/trino-hms-hdfs-ranger/$SPARK_TEST_PATH/$SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME
+scala_sql=$(base64encode "$DEFAULT_DB.$SPARK_TABLE")
+retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 trinoSuccessMsg="CREATE TABLE"
-
 retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR $DEFAULT_DB" "$successMsg" "false"

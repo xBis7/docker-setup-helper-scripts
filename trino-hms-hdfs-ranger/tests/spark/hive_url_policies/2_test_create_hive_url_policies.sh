@@ -15,5 +15,5 @@ echo ""
 echo "- INFO: Create table."
 echo "- INFO: User [spark] should be able to create table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(base64encode "create table persons (id int, name string)")
+scala_sql=$(base64encode "create table $TABLE_PERSONS (id int, name string)")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"

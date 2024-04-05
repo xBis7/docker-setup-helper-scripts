@@ -15,26 +15,26 @@ echo ""
 echo "- INFO: Rename table."
 echo "- INFO: User [spark] should be able to alter table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(echo -n "alter table default.spark_test_table rename to default.new_spark_test_table" | base64)
+scala_sql=$(base64encode "alter table default.spark_test_table rename to default.new_spark_test_table")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
 echo "- INFO: Drop partition."
 echo "- INFO: User [spark] should be able to alter table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(echo -n "alter table animals drop partition (name='cow')" | base64)
+scala_sql=$(base64encode "alter table animals drop partition (name='cow')")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
 echo "- INFO: Insert into table."
 echo "- INFO: User [spark] should be able to alter table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(echo -n "insert into sports values(2, 'basketball')" | base64)
+scala_sql=$(base64encode "insert into sports values(2, 'basketball')")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
 echo "- INFO: Truncate table."
 echo "- INFO: User [spark] should be able to alter table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(echo -n "truncate table sports" | base64)
+scala_sql=$(base64encode "truncate table sports")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"

@@ -15,33 +15,33 @@ echo ""
 echo "- INFO: Create table."
 echo "- INFO: User [spark] should be able to create table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME
-scala_sql=$(echo -n "default.spark_test_table" | base64)
+scala_sql=$(base64encode "default.spark_test_table")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
 echo "- INFO: Create partitioned table."
 echo "- INFO: User [spark] should be able to create table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(echo -n "create table animals (id int, name string) using parquet partitioned by (name)" | base64)
+scala_sql=$(base64encode "create table animals (id int, name string) using parquet partitioned by (name)")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
 echo "- INFO: Add partition."
 echo "- INFO: User [spark] should be able to alter table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(echo -n "alter table animals add partition (name='cow')" | base64)
+scala_sql=$(base64encode "alter table animals add partition (name='cow')")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
 echo "- INFO: Create non partitioned table."
 echo "- INFO: User [spark] should be able to create table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(echo -n "create table sports (id int, name string)" | base64)
+scala_sql=$(base64encode "create table sports (id int, name string)")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
 echo "- INFO: Insert into table."
 echo "- INFO: User [spark] should be able to alter table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(echo -n "insert into sports values(1, 'football')" | base64)
+scala_sql=$(base64encode "insert into sports values(1, 'football')")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"

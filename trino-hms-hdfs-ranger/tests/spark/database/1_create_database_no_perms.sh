@@ -13,6 +13,6 @@ echo "- INFO: User [spark] doesn't have HDFS or Hive permissions."
 echo "- INFO: Create database."
 echo "- INFO: User [spark] shouldn't be able to create database."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME
-scala_sql=$(echo -n "create database poc_db location 'hdfs://namenode/opt/hive/data/poc_db/external/poc_db.db'" | base64)
-scala_msg=$(echo -n "Permission denied: user [spark] does not have [ALL] privilege on [hdfs://namenode/opt/hive/data/poc_db/external/poc_db.db]" | base64)
+scala_sql=$(base64encode "create database poc_db location 'hdfs://namenode/opt/hive/data/poc_db/external/poc_db.db'")
+scala_msg=$(base64encode "Permission denied: user [spark] does not have [ALL] privilege on [hdfs://namenode/opt/hive/data/poc_db/external/poc_db.db]")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILENAME $scala_sql $scala_msg" "$SPARK_TEST_SUCCESS_MSG" "false"

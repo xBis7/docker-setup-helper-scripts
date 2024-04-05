@@ -996,3 +996,10 @@ runSparkTest() {
     docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell --conf spark.app.sql=\"$sql_arg\" --conf spark.app.msg=\"$msg_arg\" -I test.scala"
   fi
 }
+
+# This function is created to allow for substitutes or changes if base64 works differently on different systems.
+base64encode() {
+  input=$1
+
+  echo -n "$input" | base64
+}

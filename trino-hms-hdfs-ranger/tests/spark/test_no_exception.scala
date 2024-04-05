@@ -1,5 +1,7 @@
+val sqlStr = spark.conf.get("spark.app.sql", "default_sql_value")
+
 try {
-  spark.sql("insert into sports values(2, 'basketball')")
+  spark.sql(sqlStr)
   println("Test passed")
   sys.exit(0)
 } catch {

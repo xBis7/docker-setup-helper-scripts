@@ -83,6 +83,11 @@ SPARK_MASTER_HOSTNAME="spark-master-1"
 SPARK_WORKER1_HOSTNAME="spark-worker-1"
 SPARK_TEST_FILENAME="test.scala"
 SPARK_TEST_PATH="tests/spark"
+SPARK_TEST_FOR_EXCEPTION_FILENAME="test_for_exception.scala"
+SPARK_TEST_NO_EXCEPTION_FILENAME="test_no_exception.scala"
+SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME="test_external_table_creation_no_exception.scala"
+SPARK_TEST_EXTERNAL_TABLE_CREATION_FOR_EXCEPTION_FILENAME="test_external_table_creation_for_exception.scala"
+SPARK_TEST_SUCCESS_MSG="Test passed"
 
 # Ranger jars names
 RANGER_COMMON_JAR_NAME="ranger-plugins-common-3.0.0-SNAPSHOT-jar-with-dependencies.jar"
@@ -983,7 +988,7 @@ runSparkTest() {
   testFileName=$1
   sql_arg=$(echo -n "$2" | base64 --decode)
   msg_arg=$(echo -n "$3" | base64 --decode)
-  message="Running Spark test file: $testFileName"
+  message="Running Spark test: [$testFileName] with arguments sql_arg: [$sql_arg] and msg_arg: [$msg_arg]"
 
   if [ "$PRINT_CMD" == "true" ]; then
       printCmdString "$message"

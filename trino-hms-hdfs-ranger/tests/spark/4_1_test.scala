@@ -1,5 +1,7 @@
+val sqlStr = spark.conf.get("spark.app.sql", "default_sql_value")
+
 try {
-  val rowsNum = spark.sql("select * from default.spark_test_table").count()
+  val rowsNum = spark.sql(sqlStr).count()
   if (rowsNum != 4) {
     println("Test failed. Expected: 4 rows. Actual: " + rowsNum + " rows")
     sys.exit(1)

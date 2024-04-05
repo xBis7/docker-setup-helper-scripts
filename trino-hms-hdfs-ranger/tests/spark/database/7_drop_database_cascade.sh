@@ -10,7 +10,6 @@ echo ""
 echo "- INFO: Reusing policies."
 echo "- INFO: Drop database."
 echo "- INFO: User [spark] should be able to drop non-empty database with 'cascade'."
-testFileName="7_test.scala"
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/database/$testFileName
-successMsg="Test passed"
-retryOperationIfNeeded "$abs_path" "runSparkTest $testFileName" "$successMsg" "false"
+cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME
+scala_sql=$(echo -n "poc_db.spark_test_table" | base64)
+retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"

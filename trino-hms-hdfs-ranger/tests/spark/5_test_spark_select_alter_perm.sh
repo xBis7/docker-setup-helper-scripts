@@ -14,28 +14,27 @@ waitForPoliciesUpdate
 echo ""
 echo "- INFO: Rename table."
 echo "- INFO: User [spark] should be able to alter table."
-testFileName="5_1_test.scala"
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$testFileName
-successMsg="Test passed"
-retryOperationIfNeeded "$abs_path" "runSparkTest $testFileName" "$successMsg" "false"
+cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
+scala_sql=$(echo -n "alter table default.spark_test_table rename to default.new_spark_test_table" | base64)
+retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
 echo "- INFO: Drop partition."
 echo "- INFO: User [spark] should be able to alter table."
-testFileName="5_2_test.scala"
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$testFileName
-retryOperationIfNeeded "$abs_path" "runSparkTest $testFileName" "$successMsg" "false"
+cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
+scala_sql=$(echo -n "alter table animals drop partition (name='cow')" | base64)
+retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
 echo "- INFO: Insert into table."
 echo "- INFO: User [spark] should be able to alter table."
-testFileName="5_3_test.scala"
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$testFileName
-retryOperationIfNeeded "$abs_path" "runSparkTest $testFileName" "$successMsg" "false"
+cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
+scala_sql=$(echo -n "insert into sports values(2, 'basketball')" | base64)
+retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
 echo "- INFO: Truncate table."
 echo "- INFO: User [spark] should be able to alter table."
-testFileName="5_4_test.scala"
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$testFileName
-retryOperationIfNeeded "$abs_path" "runSparkTest $testFileName" "$successMsg" "false"
+cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
+scala_sql=$(echo -n "truncate table sports" | base64)
+retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"

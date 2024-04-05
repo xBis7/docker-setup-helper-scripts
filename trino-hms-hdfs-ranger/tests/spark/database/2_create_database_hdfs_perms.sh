@@ -14,7 +14,6 @@ waitForPoliciesUpdate
 
 echo "- INFO: Create database."
 echo "- INFO: User [spark] should be able to create database."
-testFileName="2_test.scala"
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/database/$testFileName
-successMsg="Test passed"
-retryOperationIfNeeded "$abs_path" "runSparkTest $testFileName" "$successMsg" "false"
+cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
+scala_sql=$(echo -n "create database poc_db location 'hdfs://namenode/opt/hive/data/poc_db/external/poc_db.db'" | base64)
+retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"

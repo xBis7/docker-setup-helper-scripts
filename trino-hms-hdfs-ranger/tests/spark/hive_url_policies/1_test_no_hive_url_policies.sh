@@ -14,7 +14,7 @@ waitForPoliciesUpdate
 echo ""
 echo "- INFO: Create table."
 echo "- INFO: User [spark] shouldn't be able to create table."
-testFileName="1_test.scala"
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/hive_url_policies/$testFileName
-successMsg="Test passed"
-retryOperationIfNeeded "$abs_path" "runSparkTest $testFileName" "$successMsg" "false"
+cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME
+scala_sql=$(echo -n "create table persons (id int, name string)" | base64)
+scala_msg=$(echo -n "Permission denied: user [spark] does not have [WRITE] privilege on [[hdfs://namenode/opt/hive/data/persons, hdfs://namenode/opt/hive/data/persons/]]" | base64)
+retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILENAME $scala_sql $scala_msg" "$SPARK_TEST_SUCCESS_MSG" "false"

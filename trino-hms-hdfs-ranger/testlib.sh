@@ -409,7 +409,7 @@ handleSparkEnv() {
     # /opt/spark/work dir.
     if find "$spark_docker_path/conf" -type d | grep -E "/$SPARK_WORK_DIR$"; then
       echo "/$SPARK_WORK_DIR dir exists. Cleaning up..."
-      rm -r -f $spark_docker_path/conf/$SPARK_WORK_DIR
+      sudo rm -r -f $spark_docker_path/conf/$SPARK_WORK_DIR
     fi
 
     echo "Creating /$SPARK_WORK_DIR dir and changing permissions."
@@ -417,7 +417,6 @@ handleSparkEnv() {
 
     mkdir $spark_docker_path/conf/$SPARK_WORK_DIR
     chmod 777 $spark_docker_path/conf/$SPARK_WORK_DIR
-
 
     # This can be extended to scale to 3 spark workers.
     # docker compose -f "$spark_docker_path/docker-compose.yml" up -d --scale spark-worker=3
@@ -439,6 +438,9 @@ handleSparkEnv() {
 
     echo "Cleaning up /$SPARK_EVENTS_DIR dir."
     rm -r -f $spark_docker_path/conf/$SPARK_EVENTS_DIR/
+
+    echo "Cleaning up /$SPARK_WORK_DIR dir."
+    sudo rm -r -f $spark_docker_path/conf/$SPARK_WORK_DIR/
   fi
 }
 

@@ -209,6 +209,7 @@ if [ "$buildSpark" == 0 ]; then
 
   cd "$abs_path/$PROJECT_SPARK"
   export MAVEN_OPTS="-Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g"
+  export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_SPARK' project."

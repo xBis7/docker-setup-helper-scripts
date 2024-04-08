@@ -82,6 +82,15 @@ TRINO_HOSTNAME="trino-coordinator-1"
 SPARK_MASTER_HOSTNAME="spark-master-1"
 SPARK_WORKER1_HOSTNAME="spark-worker-1"
 
+# Spark test variables
+SPARK_TEST_FILENAME="test.scala"
+SPARK_TEST_PATH="tests/spark"
+SPARK_TEST_FOR_EXCEPTION_FILENAME="test_for_exception.scala"
+SPARK_TEST_NO_EXCEPTION_FILENAME="test_no_exception.scala"
+SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME="test_external_table_creation_no_exception.scala"
+SPARK_TEST_EXTERNAL_TABLE_CREATION_FOR_EXCEPTION_FILENAME="test_external_table_creation_for_exception.scala"
+SPARK_TEST_SUCCESS_MSG="Test passed"
+
 # Ranger jars names
 RANGER_COMMON_JAR_NAME="ranger-plugins-common-3.0.0-SNAPSHOT-jar-with-dependencies.jar"
 RANGER_AUDIT_JAR_NAME="ranger-plugins-audit-3.0.0-SNAPSHOT.jar"
@@ -617,108 +626,6 @@ createHdfsFile() {
   fi
 }
 
-performSparkSql() {
-  # Join all args with space
-  sql="$*"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$sql"
-  else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$sql\" | bin/spark-shell"
-  fi
-}
-
-createSparkTable() {
-  table_name=$1
-  hdfs_dir_name=$2
-  db_name=$3
-
-  c="spark.read.text(\\\"hdfs://namenode:8020/$hdfs_dir_name\\\").write.option(\\\"path\\\", \\\"hdfs://namenode/opt/hive/data\\\").mode(\\\"overwrite\\\").format(\\\"csv\\\").saveAsTable(\\\"$db_name.$table_name\\\")"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
-  fi
-}
-
-selectDataFromSparkTable() {
-  table_name=$1
-  db_name=$2
-
-  c="spark.sql(\\\"SELECT * FROM $db_name.$table_name\\\").show()"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
-  fi
-}
-
-alterSparkTable() {
-  old_table_name=$1
-  new_table_name=$2
-  db_name=$3
-
-  c="spark.sql(\\\"ALTER TABLE $db_name.$old_table_name RENAME TO $db_name.$new_table_name\\\")"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
-  fi
-}
-
-dropSparkTable() {
-  table_name=$1
-  db_name=$2
-
-  c="spark.sql(\\\"DROP TABLE $db_name.$table_name\\\")"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
-  fi
-}
-
-createDatabaseWithSpark() {
-  db_name=$1
-
-  c="spark.sql(\\\"CREATE DATABASE $db_name LOCATION 'hdfs://namenode/opt/hive/data/$db_name/external/$db_name.db'\\\")"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
-  fi
-}
-
-dropDatabaseWithSpark() {
-  db_name=$1
-  use_cascade=$2
-
-  if [ "$use_cascade" == "true" ]; then
-
-    c="spark.sql(\\\"DROP DATABASE IF EXISTS $db_name CASCADE\\\")"
-
-    if [ "$PRINT_CMD" == "true" ]; then
-      printCmdString "$c"
-    else
-      docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
-    fi
-  else
-
-    c="spark.sql(\\\"DROP DATABASE IF EXISTS $db_name\\\")"
-
-    if [ "$PRINT_CMD" == "true" ]; then
-      printCmdString "$c"
-    else
-      docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "echo \"$c\" | bin/spark-shell"
-    fi
-  fi
-}
-
 performTrinoCmd() {
   # Join all args with space
   trino_cmd="$*"
@@ -940,6 +847,7 @@ retryOperationIfNeeded() {
   expMsg=$3
   expFailure=$4
   msgNotPresent=$5
+  exp_exit_code=1
 
   result=""
 
@@ -947,6 +855,7 @@ retryOperationIfNeeded() {
     result="failed"
   else
     result="succeeded"
+    exp_exit_code=0
   fi
 
   echo ""
@@ -954,10 +863,15 @@ retryOperationIfNeeded() {
   echo ""
 
   counter=0
+  while [[ "$counter" -le 10 ]]; do
+    if [ "$counter" -eq 10 ]; then
+      echo ""
+      echo "- RESULT -> FAILURE: Operation exceeded the retry limit. Exiting..."
+      echo "---------------------------------------------------"
+      exit 1
+    fi
 
-  while [[ "$counter" < 9 ]]; do
-
-    echo "- INFO: Counter=$counter" 
+    echo "- INFO: Counter=$counter"
 
     # If we print the command being run, right before every execution
     # then the print will be stored in the tmp file along with the stdout.
@@ -984,82 +898,62 @@ retryOperationIfNeeded() {
     echo "### Stdout- {"
     echo ""
 
+    sleep 3
+
     # Use the 'tee' command, which prints the output in the stdout
     # and writes it in a file at the same time.
     $cmd 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
+    exit_code=${PIPESTATUS[0]}
 
     echo ""
     echo "} -Stdout ###"
     echo ""
 
+    if [ $exit_code -ne $exp_exit_code ]; then
+      echo ""
+      echo "- Unexpected exit code. Expected: $exp_exit_code. Actual: $exit_code."
+      counter=$(($counter + 1))
+      continue
+    fi
+
     if [ "$msgNotPresent" == "true" ]; then
       # '> /dev/null' hides the grep output. Remove it to reveal the output.
+      echo ""
+      echo "- Not expected msg: $expMsg"
+      echo ""
       if !(grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null); then
         # echo "- DEBUG: Exit code NotExp-Suc-Grep: $?"
         # echo ""
         # echo "- DEBUG: NotExp-Suc-Output= "
         # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
         # echo "- DEBUG: Exit code NotExp-Suc-Output: $?"
-        echo ""
-        echo ""
-        echo ""
-        echo "- Not expected msg: $expMsg"
-        echo ""
         echo "- RESULT -> SUCCESS: Operation $result as expected."
         echo "---------------------------------------------------"
         break
+      else
+        echo "- RESULT -> FAILURE: Operation $result not as expected."
+        echo "---------------------------------------------------"
+        counter=$(($counter + 1))
+        continue
       fi
-
-      sleep 3
-      counter=$(($counter + 1))
-
-      # If we reached counter=10 and the output is still different than the expected one, then exit.
-      if [ "$counter" == 9 ] && grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/nul; then
+    else
+      echo ""
+      echo "- Expected Msg: $expMsg"
+      echo ""
+      if grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
         # echo "- DEBUG: Exit code NotExp-Fail-Grep: $?"
         # echo ""
         # echo "- DEBUG: NotExp-Fail-Output= "
         # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
         # echo "- DEBUG: Exit code NotExp-Fail-Output: $?"
-        echo ""
-        echo ""
-        echo ""
-        echo "- RESULT -> FAILURE: Operation should have $result, but it didn't..."
-        echo "- Exiting..."
-        exit 1
-      fi
-    else
-      if grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
-        # echo "- DEBUG: Exit code Suc-Grep: $?"
-        # echo ""
-        # echo "- DEBUG: Suc-Output= "
-        # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
-        # echo "- DEBUG: Exit code Suc-Output: $?"
-        echo ""
-        echo ""
-        echo ""
-        echo "- Expected Msg: $expMsg"
-        echo ""
         echo "- RESULT -> SUCCESS: Operation $result as expected."
         echo "---------------------------------------------------"
         break
-      fi
-
-      sleep 3
-      counter=$(($counter + 1))
-
-      # If we reached counter=10 and the output is still different than the expected one, then exit.
-      if [ "$counter" == 9 ] && !(grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null); then
-        # echo "- DEBUG: Exit code Fail-Grep: $?"
-        # echo ""
-        # echo "- DEBUG: Fail-Output= "
-        # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
-        # echo "- DEBUG: Exit code Fail-Output: $?"
-        echo ""
-        echo ""
-        echo ""
-        echo "- RESULT -> FAILURE: Operation should have $result, but it didn't..."
-        echo "- Exiting..."
-        exit 1
+      else
+        echo "- RESULT -> FAILURE: Operation $result not as expected."
+        echo "---------------------------------------------------"
+        counter=$(($counter + 1))
+        continue
       fi
     fi
   done
@@ -1070,4 +964,36 @@ waitForPoliciesUpdate() {
   echo ""
   echo "- INFO: Waiting $wait_time_sec sec to make sure enough time has passed for the policies to get updated."
   sleep "$wait_time_sec"
+}
+
+cpSparkTest() {
+  testFilePath=$1
+
+  docker cp "$testFilePath" "$SPARK_MASTER_HOSTNAME":/opt/spark/"$SPARK_TEST_FILENAME"
+}
+
+runSparkTest() {
+  testFileName=$1
+  sql_arg=$(echo -n "$2" | base64 --decode)
+  msg_arg=$(echo -n "$3" | base64 --decode)
+  message="Running Spark test: [$testFileName] with arguments sql_arg: [$sql_arg] and msg_arg: [$msg_arg]"
+
+  if [ "$PRINT_CMD" == "true" ]; then
+      printCmdString "$message"
+  else
+    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell --conf spark.app.sql=\"$sql_arg\" --conf spark.app.msg=\"$msg_arg\" -I test.scala"
+  fi
+}
+
+# This function is created to allow for substitutes or changes if base64 works differently on different systems.
+# We can achieve the correct variable substitution and space handling by encoding and decoding the string.
+base64encode() {
+  input=$1
+
+  # Because of OS differences, it is necessary to use -w 0 for Linux distros.
+  if [[ $(uname) != "Darwin"* ]]; then
+    echo -n "$input" | base64 -w 0
+  else
+    echo -n "$input" | base64
+  fi
 }

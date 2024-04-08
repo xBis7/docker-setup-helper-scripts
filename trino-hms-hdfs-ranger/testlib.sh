@@ -13,7 +13,7 @@ CURRENT_REPO="docker-setup-helper-scripts"
 # Project branches
 RANGER_BRANCH="ranger-docker-hive4"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
-HIVE_BRANCH="hive4-version-hack"
+HIVE_BRANCH="hive4-latest"
 SPARK_BRANCH="branch-3.5-dev-env"
 
 # Dump file names

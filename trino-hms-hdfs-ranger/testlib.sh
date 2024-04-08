@@ -987,9 +987,13 @@ runSparkTest() {
 
 # This function is created to allow for substitutes or changes if base64 works differently on different systems.
 # We can achieve the correct variable substitution and space handling by encoding and decoding the string.
-# -w 0, makes sure that the line length is ignored.
 base64encode() {
   input=$1
 
-  echo -n "$input" | base64
+  # Because of OS differences, it is necessary to use -w 0 for Linux distros.
+  if [[ $(uname) != "Darwin"* ]]; then
+    echo -n "$input" | base64 -w 0
+  else
+    echo -n "$input" | base64
+  fi
 }

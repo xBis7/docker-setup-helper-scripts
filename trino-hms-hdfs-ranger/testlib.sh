@@ -81,6 +81,8 @@ TRINO_HOSTNAME="trino-coordinator-1"
 
 SPARK_MASTER_HOSTNAME="spark-master-1"
 SPARK_WORKER1_HOSTNAME="spark-worker-1"
+
+# Spark test variables
 SPARK_TEST_FILENAME="test.scala"
 SPARK_TEST_PATH="tests/spark"
 SPARK_TEST_FOR_EXCEPTION_FILENAME="test_for_exception.scala"

@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 
 echo ""
-echo "- INFO: Reusing policies from previous test"
+echo "- INFO: Reusing policies."
 
 echo ""
 echo "- INFO: [drop] should fail."

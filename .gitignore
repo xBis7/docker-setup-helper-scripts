@@ -6,3 +6,5 @@ pg_tmp_output.txt
 
 compose/spark/conf/spark-events
 compose/spark/conf/hive-jars
+
+compose/hadoop/conf/ranger-jars

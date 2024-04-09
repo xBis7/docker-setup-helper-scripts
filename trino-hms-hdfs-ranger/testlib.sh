@@ -58,6 +58,7 @@ NEW_SPARK_TABLE_NAME="new_$SPARK_TABLE"
 EXTERNAL_DB="poc_db"
 DEFAULT_DB="default"
 HDFS_DIR="test"
+SPARK_EVENTS_DIR="spark-events"
 HIVE_WAREHOUSE_DIR="opt/hive/data"
 TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
@@ -66,10 +67,10 @@ PRINT_CMD=""
 
 # Container names
 # Compose V2
-NAMENODE_HOSTNAME="hadoop-ranger-namenode-1"
-DN1_HOSTNAME="hadoop-ranger-datanode-1"
-DN2_HOSTNAME="hadoop-ranger-datanode-2"
-DN3_HOSTNAME="hadoop-ranger-datanode-3"
+NAMENODE_HOSTNAME="docker-namenode-1"
+DN1_HOSTNAME="docker-datanode-1"
+DN2_HOSTNAME="docker-datanode-2"
+DN3_HOSTNAME="docker-datanode-3"
 
 HMS_HOSTNAME="hive-metastore-ranger-hive-metastore-1"
 HMS_POSTGRES_HOSTNAME="hive-metastore-ranger-postgres-1"
@@ -286,6 +287,31 @@ setupSparkJarsIfNeeded() {
   cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_jar_path" "$HIVE_STANDALONE_METASTORE_JAR_NAME"
 }
 
+setupRangerJarsIfNeeded() {
+  abs_path=$1
+
+  dir_base_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf"
+  jars_dir_name="ranger-jars"
+  jars_dir_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf/$jars_dir_name"
+
+  # Check if the directory exists.
+  if find "$dir_base_path" -type d | grep -E "/$jars_dir_name$"; then
+    echo "Directory '$jars_dir_name' exists."
+  else
+    echo "Directory '$jars_dir_name' doesn't exist. Creating..."
+    execCmdAndHandleErrorIfNeeded "mkdir $jars_dir_path"
+  fi
+
+  # Copy jars from Ranger.
+  ranger_common_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_JAR"
+  ranger_audit_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_AUDIT_JAR"
+  ranger_hdfs_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_HDFS_JAR"
+
+  cpJarIfNotExist "$jars_dir_path" "$ranger_common_jar_path" "$RANGER_COMMON_JAR"
+  cpJarIfNotExist "$jars_dir_path" "$ranger_audit_jar_path" "$RANGER_AUDIT_JAR"
+  cpJarIfNotExist "$jars_dir_path" "$ranger_hdfs_jar_path" "$RANGER_HDFS_JAR"
+}
+
 handleRangerEnv() {
   abs_path=$1
   op=$2
@@ -321,28 +347,27 @@ handleHadoopEnv() {
   abs_path=$1
   op=$2
 
-  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop-ranger"
+  hadoop_docker_path="$abs_path/$CURRENT_REPO/compose/hadoop/docker"
   cd $hadoop_docker_path
 
   if [ "$op" == "start" ]; then
+    setupRangerJarsIfNeeded "$abs_path"
+
     echo ""
     echo "Starting '$PROJECT_HADOOP' env."
     echo ""
 
-    docker compose -f "$hadoop_docker_path/docker-compose.yaml" up -d --scale datanode=3
+    docker compose -f "$hadoop_docker_path/docker-compose.yml" up -d --scale datanode=3
 
     echo ""
     echo "'$PROJECT_HADOOP' env started."
     echo ""
-
-    #reset COMPOSE_FILE env variable
-    export COMPOSE_FILE=
   else
     echo ""
     echo "Stopping '$PROJECT_HADOOP' env."
     echo ""
 
-    docker compose -f "$hadoop_docker_path/docker-compose.yaml" down
+    docker compose -f "$hadoop_docker_path/docker-compose.yml" down
 
     echo ""
     echo "'$PROJECT_HADOOP' env stopped."
@@ -443,10 +468,10 @@ handleSparkEnv() {
     echo "Starting '$PROJECT_SPARK' env."
 
     echo ""
-    echo "Creating /spark-events dir and changing permissions."
+    echo "Creating /$SPARK_EVENTS_DIR dir and changing permissions."
 
-    mkdir $spark_path/conf/spark-events
-    chmod 777 $spark_path/conf/spark-events
+    mkdir $spark_path/conf/$SPARK_EVENTS_DIR
+    chmod 777 $spark_path/conf/$SPARK_EVENTS_DIR
 
     docker compose -p spark -f $docker_compose_path up -d --scale worker=3
 
@@ -462,8 +487,8 @@ handleSparkEnv() {
     echo ""
     echo "'$PROJECT_SPARK' env stopped."
 
-    echo "Cleaning up spark-events dir."
-    rm -r -f $spark_path/conf/spark-events
+    echo "Cleaning up $SPARK_EVENTS_DIR dir."
+    rm -r -f $spark_path/conf/$SPARK_EVENTS_DIR
   fi
 }
 

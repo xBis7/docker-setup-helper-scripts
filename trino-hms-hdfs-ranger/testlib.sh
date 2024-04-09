@@ -24,7 +24,7 @@ configureHiveVersion() {
     echo "Configuring project for Hive 4."
     echo ""
     HIVE_BRANCH="hive4-latest"
-    HIVE_BUILD="4.0.0-beta-2-SNAPSHOT"
+    HIVE_BUILD="4.0.0"
     RANGER_BRANCH="ranger-docker-hive4"
   else
     echo ""

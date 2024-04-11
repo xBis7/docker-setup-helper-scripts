@@ -7,6 +7,7 @@ set -e
 abs_path=$1
 
 # Ranger paths
+ranger_common_uber_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_UBER_JAR"
 ranger_common_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_JAR"
 ranger_audit_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_AUDIT_JAR"
 
@@ -26,7 +27,7 @@ hive_jars_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD
 
 # Ranger - HDFS setup
 echo "Copying Ranger jars under HDFS."
-execCmdAndHandleErrorIfNeeded "cp $ranger_common_jar_path $hdfs_jars_path"
+execCmdAndHandleErrorIfNeeded "cp $ranger_common_uber_jar_path $hdfs_jars_path"
 execCmdAndHandleErrorIfNeeded "cp $ranger_audit_jar_path $hdfs_jars_path"
 execCmdAndHandleErrorIfNeeded "cp $ranger_hdfs_jar_path $hdfs_jars_path"
 echo "Copy finished."

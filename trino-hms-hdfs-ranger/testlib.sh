@@ -11,7 +11,7 @@ PROJECT_SPARK="spark"
 CURRENT_REPO="docker-setup-helper-scripts"
 
 # Project branches
-RANGER_BRANCH="ranger-docker-hdfs"
+RANGER_BRANCH="ranger-2.4-with-hmsa"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
 HIVE_BRANCH=
 
@@ -31,8 +31,8 @@ configureHiveVersion() {
     echo "Configuring project for Hive 3."
     echo ""
     HIVE_BRANCH="branch-3.1-build-fixed"
-    HIVE_BUILD="3.1.3"
-    RANGER_BRANCH="ranger-docker-hdfs"
+    HIVE_BUILD="3.1.3-with-backport"
+    RANGER_BRANCH="ranger-2.4-with-hmsa"
   fi
 }
 
@@ -92,13 +92,16 @@ SPARK_TEST_EXTERNAL_TABLE_CREATION_FOR_EXCEPTION_FILENAME="test_external_table_c
 SPARK_TEST_SUCCESS_MSG="Test passed"
 
 # Ranger jars names
-RANGER_COMMON_JAR_NAME="ranger-plugins-common-3.0.0-SNAPSHOT-jar-with-dependencies.jar"
-RANGER_AUDIT_JAR_NAME="ranger-plugins-audit-3.0.0-SNAPSHOT.jar"
+RANGER_COMMON_UBER_JAR_NAME="ranger-plugins-common-2.4.1-SNAPSHOT-jar-with-dependencies.jar"
+RANGER_COMMON_JAR_NAME="ranger-plugins-common-2.4.1-SNAPSHOT.jar"
 
-RANGER_HDFS_JAR_NAME="ranger-hdfs-plugin-3.0.0-SNAPSHOT.jar"
-RANGER_HIVE_JAR_NAME="ranger-hive-plugin-3.0.0-SNAPSHOT.jar"
+RANGER_AUDIT_JAR_NAME="ranger-plugins-audit-2.4.1-SNAPSHOT.jar"
+
+RANGER_HDFS_JAR_NAME="ranger-hdfs-plugin-2.4.1-SNAPSHOT.jar"
+RANGER_HIVE_JAR_NAME="ranger-hive-plugin-2.4.1-SNAPSHOT.jar"
 
 # Ranger jars, paths from Ranger project root
+RANGER_COMMON_UBER_JAR="agents-common/target/$RANGER_COMMON_UBER_JAR_NAME"
 RANGER_COMMON_JAR="agents-common/target/$RANGER_COMMON_JAR_NAME"
 RANGER_AUDIT_JAR="agents-audit/target/$RANGER_AUDIT_JAR_NAME"
 
@@ -119,9 +122,9 @@ HIVE_SERDE_JAR_NAME="hive-serde-$HIVE_BUILD.jar"
 HIVE_SERVICE_RPC_JAR_NAME="hive-service-rpc-$HIVE_BUILD.jar"
 HIVE_SHIMS_JAR_NAME="hive-shims-$HIVE_BUILD.jar"
 HIVE_SHIMS_COMMON_JAR_NAME="hive-shims-common-$HIVE_BUILD.jar"
-HIVE_SHIMS_SCHEDULER_JAR_NAME="hive-shims-scheduler-3.1.3.jar"
-HIVE_SPARK_CLIENT_JAR_NAME="hive-spark-client-3.1.3.jar"
-HIVE_STANDALONE_METASTORE_JAR_NAME="hive-standalone-metastore-3.1.3.jar"
+HIVE_SHIMS_SCHEDULER_JAR_NAME="hive-shims-scheduler-3.1.3-with-backport.jar"
+HIVE_SPARK_CLIENT_JAR_NAME="hive-spark-client-3.1.3-with-backport.jar"
+HIVE_STANDALONE_METASTORE_JAR_NAME="hive-standalone-metastore-3.1.3-with-backport.jar"
 
 # We probably don't need those. Don't copy them for now. They are both under 'ql/target'
 HIVE_EXEC_FALLBACKAUTHORIZER_JAR_NAME="hive-exec-$HIVE_BUILD-fallbackauthorizer.jar"
@@ -290,16 +293,19 @@ handleRangerEnv() {
   abs_path=$1
   op=$2
 
-  ranger_docker_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker"
-  cd $ranger_docker_path
+  # ranger_docker_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker"
+  # cd $ranger_docker_path
+  ranger_path="$abs_path/$PROJECT_RANGER"
+  cd $ranger_path
 
   if [ "$op" == "start" ]; then
     echo ""
     echo "Starting '$PROJECT_RANGER' env."
     echo ""
 
-    export RANGER_DB_TYPE=postgres
-    docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml up -d
+    # export RANGER_DB_TYPE=postgres
+    # docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml up -d
+    ./ranger_in_docker up
 
     echo ""
     echo "'$PROJECT_RANGER' env started."
@@ -309,7 +315,8 @@ handleRangerEnv() {
     echo "Stopping '$PROJECT_RANGER' env."
     echo ""
 
-    docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml down
+    # docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml down
+    ./ranger_in_docker down
 
     echo ""
     echo "'$PROJECT_RANGER' env stopped."

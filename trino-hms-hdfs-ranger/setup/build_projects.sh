@@ -55,6 +55,42 @@ else
   # No project will be built and the script will exit anyway.
 fi
 
+# Hive
+if [ "$buildHive" == 0 ]; then
+  exitIfProjectNotExist $abs_path $PROJECT_HIVE
+
+  echo ""
+  echo "Building '$PROJECT_HIVE'"
+
+  cd "$abs_path/$PROJECT_HIVE"
+  export JAVA_HOME="$java_8_home"
+  export MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g"
+
+  echo ""
+  echo "Checking for an available patch for the '$PROJECT_HIVE' project."
+  if [ "$HIVE_PATCH" != "" ]; then
+    # We have `set -e`. If this fails, the script will exit.
+    patch -p1 < $HIVE_PATCH
+    echo "Project successfully patched."
+    echo ""
+  else
+    echo "There is no available patch. Proceeding with the project build."
+    echo ""
+  fi
+
+  mvn clean install package --batch-mode -DskipTests -Pdist 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
+
+  if grep -F "$mvn_success_msg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
+    echo ""
+    echo "'$PROJECT_HIVE' build succeeded."
+    echo ""
+  else
+    echo ""
+    echo "'$PROJECT_HIVE' build failed."
+    exit 1
+  fi
+fi
+
 # Ranger
 if [ "$buildRanger" == 0 ]; then
   exitIfProjectNotExist $abs_path $PROJECT_RANGER
@@ -161,38 +197,12 @@ if [ "$buildHadoop" == 0 ]; then
   fi
 fi
 
-# Hive
-if [ "$buildHive" == 0 ]; then
-  exitIfProjectNotExist $abs_path $PROJECT_HIVE
 
-  echo ""
-  echo "Building '$PROJECT_HIVE'"
+echo ""
+echo ""
+echo "**Reminder: "
+echo "Hive version has been set to '3.1.3-with-backport'."
+echo "Ranger is using that custom version."
+echo "For that reason, Hive always needs to be built before Ranger."
+echo "If you are building just Ranger, make sure that Hive has already been built."
 
-  cd "$abs_path/$PROJECT_HIVE"
-  export JAVA_HOME="$java_8_home"
-  export MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g"
-
-  echo ""  
-  echo "Checking for an available patch for the '$PROJECT_HIVE' project."
-  if [ "$HIVE_PATCH" != "" ]; then
-    # We have `set -e`. If this fails, the script will exit.
-    patch -p1 < $HIVE_PATCH
-    echo "Project successfully patched."
-    echo ""
-  else
-    echo "There is no available patch. Proceeding with the project build."
-    echo ""
-  fi
-
-  mvn clean install package --batch-mode -DskipTests -Pdist 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
-
-  if grep -F "$mvn_success_msg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
-    echo ""
-    echo "'$PROJECT_HIVE' build succeeded."
-    echo ""
-  else
-    echo ""
-    echo "'$PROJECT_HIVE' build failed."
-    exit 1
-  fi
-fi

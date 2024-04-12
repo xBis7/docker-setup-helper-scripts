@@ -40,7 +40,7 @@ echo "Copy finished."
 
 # Ranger - Hive setup
 echo "Copying Ranger jars under Hive."
-execCmdAndHandleErrorIfNeeded "cp $ranger_common_jar_path $hive_jars_path"
+execCmdAndHandleErrorIfNeeded "cp $ranger_common_uber_jar_path $hive_jars_path"
 execCmdAndHandleErrorIfNeeded "cp $ranger_audit_jar_path $hive_jars_path"
 execCmdAndHandleErrorIfNeeded "cp $ranger_hive_jar_path $hive_jars_path"
 echo "Copy finished."

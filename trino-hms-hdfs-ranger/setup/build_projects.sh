@@ -120,14 +120,6 @@ if [ "$buildRanger" == 0 ]; then
     echo ""
     echo "'$PROJECT_RANGER' build succeeded."
     echo ""
-
-    if cp -r "$abs_path/$PROJECT_RANGER"/target/* "$abs_path/$PROJECT_RANGER"/dev-support/ranger-docker/dist/; then
-      echo "Copying ranger tarballs under docker dist succeeded."
-      echo ""
-    else
-      echo "Copying ranger tarballs under docker dist failed. Exiting..."
-      exit 1
-    fi
   else
     echo ""
     echo "'$PROJECT_RANGER' build failed."
@@ -142,22 +134,6 @@ if [ "$buildRanger" == 0 ]; then
       echo "After it succeeds, rerun this script for the rest of the projects that you need to build."
     fi
     exit 1
-  fi
-
-  if [ "$ranger_image" == "true" ]; then
-    echo "Running ranger_in_docker script"
-    cd "$abs_path/$PROJECT_RANGER"
-    ranger_in_docker_success_msg="Now, You can run  access RANGER portal via http://localhost:6080 (admin/rangerR0cks!)"
-    ./ranger_in_docker up 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
-
-    if grep -F "$ranger_in_docker_success_msg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
-      echo "ranger_in_docker run successfully"
-      ./ranger_in_docker down
-    else
-      echo "ranger_in_docker didn't run successfully"
-      ./ranger_in_docker down
-      exit 1
-    fi
   fi
 fi
 

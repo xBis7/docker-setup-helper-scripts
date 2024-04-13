@@ -15,8 +15,10 @@ RANGER_BRANCH="ranger-2.4-with-hmsa"
 HADOOP_BRANCH="hadoop-3.3.6-docker"
 HIVE_BRANCH=
 
-# Builds
-HIVE_BUILD=
+# Project Build versions
+RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
+HADOOP_BUILD_VERSION="3.3.6"
+HIVE_BUILD_VERSION=
 
 configureHiveVersion() {
   if [[ "${HIVE_VERSION}" == "4" ]]; then
@@ -24,14 +26,14 @@ configureHiveVersion() {
     echo "Configuring project for Hive 4."
     echo ""
     HIVE_BRANCH="hive4-latest"
-    HIVE_BUILD="4.0.0"
+    HIVE_BUILD_VERSION="4.0.0"
     RANGER_BRANCH="ranger-docker-hive4"
   else
     echo ""
     echo "Configuring project for Hive 3."
     echo ""
     HIVE_BRANCH="branch-3.1-build-fixed"
-    HIVE_BUILD="3.1.3-with-backport"
+    HIVE_BUILD_VERSION="3.1.3-with-backport"
     RANGER_BRANCH="ranger-2.4-with-hmsa"
   fi
 }
@@ -92,13 +94,13 @@ SPARK_TEST_EXTERNAL_TABLE_CREATION_FOR_EXCEPTION_FILENAME="test_external_table_c
 SPARK_TEST_SUCCESS_MSG="Test passed"
 
 # Ranger jars names
-RANGER_COMMON_UBER_JAR_NAME="ranger-plugins-common-2.4.1-SNAPSHOT-jar-with-dependencies.jar"
-RANGER_COMMON_JAR_NAME="ranger-plugins-common-2.4.1-SNAPSHOT.jar"
+RANGER_COMMON_UBER_JAR_NAME="ranger-plugins-common-$RANGER_BUILD_VERSION-jar-with-dependencies.jar"
+RANGER_COMMON_JAR_NAME="ranger-plugins-common-$RANGER_BUILD_VERSION.jar"
 
-RANGER_AUDIT_JAR_NAME="ranger-plugins-audit-2.4.1-SNAPSHOT.jar"
+RANGER_AUDIT_JAR_NAME="ranger-plugins-audit-$RANGER_BUILD_VERSION.jar"
 
-RANGER_HDFS_JAR_NAME="ranger-hdfs-plugin-2.4.1-SNAPSHOT.jar"
-RANGER_HIVE_JAR_NAME="ranger-hive-plugin-2.4.1-SNAPSHOT.jar"
+RANGER_HDFS_JAR_NAME="ranger-hdfs-plugin-$RANGER_BUILD_VERSION.jar"
+RANGER_HIVE_JAR_NAME="ranger-hive-plugin-$RANGER_BUILD_VERSION.jar"
 
 # Ranger jars, paths from Ranger project root
 RANGER_COMMON_UBER_JAR="agents-common/target/$RANGER_COMMON_UBER_JAR_NAME"
@@ -109,26 +111,26 @@ RANGER_HDFS_JAR="hdfs-agent/target/$RANGER_HDFS_JAR_NAME"
 RANGER_HIVE_JAR="hive-agent/target/$RANGER_HIVE_JAR_NAME"
 
 # Hive jars names
-HIVE_BEELINE_JAR_NAME="hive-beeline-$HIVE_BUILD.jar"
-HIVE_CLI_JAR_NAME="hive-cli-$HIVE_BUILD.jar"
-HIVE_COMMON_JAR_NAME="hive-common-$HIVE_BUILD.jar"
-HIVE_EXEC_CORE_JAR_NAME="hive-exec-$HIVE_BUILD-core.jar"
-HIVE_EXEC_JAR_NAME="hive-exec-$HIVE_BUILD.jar"
-HIVE_JDBC_STANDALONE_JAR_NAME="hive-jdbc-$HIVE_BUILD-standalone.jar"
-HIVE_JDBC_JAR_NAME="hive-jdbc-$HIVE_BUILD.jar"
-HIVE_LLAP_COMMON_JAR_NAME="hive-llap-common-$HIVE_BUILD.jar"
-HIVE_METASTORE_JAR_NAME="hive-metastore-$HIVE_BUILD.jar"
-HIVE_SERDE_JAR_NAME="hive-serde-$HIVE_BUILD.jar"
-HIVE_SERVICE_RPC_JAR_NAME="hive-service-rpc-$HIVE_BUILD.jar"
-HIVE_SHIMS_JAR_NAME="hive-shims-$HIVE_BUILD.jar"
-HIVE_SHIMS_COMMON_JAR_NAME="hive-shims-common-$HIVE_BUILD.jar"
+HIVE_BEELINE_JAR_NAME="hive-beeline-$HIVE_BUILD_VERSION.jar"
+HIVE_CLI_JAR_NAME="hive-cli-$HIVE_BUILD_VERSION.jar"
+HIVE_COMMON_JAR_NAME="hive-common-$HIVE_BUILD_VERSION.jar"
+HIVE_EXEC_CORE_JAR_NAME="hive-exec-$HIVE_BUILD_VERSION-core.jar"
+HIVE_EXEC_JAR_NAME="hive-exec-$HIVE_BUILD_VERSION.jar"
+HIVE_JDBC_STANDALONE_JAR_NAME="hive-jdbc-$HIVE_BUILD_VERSION-standalone.jar"
+HIVE_JDBC_JAR_NAME="hive-jdbc-$HIVE_BUILD_VERSION.jar"
+HIVE_LLAP_COMMON_JAR_NAME="hive-llap-common-$HIVE_BUILD_VERSION.jar"
+HIVE_METASTORE_JAR_NAME="hive-metastore-$HIVE_BUILD_VERSION.jar"
+HIVE_SERDE_JAR_NAME="hive-serde-$HIVE_BUILD_VERSION.jar"
+HIVE_SERVICE_RPC_JAR_NAME="hive-service-rpc-$HIVE_BUILD_VERSION.jar"
+HIVE_SHIMS_JAR_NAME="hive-shims-$HIVE_BUILD_VERSION.jar"
+HIVE_SHIMS_COMMON_JAR_NAME="hive-shims-common-$HIVE_BUILD_VERSION.jar"
 HIVE_SHIMS_SCHEDULER_JAR_NAME="hive-shims-scheduler-3.1.3-with-backport.jar"
 HIVE_SPARK_CLIENT_JAR_NAME="hive-spark-client-3.1.3-with-backport.jar"
 HIVE_STANDALONE_METASTORE_JAR_NAME="hive-standalone-metastore-3.1.3-with-backport.jar"
 
 # We probably don't need those. Don't copy them for now. They are both under 'ql/target'
-HIVE_EXEC_FALLBACKAUTHORIZER_JAR_NAME="hive-exec-$HIVE_BUILD-fallbackauthorizer.jar"
-HIVE_ORIGINAL_EXEC_JAR_NAME="original-hive-exec-$HIVE_BUILD.jar"
+HIVE_EXEC_FALLBACKAUTHORIZER_JAR_NAME="hive-exec-$HIVE_BUILD_VERSION-fallbackauthorizer.jar"
+HIVE_ORIGINAL_EXEC_JAR_NAME="original-hive-exec-$HIVE_BUILD_VERSION.jar"
 
 # Hive jars, paths from Hive project root
 HIVE_BEELINE_JAR="beeline/target/$HIVE_BEELINE_JAR_NAME"
@@ -212,11 +214,11 @@ setupSparkJarsIfNeeded() {
   jars_dir_name="hive-jars"
   jars_dir_path="$dir_base_path/$jars_dir_name"
   hive_jar_regex_prefix="hive-*"
-  # Flag to track if any file does not contain $HIVE_BUILD
+  # Flag to track if any file does not contain $HIVE_BUILD_VERSION
   delete_files=false
 
   for file in $jars_dir_path/$hive_jar_regex_prefix; do
-    if [[ ! $file =~ $HIVE_BUILD ]]; then
+    if [[ ! $file =~ $HIVE_BUILD_VERSION ]]; then
       delete_files=true
       break # Exit the loop as one file not matching is enough to decide on deletion
     fi
@@ -328,7 +330,7 @@ handleHadoopEnv() {
   abs_path=$1
   op=$2
 
-  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop-ranger"
+  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-$HADOOP_BUILD_VERSION/compose/hadoop-ranger"
   cd $hadoop_docker_path
 
   if [ "$op" == "start" ]; then
@@ -362,7 +364,7 @@ handleHiveEnv() {
   op=$2
   hive_url_policies_enabled=$3
 
-  hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD-bin/apache-hive-$HIVE_BUILD-bin/compose/hive-metastore-ranger"
+  hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD_VERSION-bin/apache-hive-$HIVE_BUILD_VERSION-bin/compose/hive-metastore-ranger"
 
   if [ "$hive_url_policies_enabled" == "true" ]; then
       mv "$hive_docker_path/conf/ranger-hive-security.xml" "$hive_docker_path/conf/ranger-hive-security-old.xml"

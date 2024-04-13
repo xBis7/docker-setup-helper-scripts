@@ -18,12 +18,51 @@ ranger_hdfs_audit_conf_path="$abs_path/$PROJECT_RANGER/hdfs-agent/conf/ranger-hd
 ranger_hdfs_security_conf_path="$abs_path/$PROJECT_RANGER/hdfs-agent/conf/ranger-hdfs-security.xml"
 ranger_hdfs_policymgr_conf_path="$abs_path/$PROJECT_RANGER/hdfs-agent/conf/ranger-policymgr-ssl.xml"
 
+ranger_docker_dist_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker/dist"
+ranger_tar_regex_prefix="ranger-*"
+
 # HDFS paths
-hdfs_jars_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/share/hadoop/hdfs/lib"
-hdfs_conf_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/etc/hadoop"
+hdfs_jars_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-$HADOOP_BUILD_VERSION/share/hadoop/hdfs/lib"
+hdfs_conf_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-$HADOOP_BUILD_VERSION/etc/hadoop"
 
 # Hive path
-hive_jars_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD-bin/apache-hive-$HIVE_BUILD-bin/lib"
+hive_jars_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD_VERSION-bin/apache-hive-$HIVE_BUILD_VERSION-bin/lib"
+
+# Delete Ranger tarball leftovers from other versions.
+echo ""
+echo "Checking tarballs in $ranger_docker_dist_path."
+echo "Clean up the tarballs, if any belongs to a different version build."
+echo ""
+
+# Flag to track if any file does not contain $RANGER_BUILD_VERSION
+delete_files=false
+
+# Change the glob pattern to properly expand
+shopt -s nullglob
+
+for file in $ranger_docker_dist_path/$ranger_tar_regex_prefix.tar.gz; do
+  echo "Checking file: $file"
+  if [[ ! $file =~ $RANGER_BUILD_VERSION ]]; then
+    echo "File '$file' doesn't match build version '$RANGER_BUILD_VERSION'."
+    delete_files=true
+    # Exit the loop on the first match. 
+    # One file is enough to decide on deletion.
+    break
+  fi
+done
+
+if $delete_files; then
+    echo "Tarballs found from a different version build. Deleting files..."
+    rm -rf $ranger_docker_dist_path/$ranger_tar_regex_prefix
+    echo "Files deleted."
+    echo ""
+else
+    echo "All tarballs belong to the current version."
+    echo ""
+fi
+
+# Revert nullglob back to its default state
+shopt -u nullglob
 
 # Ranger - HDFS setup
 echo "Copying Ranger jars under HDFS."
@@ -46,11 +85,11 @@ execCmdAndHandleErrorIfNeeded "cp $ranger_hive_jar_path $hive_jars_path"
 echo "Copy finished."
 
 echo "Making hive 'entrypoint.sh' executable."
-hive_generated_entrypoint_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD-bin/apache-hive-$HIVE_BUILD-bin/compose/hive-metastore-ranger"
+hive_generated_entrypoint_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD_VERSION-bin/apache-hive-$HIVE_BUILD_VERSION-bin/compose/hive-metastore-ranger"
 execCmdAndHandleErrorIfNeeded "chmod u+x $hive_generated_entrypoint_path/entrypoint.sh"
 echo "Permissions updated."
 
-hdfs_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6"
+hdfs_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-$HADOOP_BUILD_VERSION"
 if ls "$hdfs_path" | grep 'test.csv'; then
   echo "Test file already exists under Hadoop."
 else

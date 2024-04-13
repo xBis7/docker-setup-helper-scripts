@@ -120,6 +120,20 @@ if [ "$buildRanger" == 0 ]; then
     echo ""
     echo "'$PROJECT_RANGER' build succeeded."
     echo ""
+
+    # 'ranger_in_docker' checks the 'dev-support/ranger-docker/dist' and if there are no tarballs there,
+    # it builds the project again to generate them under the target dir.
+    # After that it moves them to the dist location. If the tarballs exist in the dist location from a previous build,
+    # they are not copied again and this step is skipped. Incrementally building Ranger
+    # without copying the tarballs, doesn't make a difference,
+    # because without the copy, the Ranger changes never end up in the docker env.
+    if cp -r "$abs_path/$PROJECT_RANGER"/target/* "$abs_path/$PROJECT_RANGER"/dev-support/ranger-docker/dist/; then
+      echo "Copying ranger tarballs under docker dist succeeded."
+      echo ""
+    else
+      echo "Copying ranger tarballs under docker dist failed. Exiting..."
+      exit 1
+    fi
   else
     echo ""
     echo "'$PROJECT_RANGER' build failed."

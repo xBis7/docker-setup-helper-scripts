@@ -45,7 +45,7 @@ for file in $ranger_docker_dist_path/$ranger_tar_regex_prefix.tar.gz; do
   if [[ ! $file =~ $RANGER_BUILD_VERSION ]]; then
     echo "File '$file' doesn't match build version '$RANGER_BUILD_VERSION'."
     delete_files=true
-    # Exit the loop on the first match. 
+    # Exit the loop on the first match.
     # One file is enough to decide on deletion.
     break
   fi

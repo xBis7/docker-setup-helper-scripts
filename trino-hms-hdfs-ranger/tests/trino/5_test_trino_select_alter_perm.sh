@@ -8,7 +8,7 @@ abs_path=$1
 
 echo ""
 echo "- INFO: Updating Ranger policies."
-echo "- INFO: User [postgres] will now have [select, alter] access to Hive default DB."
+echo "- INFO: Users [postgres, trino] will now have [select, alter] access to Hive default DB."
 echo "- INFO: User [trino] will now have [Write] permission for HDFS policy."
 ./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_SELECT_ALTER"
 waitForPoliciesUpdate

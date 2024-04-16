@@ -6,20 +6,13 @@ set -e
 
 abs_path=$1
 
-# Ranger paths
+# Ranger jar paths
 ranger_common_uber_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_UBER_JAR"
-ranger_common_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_JAR"
 ranger_audit_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_AUDIT_JAR"
-
-ranger_hdfs_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_HDFS_JAR"
 ranger_hive_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_HIVE_JAR"
 
 ranger_docker_dist_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker/dist"
 ranger_tar_regex_prefix="ranger-*"
-
-# HDFS paths
-hdfs_jars_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-$HADOOP_BUILD_VERSION/share/hadoop/hdfs/lib"
-hdfs_conf_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-$HADOOP_BUILD_VERSION/etc/hadoop"
 
 # Hive path
 hive_jars_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD_VERSION-bin/apache-hive-$HIVE_BUILD_VERSION-bin/lib"

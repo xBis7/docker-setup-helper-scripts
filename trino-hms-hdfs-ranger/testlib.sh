@@ -12,7 +12,6 @@ CURRENT_REPO="docker-setup-helper-scripts"
 
 # Project branches
 RANGER_BRANCH="ranger-2.4-with-hmsa"
-HADOOP_BRANCH="hadoop-3.3.6-docker"
 HIVE_BRANCH=
 
 # Project Build versions
@@ -51,6 +50,7 @@ HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
 HDFS_AND_HIVE_SELECT_ALTER_DROP="7_hive_defaultdb_select_alter_drop"
 HDFS_AND_HIVE_AND_CREATE_HIVE_URL="8_hdfs_hive_create_hive_url"
 HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
+HDFS_POLICIES_FOR_RANGER_TESTING="hdfs_policies_for_ranger_testing"
 
 # Const shared variables
 TRINO_TABLE="trino_test_table"
@@ -60,7 +60,9 @@ NEW_SPARK_TABLE_NAME="new_$SPARK_TABLE"
 EXTERNAL_DB="poc_db"
 DEFAULT_DB="default"
 HDFS_DIR="test"
+SPARK_EVENTS_DIR="spark-events"
 HIVE_WAREHOUSE_DIR="opt/hive/data"
+HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
@@ -68,10 +70,10 @@ PRINT_CMD=""
 
 # Container names
 # Compose V2
-NAMENODE_HOSTNAME="hadoop-ranger-namenode-1"
-DN1_HOSTNAME="hadoop-ranger-datanode-1"
-DN2_HOSTNAME="hadoop-ranger-datanode-2"
-DN3_HOSTNAME="hadoop-ranger-datanode-3"
+NAMENODE_HOSTNAME="docker-namenode-1"
+DN1_HOSTNAME="docker-datanode-1"
+DN2_HOSTNAME="docker-datanode-2"
+DN3_HOSTNAME="docker-datanode-3"
 
 HMS_HOSTNAME="hive-metastore-ranger-hive-metastore-1"
 HMS_POSTGRES_HOSTNAME="hive-metastore-ranger-postgres-1"
@@ -291,6 +293,31 @@ setupSparkJarsIfNeeded() {
   cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_jar_path" "$HIVE_STANDALONE_METASTORE_JAR_NAME"
 }
 
+setupRangerJarsIfNeeded() {
+  abs_path=$1
+
+  dir_base_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf"
+  jars_dir_name="ranger-jars"
+  jars_dir_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf/$jars_dir_name"
+
+  # Check if the directory exists.
+  if find "$dir_base_path" -type d | grep -E "/$jars_dir_name$"; then
+    echo "Directory '$jars_dir_name' exists."
+  else
+    echo "Directory '$jars_dir_name' doesn't exist. Creating..."
+    execCmdAndHandleErrorIfNeeded "mkdir $jars_dir_path"
+  fi
+
+  # Copy jars from Ranger.
+  ranger_common_uber_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_UBER_JAR"
+  ranger_audit_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_AUDIT_JAR"
+  ranger_hdfs_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_HDFS_JAR"
+
+  cpJarIfNotExist "$jars_dir_path" "$ranger_common_uber_jar_path" "$RANGER_COMMON_UBER_JAR"
+  cpJarIfNotExist "$jars_dir_path" "$ranger_audit_jar_path" "$RANGER_AUDIT_JAR"
+  cpJarIfNotExist "$jars_dir_path" "$ranger_hdfs_jar_path" "$RANGER_HDFS_JAR"
+}
+
 handleRangerEnv() {
   abs_path=$1
   op=$2
@@ -330,28 +357,27 @@ handleHadoopEnv() {
   abs_path=$1
   op=$2
 
-  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-$HADOOP_BUILD_VERSION/compose/hadoop-ranger"
+  hadoop_docker_path="$abs_path/$CURRENT_REPO/compose/hadoop/docker"
   cd $hadoop_docker_path
 
   if [ "$op" == "start" ]; then
+    setupRangerJarsIfNeeded "$abs_path"
+
     echo ""
     echo "Starting '$PROJECT_HADOOP' env."
     echo ""
 
-    docker compose -f "$hadoop_docker_path/docker-compose.yaml" up -d --scale datanode=3
+    docker compose -f "$hadoop_docker_path/docker-compose.yml" up -d --scale datanode=3
 
     echo ""
     echo "'$PROJECT_HADOOP' env started."
     echo ""
-
-    #reset COMPOSE_FILE env variable
-    export COMPOSE_FILE=
   else
     echo ""
     echo "Stopping '$PROJECT_HADOOP' env."
     echo ""
 
-    docker compose -f "$hadoop_docker_path/docker-compose.yaml" down
+    docker compose -f "$hadoop_docker_path/docker-compose.yml" down
 
     echo ""
     echo "'$PROJECT_HADOOP' env stopped."
@@ -452,10 +478,10 @@ handleSparkEnv() {
     echo "Starting '$PROJECT_SPARK' env."
 
     echo ""
-    echo "Creating /spark-events dir and changing permissions."
+    echo "Creating /$SPARK_EVENTS_DIR dir and changing permissions."
 
-    mkdir $spark_path/conf/spark-events
-    chmod 777 $spark_path/conf/spark-events
+    mkdir $spark_path/conf/$SPARK_EVENTS_DIR
+    chmod 777 $spark_path/conf/$SPARK_EVENTS_DIR
 
     docker compose -p spark -f $docker_compose_path up -d --scale worker=3
 
@@ -471,8 +497,8 @@ handleSparkEnv() {
     echo ""
     echo "'$PROJECT_SPARK' env stopped."
 
-    echo "Cleaning up spark-events dir."
-    rm -r -f $spark_path/conf/spark-events
+    echo "Cleaning up $SPARK_EVENTS_DIR dir."
+    rm -r -f $spark_path/conf/$SPARK_EVENTS_DIR
   fi
 }
 
@@ -627,6 +653,34 @@ createHdfsFile() {
   file_name=${2:-"test.csv"} # Provide a default value if not set.
 
   c="hdfs dfs -put $file_name /$dir_name"
+
+  if [ "$PRINT_CMD" == "true" ]; then
+    printCmdString "$c"
+  else
+    docker exec -it "$DN1_HOSTNAME" bash -c "$c"
+  fi
+}
+
+createHdfsFileAsUser() {
+  user=$1
+  dir_name=$2
+  file_name=${3:-"test.csv"} # Provide a default value if not set.
+
+  c="hdfs dfs -put $file_name /$dir_name"
+
+  if [ "$PRINT_CMD" == "true" ]; then
+    printCmdString "$c"
+  else
+    docker exec -it -u "$user" "$DN1_HOSTNAME" bash -c "$c"
+  fi
+}
+
+
+changeHdfsDirPermissions() {
+  perms=$1
+  dir_name=$2
+
+  c="hdfs dfs -chmod $perms /$dir_name"
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "$c"
@@ -812,23 +866,6 @@ createOrUpdateLastSuccessFile() {
   echo "## $PROJECT_RANGER ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "Branch: $ranger_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "Commit: $ranger_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-
-  # Hadoop
-  echo ""
-  cd "$abs_path/$PROJECT_HADOOP"
-  
-  hadoop_branch=$(git branch --show-current)
-  echo "Current branch for repo '$PROJECT_HADOOP' is '$hadoop_branch'."
-
-  hadoop_commit_SHA=$(git rev-parse HEAD | awk NF)
-  echo "Current branch for repo '$PROJECT_HADOOP' is '$hadoop_commit_SHA'."
-
-  # Write text to the file.
-  echo "## $PROJECT_HADOOP ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "Branch: $hadoop_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "Commit: $hadoop_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
 

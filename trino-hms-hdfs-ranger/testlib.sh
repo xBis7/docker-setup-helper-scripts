@@ -322,8 +322,6 @@ handleRangerEnv() {
   abs_path=$1
   op=$2
 
-  # ranger_docker_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker"
-  # cd $ranger_docker_path
   ranger_path="$abs_path/$PROJECT_RANGER"
   cd $ranger_path
 
@@ -332,8 +330,6 @@ handleRangerEnv() {
     echo "Starting '$PROJECT_RANGER' env."
     echo ""
 
-    # export RANGER_DB_TYPE=postgres
-    # docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml up -d
     ./ranger_in_docker up
 
     echo ""
@@ -344,7 +340,6 @@ handleRangerEnv() {
     echo "Stopping '$PROJECT_RANGER' env."
     echo ""
 
-    # docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml down
     ./ranger_in_docker down
 
     echo ""

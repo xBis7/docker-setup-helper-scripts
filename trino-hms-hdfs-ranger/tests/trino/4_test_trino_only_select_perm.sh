@@ -19,15 +19,6 @@ successMsg="\"1\",\" dog\""
 
 retryOperationIfNeeded "$abs_path" "selectDataFromTrinoTable $TRINO_TABLE $DEFAULT_DB" "$successMsg" "false"
 
-# TODO: Cleanup this comment if the issue doesn't appear again.
-
-# insert into, failed a few times with the wrong msg.
-# Instead of "Permission denied: user=trino, access=WRITE, inode=\"/\":hadoop:supergroup:drwxr-xr-x"
-# The msg was: "Query 20240413_112127_00087_uwcts failed: 
-#               All operations other than the following update operations were completed: 
-#               replace table parameters default.trino_test_table"
-# In trino logs, there was this: "io.trino.event.QueryMonitor	TIMELINE: Query 20240413_112156_00088_uwcts :: FAILED (HIVE_FILESYSTEM_ERROR)"
-
 echo ""
 echo "- INFO: Insert into $TRINO_TABLE table."
 echo "- INFO: [alter] should fail."

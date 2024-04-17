@@ -11,12 +11,13 @@ PROJECT_SPARK="spark"
 CURRENT_REPO="docker-setup-helper-scripts"
 
 # Project branches
-RANGER_BRANCH="ranger-docker-hdfs"
-HADOOP_BRANCH="hadoop-3.3.6-docker"
+RANGER_BRANCH="ranger-2.4-with-hmsa"
 HIVE_BRANCH=
 
-# Builds
-HIVE_BUILD=
+# Project Build versions
+RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
+HADOOP_BUILD_VERSION="3.3.6"
+HIVE_BUILD_VERSION=
 
 configureHiveVersion() {
   if [[ "${HIVE_VERSION}" == "4" ]]; then
@@ -24,15 +25,15 @@ configureHiveVersion() {
     echo "Configuring project for Hive 4."
     echo ""
     HIVE_BRANCH="hive4-latest"
-    HIVE_BUILD="4.0.0"
+    HIVE_BUILD_VERSION="4.0.0"
     RANGER_BRANCH="ranger-docker-hive4"
   else
     echo ""
     echo "Configuring project for Hive 3."
     echo ""
     HIVE_BRANCH="branch-3.1-build-fixed"
-    HIVE_BUILD="3.1.3"
-    RANGER_BRANCH="ranger-docker-hdfs"
+    HIVE_BUILD_VERSION="3.1.3-with-backport"
+    RANGER_BRANCH="ranger-2.4-with-hmsa"
   fi
 }
 
@@ -49,6 +50,7 @@ HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
 HDFS_AND_HIVE_SELECT_ALTER_DROP="7_hive_defaultdb_select_alter_drop"
 HDFS_AND_HIVE_AND_CREATE_HIVE_URL="8_hdfs_hive_create_hive_url"
 HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
+HDFS_POLICIES_FOR_RANGER_TESTING="hdfs_policies_for_ranger_testing"
 
 # Const shared variables
 TRINO_TABLE="trino_test_table"
@@ -58,7 +60,9 @@ NEW_SPARK_TABLE_NAME="new_$SPARK_TABLE"
 EXTERNAL_DB="poc_db"
 DEFAULT_DB="default"
 HDFS_DIR="test"
+SPARK_EVENTS_DIR="spark-events"
 HIVE_WAREHOUSE_DIR="opt/hive/data"
+HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
@@ -66,10 +70,10 @@ PRINT_CMD=""
 
 # Container names
 # Compose V2
-NAMENODE_HOSTNAME="hadoop-ranger-namenode-1"
-DN1_HOSTNAME="hadoop-ranger-datanode-1"
-DN2_HOSTNAME="hadoop-ranger-datanode-2"
-DN3_HOSTNAME="hadoop-ranger-datanode-3"
+NAMENODE_HOSTNAME="docker-namenode-1"
+DN1_HOSTNAME="docker-datanode-1"
+DN2_HOSTNAME="docker-datanode-2"
+DN3_HOSTNAME="docker-datanode-3"
 
 HMS_HOSTNAME="hive-metastore-ranger-hive-metastore-1"
 HMS_POSTGRES_HOSTNAME="hive-metastore-ranger-postgres-1"
@@ -92,13 +96,16 @@ SPARK_TEST_EXTERNAL_TABLE_CREATION_FOR_EXCEPTION_FILENAME="test_external_table_c
 SPARK_TEST_SUCCESS_MSG="Test passed"
 
 # Ranger jars names
-RANGER_COMMON_JAR_NAME="ranger-plugins-common-3.0.0-SNAPSHOT-jar-with-dependencies.jar"
-RANGER_AUDIT_JAR_NAME="ranger-plugins-audit-3.0.0-SNAPSHOT.jar"
+RANGER_COMMON_UBER_JAR_NAME="ranger-plugins-common-$RANGER_BUILD_VERSION-jar-with-dependencies.jar"
+RANGER_COMMON_JAR_NAME="ranger-plugins-common-$RANGER_BUILD_VERSION.jar"
 
-RANGER_HDFS_JAR_NAME="ranger-hdfs-plugin-3.0.0-SNAPSHOT.jar"
-RANGER_HIVE_JAR_NAME="ranger-hive-plugin-3.0.0-SNAPSHOT.jar"
+RANGER_AUDIT_JAR_NAME="ranger-plugins-audit-$RANGER_BUILD_VERSION.jar"
+
+RANGER_HDFS_JAR_NAME="ranger-hdfs-plugin-$RANGER_BUILD_VERSION.jar"
+RANGER_HIVE_JAR_NAME="ranger-hive-plugin-$RANGER_BUILD_VERSION.jar"
 
 # Ranger jars, paths from Ranger project root
+RANGER_COMMON_UBER_JAR="agents-common/target/$RANGER_COMMON_UBER_JAR_NAME"
 RANGER_COMMON_JAR="agents-common/target/$RANGER_COMMON_JAR_NAME"
 RANGER_AUDIT_JAR="agents-audit/target/$RANGER_AUDIT_JAR_NAME"
 
@@ -106,26 +113,26 @@ RANGER_HDFS_JAR="hdfs-agent/target/$RANGER_HDFS_JAR_NAME"
 RANGER_HIVE_JAR="hive-agent/target/$RANGER_HIVE_JAR_NAME"
 
 # Hive jars names
-HIVE_BEELINE_JAR_NAME="hive-beeline-$HIVE_BUILD.jar"
-HIVE_CLI_JAR_NAME="hive-cli-$HIVE_BUILD.jar"
-HIVE_COMMON_JAR_NAME="hive-common-$HIVE_BUILD.jar"
-HIVE_EXEC_CORE_JAR_NAME="hive-exec-$HIVE_BUILD-core.jar"
-HIVE_EXEC_JAR_NAME="hive-exec-$HIVE_BUILD.jar"
-HIVE_JDBC_STANDALONE_JAR_NAME="hive-jdbc-$HIVE_BUILD-standalone.jar"
-HIVE_JDBC_JAR_NAME="hive-jdbc-$HIVE_BUILD.jar"
-HIVE_LLAP_COMMON_JAR_NAME="hive-llap-common-$HIVE_BUILD.jar"
-HIVE_METASTORE_JAR_NAME="hive-metastore-$HIVE_BUILD.jar"
-HIVE_SERDE_JAR_NAME="hive-serde-$HIVE_BUILD.jar"
-HIVE_SERVICE_RPC_JAR_NAME="hive-service-rpc-$HIVE_BUILD.jar"
-HIVE_SHIMS_JAR_NAME="hive-shims-$HIVE_BUILD.jar"
-HIVE_SHIMS_COMMON_JAR_NAME="hive-shims-common-$HIVE_BUILD.jar"
-HIVE_SHIMS_SCHEDULER_JAR_NAME="hive-shims-scheduler-3.1.3.jar"
-HIVE_SPARK_CLIENT_JAR_NAME="hive-spark-client-3.1.3.jar"
-HIVE_STANDALONE_METASTORE_JAR_NAME="hive-standalone-metastore-3.1.3.jar"
+HIVE_BEELINE_JAR_NAME="hive-beeline-$HIVE_BUILD_VERSION.jar"
+HIVE_CLI_JAR_NAME="hive-cli-$HIVE_BUILD_VERSION.jar"
+HIVE_COMMON_JAR_NAME="hive-common-$HIVE_BUILD_VERSION.jar"
+HIVE_EXEC_CORE_JAR_NAME="hive-exec-$HIVE_BUILD_VERSION-core.jar"
+HIVE_EXEC_JAR_NAME="hive-exec-$HIVE_BUILD_VERSION.jar"
+HIVE_JDBC_STANDALONE_JAR_NAME="hive-jdbc-$HIVE_BUILD_VERSION-standalone.jar"
+HIVE_JDBC_JAR_NAME="hive-jdbc-$HIVE_BUILD_VERSION.jar"
+HIVE_LLAP_COMMON_JAR_NAME="hive-llap-common-$HIVE_BUILD_VERSION.jar"
+HIVE_METASTORE_JAR_NAME="hive-metastore-$HIVE_BUILD_VERSION.jar"
+HIVE_SERDE_JAR_NAME="hive-serde-$HIVE_BUILD_VERSION.jar"
+HIVE_SERVICE_RPC_JAR_NAME="hive-service-rpc-$HIVE_BUILD_VERSION.jar"
+HIVE_SHIMS_JAR_NAME="hive-shims-$HIVE_BUILD_VERSION.jar"
+HIVE_SHIMS_COMMON_JAR_NAME="hive-shims-common-$HIVE_BUILD_VERSION.jar"
+HIVE_SHIMS_SCHEDULER_JAR_NAME="hive-shims-scheduler-3.1.3-with-backport.jar"
+HIVE_SPARK_CLIENT_JAR_NAME="hive-spark-client-3.1.3-with-backport.jar"
+HIVE_STANDALONE_METASTORE_JAR_NAME="hive-standalone-metastore-3.1.3-with-backport.jar"
 
 # We probably don't need those. Don't copy them for now. They are both under 'ql/target'
-HIVE_EXEC_FALLBACKAUTHORIZER_JAR_NAME="hive-exec-$HIVE_BUILD-fallbackauthorizer.jar"
-HIVE_ORIGINAL_EXEC_JAR_NAME="original-hive-exec-$HIVE_BUILD.jar"
+HIVE_EXEC_FALLBACKAUTHORIZER_JAR_NAME="hive-exec-$HIVE_BUILD_VERSION-fallbackauthorizer.jar"
+HIVE_ORIGINAL_EXEC_JAR_NAME="original-hive-exec-$HIVE_BUILD_VERSION.jar"
 
 # Hive jars, paths from Hive project root
 HIVE_BEELINE_JAR="beeline/target/$HIVE_BEELINE_JAR_NAME"
@@ -209,11 +216,11 @@ setupSparkJarsIfNeeded() {
   jars_dir_name="hive-jars"
   jars_dir_path="$dir_base_path/$jars_dir_name"
   hive_jar_regex_prefix="hive-*"
-  # Flag to track if any file does not contain $HIVE_BUILD
+  # Flag to track if any file does not contain $HIVE_BUILD_VERSION
   delete_files=false
 
   for file in $jars_dir_path/$hive_jar_regex_prefix; do
-    if [[ ! $file =~ $HIVE_BUILD ]]; then
+    if [[ ! $file =~ $HIVE_BUILD_VERSION ]]; then
       delete_files=true
       break # Exit the loop as one file not matching is enough to decide on deletion
     fi
@@ -286,20 +293,44 @@ setupSparkJarsIfNeeded() {
   cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_jar_path" "$HIVE_STANDALONE_METASTORE_JAR_NAME"
 }
 
+setupRangerJarsIfNeeded() {
+  abs_path=$1
+
+  dir_base_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf"
+  jars_dir_name="ranger-jars"
+  jars_dir_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf/$jars_dir_name"
+
+  # Check if the directory exists.
+  if find "$dir_base_path" -type d | grep -E "/$jars_dir_name$"; then
+    echo "Directory '$jars_dir_name' exists."
+  else
+    echo "Directory '$jars_dir_name' doesn't exist. Creating..."
+    execCmdAndHandleErrorIfNeeded "mkdir $jars_dir_path"
+  fi
+
+  # Copy jars from Ranger.
+  ranger_common_uber_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_UBER_JAR"
+  ranger_audit_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_AUDIT_JAR"
+  ranger_hdfs_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_HDFS_JAR"
+
+  cpJarIfNotExist "$jars_dir_path" "$ranger_common_uber_jar_path" "$RANGER_COMMON_UBER_JAR"
+  cpJarIfNotExist "$jars_dir_path" "$ranger_audit_jar_path" "$RANGER_AUDIT_JAR"
+  cpJarIfNotExist "$jars_dir_path" "$ranger_hdfs_jar_path" "$RANGER_HDFS_JAR"
+}
+
 handleRangerEnv() {
   abs_path=$1
   op=$2
 
-  ranger_docker_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker"
-  cd $ranger_docker_path
+  ranger_path="$abs_path/$PROJECT_RANGER"
+  cd $ranger_path
 
   if [ "$op" == "start" ]; then
     echo ""
     echo "Starting '$PROJECT_RANGER' env."
     echo ""
 
-    export RANGER_DB_TYPE=postgres
-    docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml up -d
+    ./ranger_in_docker up
 
     echo ""
     echo "'$PROJECT_RANGER' env started."
@@ -309,7 +340,7 @@ handleRangerEnv() {
     echo "Stopping '$PROJECT_RANGER' env."
     echo ""
 
-    docker compose -f docker-compose.ranger.yml -f docker-compose.ranger-postgres.yml down
+    ./ranger_in_docker down
 
     echo ""
     echo "'$PROJECT_RANGER' env stopped."
@@ -321,28 +352,27 @@ handleHadoopEnv() {
   abs_path=$1
   op=$2
 
-  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop-ranger"
+  hadoop_docker_path="$abs_path/$CURRENT_REPO/compose/hadoop/docker"
   cd $hadoop_docker_path
 
   if [ "$op" == "start" ]; then
+    setupRangerJarsIfNeeded "$abs_path"
+
     echo ""
     echo "Starting '$PROJECT_HADOOP' env."
     echo ""
 
-    docker compose -f "$hadoop_docker_path/docker-compose.yaml" up -d --scale datanode=3
+    docker compose -f "$hadoop_docker_path/docker-compose.yml" up -d --scale datanode=3
 
     echo ""
     echo "'$PROJECT_HADOOP' env started."
     echo ""
-
-    #reset COMPOSE_FILE env variable
-    export COMPOSE_FILE=
   else
     echo ""
     echo "Stopping '$PROJECT_HADOOP' env."
     echo ""
 
-    docker compose -f "$hadoop_docker_path/docker-compose.yaml" down
+    docker compose -f "$hadoop_docker_path/docker-compose.yml" down
 
     echo ""
     echo "'$PROJECT_HADOOP' env stopped."
@@ -355,7 +385,7 @@ handleHiveEnv() {
   op=$2
   hive_url_policies_enabled=$3
 
-  hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD-bin/apache-hive-$HIVE_BUILD-bin/compose/hive-metastore-ranger"
+  hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD_VERSION-bin/apache-hive-$HIVE_BUILD_VERSION-bin/compose/hive-metastore-ranger"
 
   if [ "$hive_url_policies_enabled" == "true" ]; then
       mv "$hive_docker_path/conf/ranger-hive-security.xml" "$hive_docker_path/conf/ranger-hive-security-old.xml"
@@ -443,10 +473,10 @@ handleSparkEnv() {
     echo "Starting '$PROJECT_SPARK' env."
 
     echo ""
-    echo "Creating /spark-events dir and changing permissions."
+    echo "Creating /$SPARK_EVENTS_DIR dir and changing permissions."
 
-    mkdir $spark_path/conf/spark-events
-    chmod 777 $spark_path/conf/spark-events
+    mkdir $spark_path/conf/$SPARK_EVENTS_DIR
+    chmod 777 $spark_path/conf/$SPARK_EVENTS_DIR
 
     docker compose -p spark -f $docker_compose_path up -d --scale worker=3
 
@@ -462,8 +492,8 @@ handleSparkEnv() {
     echo ""
     echo "'$PROJECT_SPARK' env stopped."
 
-    echo "Cleaning up spark-events dir."
-    rm -r -f $spark_path/conf/spark-events
+    echo "Cleaning up $SPARK_EVENTS_DIR dir."
+    rm -r -f $spark_path/conf/$SPARK_EVENTS_DIR
   fi
 }
 
@@ -618,6 +648,34 @@ createHdfsFile() {
   file_name=${2:-"test.csv"} # Provide a default value if not set.
 
   c="hdfs dfs -put $file_name /$dir_name"
+
+  if [ "$PRINT_CMD" == "true" ]; then
+    printCmdString "$c"
+  else
+    docker exec -it "$DN1_HOSTNAME" bash -c "$c"
+  fi
+}
+
+createHdfsFileAsUser() {
+  user=$1
+  dir_name=$2
+  file_name=${3:-"test.csv"} # Provide a default value if not set.
+
+  c="hdfs dfs -put $file_name /$dir_name"
+
+  if [ "$PRINT_CMD" == "true" ]; then
+    printCmdString "$c"
+  else
+    docker exec -it -u "$user" "$DN1_HOSTNAME" bash -c "$c"
+  fi
+}
+
+
+changeHdfsDirPermissions() {
+  perms=$1
+  dir_name=$2
+
+  c="hdfs dfs -chmod $perms /$dir_name"
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "$c"
@@ -803,23 +861,6 @@ createOrUpdateLastSuccessFile() {
   echo "## $PROJECT_RANGER ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "Branch: $ranger_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "Commit: $ranger_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-
-  # Hadoop
-  echo ""
-  cd "$abs_path/$PROJECT_HADOOP"
-  
-  hadoop_branch=$(git branch --show-current)
-  echo "Current branch for repo '$PROJECT_HADOOP' is '$hadoop_branch'."
-
-  hadoop_commit_SHA=$(git rev-parse HEAD | awk NF)
-  echo "Current branch for repo '$PROJECT_HADOOP' is '$hadoop_commit_SHA'."
-
-  # Write text to the file.
-  echo "## $PROJECT_HADOOP ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "Branch: $hadoop_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "Commit: $hadoop_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
 

@@ -18,7 +18,6 @@ github_remote_user=$3   # 'origin' if current user is also the remote user.
 
 # Clone repo if it doesn't exist locally.
 cloneProjectIfNotExist "$abs_path" "$PROJECT_RANGER" "$github_user"
-cloneProjectIfNotExist "$abs_path" "$PROJECT_HADOOP" "$github_user"
 cloneProjectIfNotExist "$abs_path" "$PROJECT_HIVE" "$github_user"
 
 # If the current user also owns the remote repo,
@@ -26,5 +25,4 @@ cloneProjectIfNotExist "$abs_path" "$PROJECT_HIVE" "$github_user"
 
 # Update repo if needed. No change, if everything is up-to-date.
 updateProjectRepo "$abs_path" "$PROJECT_RANGER" "$github_remote_user" "$RANGER_BRANCH"
-updateProjectRepo "$abs_path" "$PROJECT_HADOOP" "$github_remote_user" "$HADOOP_BRANCH"
 updateProjectRepo "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_BRANCH"

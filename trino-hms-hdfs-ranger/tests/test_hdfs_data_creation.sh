@@ -13,7 +13,6 @@ echo ""
 echo "- INFO: Ranger policies updated."
 echo ""
 
-# Extend to test with HDFS policies??
 echo ""
 echo "- INFO: HDFS user hadoop, should be able to create data with ranger default policies."
 echo ""

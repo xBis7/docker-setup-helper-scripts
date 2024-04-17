@@ -1,0 +1,42 @@
+version: "3.8"
+
+x-common-config:
+  &common-config
+  image: apache/hadoop:3.3.6
+  volumes:
+    - ../conf/ranger-hdfs-audit.xml:/opt/hadoop/etc/hadoop/ranger-hdfs-audit.xml
+    - ../conf/ranger-hdfs-security.xml:/opt/hadoop/etc/hadoop/ranger-hdfs-security.xml
+    - ../conf/ranger-policymgr-ssl.xml:/opt/hadoop/etc/hadoop/ranger-policymgr-ssl.xml
+    - ../conf/ranger-jars:/opt/hadoop/share/hadoop/hdfs/lib
+    - ./test.csv:/opt/hadoop/test.csv
+  env_file:
+    - ./config
+  networks:
+    - ranger-net
+
+services:
+  namenode:
+    <<: *common-config
+    hostname: namenode
+    command: ["hdfs", "namenode"]
+    ports:
+      - 9870:9870
+    environment:
+      ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+  datanode:
+    <<: *common-config
+    command: ["hdfs", "datanode"]
+  resourcemanager:
+    <<: *common-config
+    hostname: resourcemanager
+    command: ["yarn", "resourcemanager"]
+    ports:
+      - 8088:8088
+  nodemanager:
+    <<: *common-config
+    command: ["yarn", "nodemanager"]
+
+networks:
+  ranger-net:
+    name: rangernw
+    external: true

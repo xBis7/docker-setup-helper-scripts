@@ -23,7 +23,7 @@ if [ "$component" == "spark" ]; then
   echo ""
   echo "### TEST_2 ###"
   ./tests/spark/1_test_spark_no_hdfs_perms.sh "$abs_path"
-
+exit 1
   echo ""
   echo "### TEST_DATABASE ###"
   # This script contains multiple tests and can be run independently.

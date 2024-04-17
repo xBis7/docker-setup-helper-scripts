@@ -42,6 +42,6 @@ retryOperationIfNeeded "$abs_path" "createHdfsDir $dir2" "$notExpMsg" "false" "t
 notExpMsg="Permission denied"
 retryOperationIfNeeded "$abs_path" "createHdfsFileAsUser $user $dir1" "$notExpMsg" "false" "true"
 
-failMsg="Permission denied: user=games, access=WRITE,"
+failMsg="org.apache.ranger.authorization.hadoop.exceptions.RangerAccessControlException: Permission denied: user=games, access=EXECUTE,"
 retryOperationIfNeeded "$abs_path" "createHdfsFileAsUser $user $dir2" "$failMsg" "true"
 

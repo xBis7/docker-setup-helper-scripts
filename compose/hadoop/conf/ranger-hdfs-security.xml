@@ -45,7 +45,7 @@
 
 	<property>
 		<name>ranger.plugin.hdfs.policy.rest.ssl.config.file</name>
-		<value>/etc/hadoop/conf/ranger-policymgr-ssl.xml</value>
+		<value>/opt/hadoop/etc/hadoop/ranger-policymgr-ssl.xml</value>
 		<description>
 			Path to the file containing SSL details to contact Ranger Admin
 		</description>
@@ -110,7 +110,7 @@
 	
 	<property>
 		<name>xasecure.add-hadoop-authorization</name>
-		<value>true</value>
+		<value>false</value>
 		<description>
 			Enable/Disable the default hadoop authorization (based on
 			rwxrwxrwx permission on the resource) if Ranger Authorization fails.

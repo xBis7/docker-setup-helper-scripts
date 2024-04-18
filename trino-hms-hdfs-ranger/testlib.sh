@@ -66,6 +66,7 @@ HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
+SIMPLIFY_RANGER_DOCKER_PATCH="simplify_ranger_docker.diff"
 PRINT_CMD=""
 
 # Container names

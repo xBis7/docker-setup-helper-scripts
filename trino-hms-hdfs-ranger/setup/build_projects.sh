@@ -4,7 +4,7 @@ source "./testlib.sh"
 
 abs_path=$1
 build_project=$2
-just_delete_ranger_tars=${3:-"true"} # Provide a default value if not set.
+only_delete_ranger_tars=${3:-"true"} # Provide a default value if not set.
 java_8_home=${4:-"/usr/lib/jvm/java-8-openjdk-amd64"}
 
 mvn_success_msg="[INFO] BUILD SUCCESS"
@@ -82,7 +82,9 @@ if [ "$buildRanger" == 0 ]; then
   curr_commit_SHA=$(git rev-parse HEAD | awk NF)
   
   if [ "$patch_commit_SHA" == "$curr_commit_SHA" ]; then
+    echo "Applying Ranger docker patch."
     patch -p1 < "$abs_path/$CURRENT_REPO/$SIMPLIFY_RANGER_DOCKER_PATCH"
+    echo "Project successfully patched."
   else
     echo ""
     echo "The Ranger patch SHA is different from the current SHA."
@@ -102,7 +104,7 @@ if [ "$buildRanger" == 0 ]; then
     echo ""
   fi
 
-  if [ "$just_delete_ranger_tars" == "true" ]; then
+  if [ "$only_delete_ranger_tars" == "true" ]; then
     echo ""
     echo "'ranger_in_docker' checks the tarballs under 'dev-support/ranger-docker/dist'."
     echo "If the tarballs are less than 20, it builds the project and then copies"

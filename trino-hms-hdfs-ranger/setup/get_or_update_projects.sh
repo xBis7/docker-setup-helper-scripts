@@ -7,6 +7,7 @@ set -e
 abs_path=$1
 github_user=$2
 github_remote_user=$3   # 'origin' if current user is also the remote user.
+regenerate_ranger_patch=$4
 
 # This script is making the following assumptions
 # 1. github SSH has been setup 
@@ -35,3 +36,8 @@ updateProjectRepo "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_BRANC
 echo "Reminder: If there are new Ranger commits,"
 echo "the patch for the simplified docker env, has to be recreated."
 echo "Also, update the variable 'PATCH_COMMIT_SHA' in 'testlib.sh'"
+if [ "$regenerate_ranger_patch" == "true" ]; then
+  cd "$abs_path/$PROJECT_RANGER"
+  git stash apply
+  git diff > "$abs_path/$CURRENT_REPO/$SIMPLIFY_RANGER_DOCKER_PATCH"
+fi

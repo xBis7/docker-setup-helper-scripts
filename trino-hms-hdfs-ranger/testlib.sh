@@ -11,12 +11,13 @@ PROJECT_SPARK="spark"
 CURRENT_REPO="docker-setup-helper-scripts"
 
 # Project branches
-RANGER_BRANCH="ranger-2.4-with-hmsa"
+SPARK_BRANCH="branch-3.5-dev-env"
+RANGER_BRANCH=
 HIVE_BRANCH=
 
 # Project Build versions
-RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
 HADOOP_BUILD_VERSION="3.3.6"
+RANGER_BUILD_VERSION=
 HIVE_BUILD_VERSION=
 
 configureHiveVersion() {
@@ -24,16 +25,22 @@ configureHiveVersion() {
     echo ""
     echo "Configuring project for Hive 4."
     echo ""
+
     HIVE_BRANCH="hive4-latest"
-    HIVE_BUILD_VERSION="4.0.0"
     RANGER_BRANCH="ranger-docker-hive4"
+
+    HIVE_BUILD_VERSION="4.0.0"
+    RANGER_BUILD_VERSION="3.0.0-SNAPSHOT"
   else
     echo ""
     echo "Configuring project for Hive 3."
     echo ""
+
     HIVE_BRANCH="branch-3.1-build-fixed"
-    HIVE_BUILD_VERSION="3.1.3-with-backport"
     RANGER_BRANCH="ranger-2.4-with-hmsa"
+
+    HIVE_BUILD_VERSION="3.1.3-with-backport"
+    RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
   fi
 }
 
@@ -61,6 +68,7 @@ EXTERNAL_DB="poc_db"
 DEFAULT_DB="default"
 HDFS_DIR="test"
 SPARK_EVENTS_DIR="spark-events"
+SPARK_WORK_DIR="work"
 HIVE_WAREHOUSE_DIR="opt/hive/data"
 HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 TMP_FILE="tmp_output.txt"
@@ -83,7 +91,7 @@ RANGER_POSTGRES_HOSTNAME="ranger-postgres"
 
 TRINO_HOSTNAME="trino-coordinator-1"
 
-SPARK_MASTER_HOSTNAME="spark-master-1"
+SPARK_MASTER_HOSTNAME="spark-master-1" # TODO: parameterize
 SPARK_WORKER1_HOSTNAME="spark-worker-1"
 
 # Spark test variables
@@ -213,6 +221,11 @@ setupSparkJarsIfNeeded() {
   abs_path=$1
 
   dir_base_path="$abs_path/$CURRENT_REPO/compose/spark/conf"
+
+  if [[ "${HIVE_VERSION}" == "4" ]]; then
+    dir_base_path="$abs_path/$PROJECT_SPARK/dist/compose/spark/conf"
+  fi
+
   jars_dir_name="hive-jars"
   jars_dir_path="$dir_base_path/$jars_dir_name"
   hive_jar_regex_prefix="hive-*"
@@ -288,8 +301,11 @@ setupSparkJarsIfNeeded() {
   cpJarIfNotExist "$jars_dir_path" "$hive_service_rpc_jar_path" "$HIVE_SERVICE_RPC_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_shims_jar_path" "$HIVE_SHIMS_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_shims_common_jar_path" "$HIVE_SHIMS_COMMON_JAR_NAME"
+
+  # These two jars don't exist in Hive4. 'cpJarIfNotExist' is going to ignore them.
   cpJarIfNotExist "$jars_dir_path" "$hive_shims_scheduler_jar_path" "$HIVE_SHIMS_SCHEDULER_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_spark_client_jar_path" "$HIVE_SPARK_CLIENT_JAR_NAME"
+  #
   cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_jar_path" "$HIVE_STANDALONE_METASTORE_JAR_NAME"
 }
 
@@ -464,6 +480,11 @@ handleSparkEnv() {
 
   spark_path="$abs_path/$CURRENT_REPO/compose/spark"
   docker_compose_path="$spark_path/docker/docker-compose.yml"
+
+  if [[ "${HIVE_VERSION}" == "4" ]]; then
+    spark_path="$abs_path/$PROJECT_SPARK/dist/compose/spark"
+    docker_compose_path="$spark_path/docker-compose.yml"
+  fi
 
   if [ "$op" == "start" ]; then
     # Setup the Spark jars if they don't exist.
@@ -879,7 +900,23 @@ createOrUpdateLastSuccessFile() {
   echo "Commit: $hive_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
 
-  # TODO: add Spark.
+  # Add Spark if we are using Hive4.
+  if [[ "${HIVE_VERSION}" == "4" ]]; then
+    echo ""
+    cd "$abs_path/$PROJECT_SPARK"
+    spark_branch=$(git branch --show-current)
+    echo "Current branch for repo '$PROJECT_SPARK' is '$spark_branch'."
+
+    spark_commit_SHA=$(git rev-parse HEAD | awk NF)
+    echo "Current branch for repo '$PROJECT_SPARK' is '$spark_commit_SHA'."
+
+    # Write text to the file.
+    echo "## $PROJECT_SPARK ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+    echo "Branch: $spark_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+    echo "Commit: $spark_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+    echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+    echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
+  fi
 }
 
 retryOperationIfNeeded() {

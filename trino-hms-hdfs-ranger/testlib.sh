@@ -67,7 +67,6 @@ TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
 SIMPLIFY_RANGER_DOCKER_PATCH="simplify_ranger_docker.diff"
-PATCH_COMMIT_SHA="19f42c1d8b8e1edd40b1dd631821568b62a42e34"
 PRINT_CMD=""
 
 # Container names

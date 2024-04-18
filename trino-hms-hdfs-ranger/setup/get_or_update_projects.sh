@@ -32,12 +32,3 @@ git stash
 # Update repo if needed. No change, if everything is up-to-date.
 updateProjectRepo "$abs_path" "$PROJECT_RANGER" "$github_remote_user" "$RANGER_BRANCH"
 updateProjectRepo "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_BRANCH"
-
-echo "Reminder: If there are new Ranger commits,"
-echo "the patch for the simplified docker env, has to be recreated."
-echo "Also, update the variable 'PATCH_COMMIT_SHA' in 'testlib.sh'"
-if [ "$regenerate_ranger_patch" == "true" ]; then
-  cd "$abs_path/$PROJECT_RANGER"
-  git stash apply
-  git diff > "$abs_path/$CURRENT_REPO/$SIMPLIFY_RANGER_DOCKER_PATCH"
-fi

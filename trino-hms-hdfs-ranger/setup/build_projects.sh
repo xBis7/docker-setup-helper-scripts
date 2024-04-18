@@ -78,18 +78,9 @@ if [ "$buildRanger" == 0 ]; then
   export JAVA_HOME="$java_8_home"
   export MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g"
 
-  curr_commit_SHA=$(git rev-parse HEAD | awk NF)
-  
-  if [ "$PATCH_COMMIT_SHA" == "$curr_commit_SHA" ]; then
-    echo "Applying Ranger docker patch."
-    patch -p1 < "$abs_path/$CURRENT_REPO/$SIMPLIFY_RANGER_DOCKER_PATCH"
-    echo "Project successfully patched."
-  else
-    echo ""
-    echo "The Ranger patch SHA is different from the current SHA."
-    echo "Patching the file will fail. Skipping..."
-    echo ""
-  fi
+  echo "Applying Ranger docker patch."
+  patch -p1 < "$abs_path/$CURRENT_REPO/$SIMPLIFY_RANGER_DOCKER_PATCH"
+  echo "Project successfully patched."
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_RANGER' project."

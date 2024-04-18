@@ -7,7 +7,6 @@ set -e
 abs_path=$1
 github_user=$2
 github_remote_user=$3   # 'origin' if current user is also the remote user.
-regenerate_ranger_patch=$4
 
 # This script is making the following assumptions
 # 1. github SSH has been setup 

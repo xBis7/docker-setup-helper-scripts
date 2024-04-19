@@ -4,8 +4,7 @@ source "./testlib.sh"
 
 abs_path=$1
 build_project=$2
-only_delete_ranger_tars=${3:-"true"} # Provide a default value if not set.
-java_8_home=${4:-"/usr/lib/jvm/java-8-openjdk-amd64"}
+java_8_home=${3:-"/usr/lib/jvm/java-8-openjdk-amd64"}
 
 mvn_success_msg="[INFO] BUILD SUCCESS"
 
@@ -94,56 +93,40 @@ if [ "$buildRanger" == 0 ]; then
     echo ""
   fi
 
-  if [ "$only_delete_ranger_tars" == "true" ]; then
+  mvn clean compile package install --batch-mode -DskipTests -DskipShade 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
+
+  if grep -F "$mvn_success_msg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
     echo ""
-    echo "'ranger_in_docker' checks the tarballs under 'dev-support/ranger-docker/dist'."
-    echo "If the tarballs are less than 20, it builds the project and then copies"
-    echo "all the tarballs from the 'target' dir to the 'dev-support/ranger-docker/dist' dir."
-    echo "Deleting the tarballs, will trigger the project build when running 'ranger_in_docker'."
-
+    echo "'$PROJECT_RANGER' build succeeded."
     echo ""
-    echo "Proceeding with the delete."
-    ranger_docker_dist_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker/dist"
-    ranger_tar_regex_prefix="ranger-*"
 
-    rm -rf $ranger_docker_dist_path/$ranger_tar_regex_prefix
-    echo "Delete finished."
-  else
-    mvn clean compile package install --batch-mode -DskipTests -DskipShade 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
-
-    if grep -F "$mvn_success_msg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
+    # 'ranger_in_docker' checks the 'dev-support/ranger-docker/dist' and if there are no tarballs there,
+    # it builds the project again to generate them under the target dir.
+    # After that it moves them to the dist location. If the tarballs exist in the dist location from a previous build,
+    # they are not copied again and this step is skipped. Incrementally building Ranger
+    # without copying the tarballs, doesn't make a difference,
+    # because without the copy, the Ranger changes never end up in the docker env.
+    if cp -r "$abs_path/$PROJECT_RANGER"/target/* "$abs_path/$PROJECT_RANGER"/dev-support/ranger-docker/dist/; then
+      echo "Copying ranger tarballs under docker dist succeeded."
       echo ""
-      echo "'$PROJECT_RANGER' build succeeded."
-      echo ""
-
-      # 'ranger_in_docker' checks the 'dev-support/ranger-docker/dist' and if there are no tarballs there,
-      # it builds the project again to generate them under the target dir.
-      # After that it moves them to the dist location. If the tarballs exist in the dist location from a previous build,
-      # they are not copied again and this step is skipped. Incrementally building Ranger
-      # without copying the tarballs, doesn't make a difference,
-      # because without the copy, the Ranger changes never end up in the docker env.
-      if cp -r "$abs_path/$PROJECT_RANGER"/target/* "$abs_path/$PROJECT_RANGER"/dev-support/ranger-docker/dist/; then
-        echo "Copying ranger tarballs under docker dist succeeded."
-        echo ""
-      else
-        echo "Copying ranger tarballs under docker dist failed. Exiting..."
-        exit 1
-      fi
     else
-      echo ""
-      echo "'$PROJECT_RANGER' build failed."
-
-      if grep -q 'on project ranger-distro: Failed' "$abs_path/$CURRENT_REPO/$TMP_FILE"; then
-        echo ""
-        echo "Project failure in 'ranger-distro', is a commmon failure, retry once and it will succeed."
-        echo "Run these commands: "
-        echo "> cd $abs_path/$PROJECT_RANGER"
-        echo "> mvn clean compile package install --batch-mode -DskipTests -DskipShade -rf :ranger-distro"
-        echo ""
-        echo "After it succeeds, rerun this script for the rest of the projects that you need to build."
-      fi
+      echo "Copying ranger tarballs under docker dist failed. Exiting..."
       exit 1
     fi
+  else
+    echo ""
+    echo "'$PROJECT_RANGER' build failed."
+
+    if grep -q 'on project ranger-distro: Failed' "$abs_path/$CURRENT_REPO/$TMP_FILE"; then
+      echo ""
+      echo "Project failure in 'ranger-distro', is a commmon failure, retry once and it will succeed."
+      echo "Run these commands: "
+      echo "> cd $abs_path/$PROJECT_RANGER"
+      echo "> mvn clean compile package install --batch-mode -DskipTests -DskipShade -rf :ranger-distro"
+      echo ""
+      echo "After it succeeds, rerun this script for the rest of the projects that you need to build."
+    fi
+    exit 1
   fi
 fi
 

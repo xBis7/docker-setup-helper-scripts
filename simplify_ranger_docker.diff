@@ -85,7 +85,7 @@ index d5f644610..7db1a7149 100644
  networks:
    ranger:
 diff --git a/ranger_in_docker b/ranger_in_docker
-index 99089f878..d1c046622 100755
+index 99089f878..9813b7954 100755
 --- a/ranger_in_docker
 +++ b/ranger_in_docker
 @@ -68,7 +68,8 @@ else
@@ -98,3 +98,22 @@ index 99089f878..d1c046622 100755
  
  if [ -z "${ENABLED_RANGER_SERVICES}" ]
  then
+@@ -221,12 +222,12 @@ then
+             fi
+         else
+             cd ${RANGER_HOME}
+-            mvn clean package -DskipTests
+-            if [ $? -ne 0 ]
+-            then
+-                echo "ERROR: Unable to complete RANGER build. Exiting ...."
+-                exit 1
+-            fi
++#            mvn clean package -DskipTests
++#            if [ $? -ne 0 ]
++#            then
++#                echo "ERROR: Unable to complete RANGER build. Exiting ...."
++#                exit 1
++#            fi
+             cp target/ranger-* ${RD_HOME}/dist
+             cp target/version ${RD_HOME}/dist
+         fi

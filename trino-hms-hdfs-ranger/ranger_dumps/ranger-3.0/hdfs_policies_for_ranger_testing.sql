@@ -1,3 +1,10 @@
+-- Service Name     | Policy Name                                   | Group        | Users                                  | Permissions
+--------------------|-----------------------------------------------|--------------|----------------------------------------|---------------------
+-- hadoopdev        | dir-test1                                     | -            | hadoop, games, root                    | Read, Write, Execute
+-- hadoopdev        | dir-test2                                     | -            | hadoop                                 | Read, Write, Execute
+-- hadoopdev        | dir-test2                                     | -            | games (exclude from allow)             | Read, Write, Execute
+-- hadoopdev        | dir-test2                                     |   Deny All Other Accesses : TRUE
+
 --
 -- PostgreSQL database dump
 --

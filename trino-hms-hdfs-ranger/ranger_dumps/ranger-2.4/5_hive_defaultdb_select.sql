@@ -9,7 +9,7 @@
 -- hivedev          | all - database, table                         | -            | hive                                   | *
 -- hivedev          | all - database, udf                           | -            | hive                                   | *
 -- hivedev          | all - url                                     | -            | hive                                   | *
--- hivedev          | default database tables columns               | -            | postgres, spark                        | select
+-- hivedev          | default database tables columns               | -            | postgres, spark                        | Select
 -- hivedev          | Information_schema database tables columns    | public       | -                                      | Select
 
 --

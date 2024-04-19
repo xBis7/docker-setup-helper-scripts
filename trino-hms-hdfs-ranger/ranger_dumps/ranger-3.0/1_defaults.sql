@@ -2,11 +2,12 @@
 --------------------|-----------------------------------------------|--------------|----------------------------------------|---------------------
 -- hadoopdev        | all-path                                      | -            | hadoop                                 | Read, Write, Execute
 --__________________|_______________________________________________|______________|________________________________________|_____________________
+-- hivedev          | all - global                                  | -            | hive                                   | *
+-- hivedev          | all - database, table, column                 | -            | hive, {OWNER}                          | *
+-- hivedev          | all - database, table                         | -            | hive, {OWNER}                          | *
 -- hivedev          | all - database                                | -            | hive, {OWNER}                          | *
 -- hivedev          | all - database                                | public       | -                                      | Create
 -- hivedev          | all - hiveservice                             | -            | hive                                   | *
--- hivedev          | all - database, table, column                 | -            | hive, {OWNER}                          | *
--- hivedev          | all - database, table                         | -            | hive, {OWNER}                          | *
 -- hivedev          | all - database, udf                           | -            | hive, {OWNER}                          | *
 -- hivedev          | all - url                                     | -            | hive                                   | *
 -- hivedev          | default database tables columns               | public       | -                                      | Create

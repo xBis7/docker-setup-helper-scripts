@@ -47,15 +47,15 @@ configureHiveVersion() {
 configureHiveVersion
 
 # Dump file names
-DEFAULT_POLICIES="1_defaults"
-DEFAULT_AND_NO_HIVE="2_defaults_no_hive_perm_defaultdb"
-HDFS_ACCESS="3_hdfs_all"
-HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
-TRINO_HDFS_AND_HIVE_ALL="4_trino_hdfs_hive_defaultdb_all"
-HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
-HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
-HDFS_AND_HIVE_SELECT_ALTER_DROP="7_hive_defaultdb_select_alter_drop"
-HDFS_AND_HIVE_AND_CREATE_HIVE_URL="8_hdfs_hive_create_hive_url"
+DEFAULT_POLICIES="0_defaults"
+DEFAULT_AND_NO_HIVE="1_defaults_no_hive_perm_defaultdb"
+HDFS_ACCESS="2_hdfs_all"
+HDFS_AND_HIVE_ALL="3_hive_defaultdb_all"
+TRINO_HDFS_AND_HIVE_ALL="3_trino_hdfs_hive_defaultdb_all"
+HDFS_AND_HIVE_SELECT="4_hive_defaultdb_select"
+HDFS_AND_HIVE_SELECT_ALTER="5_hive_defaultdb_select_alter"
+HDFS_AND_HIVE_SELECT_ALTER_DROP="6_hive_defaultdb_select_alter_drop"
+HDFS_AND_HIVE_AND_CREATE_HIVE_URL="7_hdfs_hive_create_hive_url"
 HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
 HDFS_POLICIES_FOR_RANGER_TESTING="hdfs_policies_for_ranger_testing"
 
@@ -91,7 +91,7 @@ RANGER_POSTGRES_HOSTNAME="ranger-postgres"
 
 TRINO_HOSTNAME="trino-coordinator-1"
 
-SPARK_MASTER_HOSTNAME="spark-master-1" # TODO: parameterize
+SPARK_MASTER_HOSTNAME="spark-master-1" # These are the same for Hive3 and Hive4.
 SPARK_WORKER1_HOSTNAME="spark-worker-1"
 
 # Spark test variables
@@ -496,17 +496,36 @@ handleSparkEnv() {
     echo ""
     echo "Creating /$SPARK_EVENTS_DIR dir and changing permissions."
 
-    mkdir $spark_path/conf/$SPARK_EVENTS_DIR
+    mkdir -p $spark_path/conf/$SPARK_EVENTS_DIR
     chmod 777 $spark_path/conf/$SPARK_EVENTS_DIR
 
-    docker compose -p spark -f $docker_compose_path up -d --scale worker=3
+    if [[ "${HIVE_VERSION}" == "4" ]]; then
+      mkdir -p $spark_path/conf/$SPARK_WORK_DIR
+      chmod 777 $spark_path/conf/$SPARK_WORK_DIR
+    fi
+    
+    # Use '--scale worker=3' to create more workers.
+    docker compose -p spark -f $docker_compose_path up -d
+
+    echo "Cleanup the work dir under all spark containers."
+    docker exec -it $SPARK_MASTER_HOSTNAME rm -rf work/*
+    docker exec -it $SPARK_WORKER1_HOSTNAME rm -rf work/*
+    echo "Cleaned up contents of '$SPARK_WORK_DIR' dir under all Spark containers."
 
     echo ""
     echo "'$PROJECT_SPARK' env started."
   else
+    if [ $(docker ps | grep $SPARK_MASTER_HOSTNAME) ]; then
+      echo ""
+      echo "User 'spark' has populated the '$SPARK_WORK_DIR' dir and therefore has ownership."
+      echo "We need to cleanup the work dir as user 'spark', otherwise it will fail."
+      docker exec -it $SPARK_MASTER_HOSTNAME rm -rf work/*
+      docker exec -it $SPARK_WORKER1_HOSTNAME rm -rf work/*
+      echo "Cleaned up contents of '$SPARK_WORK_DIR' dir under all Spark containers."
+    fi
+
     echo ""
     echo "Stopping '$PROJECT_SPARK' env."
-
 
     docker compose -p spark -f $docker_compose_path down
 
@@ -514,7 +533,15 @@ handleSparkEnv() {
     echo "'$PROJECT_SPARK' env stopped."
 
     echo "Cleaning up $SPARK_EVENTS_DIR dir."
-    rm -r -f $spark_path/conf/$SPARK_EVENTS_DIR
+    rm -rf $spark_path/conf/$SPARK_EVENTS_DIR
+
+    # Work dir is owned by user Spark and the ownership persists due to the mounting.
+    # We won't be able to clean it up without using sudo.
+
+    # if [[ "${HIVE_VERSION}" == "4" ]]; then
+    #   echo "Cleaning up $SPARK_WORK_DIR dir."
+    #   rm -rf $spark_path/conf/$SPARK_WORK_DIR
+    # fi
   fi
 }
 

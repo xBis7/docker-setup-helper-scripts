@@ -8,22 +8,17 @@ abs_path=$1
 
 echo ""
 echo "- INFO: Updating Ranger policies."
-echo "- INFO: Users [postgres, trino] will now have [select, alter] access to Hive default DB."
+echo "- INFO: Users [postgres] will now have [select, alter] access to Hive default DB."
 echo "- INFO: User [trino] will now have [Write] permission for HDFS policy."
 ./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_SELECT_ALTER"
 waitForPoliciesUpdate
 
-# TODO: Fix this test
-# It tries to insert into the table using the 'trino' user.
-# The policies update, provides all HDFS access to 'trino' user but the
-# test still fails with an HDFS Permission Denied error.
-
-# echo ""
-# echo "- INFO: Insert into $TRINO_TABLE table."
-# echo "- INFO: [alter] should succeed."
-# cmd="insert into hive.default.$TRINO_TABLE values ('5', 'cat');"
-# successMsg="INSERT: 1 row"
-# retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
+echo ""
+echo "- INFO: Insert into $TRINO_TABLE table."
+echo "- INFO: [alter] should succeed."
+cmd="insert into hive.default.$TRINO_TABLE values ('5', 'cat');"
+successMsg="INSERT: 1 row"
+retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
 
 echo ""
 echo "- INFO: Delete from $TRINO_TABLE table."
@@ -39,15 +34,12 @@ successMsg="RENAME TABLE"
 
 retryOperationIfNeeded "$abs_path" "alterTrinoTable $TRINO_TABLE $NEW_TRINO_TABLE_NAME $DEFAULT_DB" "$successMsg" "false"
 
-# TODO: Fix this test
-# same as above.
-
-# echo ""
-# echo "- INFO: Insert into $TABLE_ANIMALS table."
-# echo "- INFO: [alter] should succeed."
-# cmd="insert into hive.default.$TABLE_ANIMALS values (1, 'cat');"
-# successMsg="INSERT: 1 row"
-# retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
+echo ""
+echo "- INFO: Insert into $TABLE_ANIMALS table."
+echo "- INFO: [alter] should succeed."
+cmd="insert into hive.default.$TABLE_ANIMALS values (1, 'cat');"
+successMsg="INSERT: 1 row"
+retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
 
 # TODO: Fix this test
 # It fails with the following error: "Query 20240402_105548_00016_g47rj failed: Cannot delete from non-managed Hive table".

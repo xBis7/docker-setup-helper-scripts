@@ -49,12 +49,14 @@ retryOperationIfNeeded "$abs_path" "alterTrinoTable $TRINO_TABLE $NEW_TRINO_TABL
 # successMsg="INSERT: 1 row"
 # retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
 
-# TODO: Fix this test
+# FIXME: This test fails for Hive 4
 # It fails with the following error: "Query 20240402_105548_00016_g47rj failed: Cannot delete from non-managed Hive table".
 # It should not fail because $TABLE_ANIMALS is created in Hive managed space.
-#echo ""
-#echo "- INFO: Delete from $TABLE_ANIMALS table."
-#echo "- INFO: [alter] should succeed."
-#cmd="delete from hive.default.$TABLE_ANIMALS;"
-#successMsg="DELETE"
-#retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
+if [ "$HIVE_VERSION" != "4" ]; then
+  echo ""
+  echo "- INFO: Delete from $TABLE_ANIMALS table."
+  echo "- INFO: [alter] should succeed."
+  cmd="delete from hive.default.$TABLE_ANIMALS;"
+  successMsg="DELETE"
+  retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
+fi

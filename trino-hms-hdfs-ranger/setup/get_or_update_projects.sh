@@ -28,6 +28,6 @@ git stash
 # If the current user also owns the remote repo,
 # then 'github_remote_user' should be set to 'origin'.
 
-# Update repo if needed. No change, if everything is up-to-date.
-updateProjectRepo "$abs_path" "$PROJECT_RANGER" "$github_remote_user" "$RANGER_BRANCH"
-updateProjectRepo "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_BRANCH"
+# Checkout to commit. No change, if the commit is the same as the current.
+checkoutToProjectCommit "$abs_path" "$PROJECT_RANGER" "$github_remote_user" "$RANGER_COMMIT_SHA"
+checkoutToProjectCommit "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_COMMIT_SHA"

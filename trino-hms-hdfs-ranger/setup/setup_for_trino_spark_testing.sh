@@ -12,8 +12,6 @@ abs_path=$1
 
 ./docker/start_docker_env.sh "$abs_path"
 
-# This dump is 
-# "$HDFS_AND_HIVE_ALL" + some very limited for URL based auth in Hive.
 ./setup/load_ranger_policies.sh "$abs_path" "$DEFAULT_AND_NO_HIVE"
 
 notExpMsg="Permission denied"

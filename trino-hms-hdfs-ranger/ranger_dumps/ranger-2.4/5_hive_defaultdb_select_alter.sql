@@ -9,7 +9,7 @@
 -- hivedev          | all - database, table                         | -            | hive                                   | *
 -- hivedev          | all - database, udf                           | -            | hive                                   | *
 -- hivedev          | all - url                                     | -            | hive                                   | *
--- hivedev          | default database tables columns               | -            | postgres, spark, trino                 | Select, Alter
+-- hivedev          | default database tables columns               | -            | postgres, spark, trino                 | select, alter
 -- hivedev          | Information_schema database tables columns    | public       | -                                      | Select
 
 --

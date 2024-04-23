@@ -23,12 +23,17 @@ if [[ "${HIVE_VERSION}" == "4" ]]; then
   cloneProjectIfNotExist "$abs_path" "$PROJECT_SPARK" "$github_user"
 fi
 
+# We should discard all Ranger changes from a previous patch.
+echo "Discard all changes from a previous Ranger patch."
+cd "$abs_path/$PROJECT_RANGER"
+git stash
+
 # If the current user also owns the remote repo,
 # then 'github_remote_user' should be set to 'origin'.
 
-# Update repo if needed. No change, if everything is up-to-date.
-updateProjectRepo "$abs_path" "$PROJECT_RANGER" "$github_remote_user" "$RANGER_BRANCH"
-updateProjectRepo "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_BRANCH"
+# Checkout to commit. No change, if the commit is the same as the current.
+checkoutToProjectCommit "$abs_path" "$PROJECT_RANGER" "$github_remote_user" "$RANGER_COMMIT_SHA"
+checkoutToProjectCommit "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_COMMIT_SHA"
 if [[ "${HIVE_VERSION}" == "4" ]]; then
-  updateProjectRepo "$abs_path" "$PROJECT_SPARK" "$github_remote_user" "$SPARK_BRANCH"
+  checkoutToProjectCommit "$abs_path" "$PROJECT_SPARK" "$github_remote_user" "$SPARK_COMMIT_SHA"
 fi

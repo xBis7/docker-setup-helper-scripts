@@ -4,12 +4,7 @@ source "./testlib.sh"
 
 abs_path=$1
 build_project=$2
-java_8_home=$3
-ranger_image=$4
-
-if [ "$java_8_home" == "" ]; then
-  java_8_home="/usr/lib/jvm/java-8-openjdk-amd64"
-fi
+java_8_home=${3:-"/usr/lib/jvm/java-8-openjdk-amd64"}
 
 mvn_success_msg="[INFO] BUILD SUCCESS"
 
@@ -103,6 +98,10 @@ if [ "$buildRanger" == 0 ]; then
   cd "$abs_path/$PROJECT_RANGER"
   export JAVA_HOME="$java_8_home"
   export MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g"
+
+  echo "Applying Ranger docker patch."
+  patch -p1 < "$abs_path/$CURRENT_REPO/$SIMPLIFY_RANGER_DOCKER_PATCH"
+  echo "Project successfully patched."
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_RANGER' project."

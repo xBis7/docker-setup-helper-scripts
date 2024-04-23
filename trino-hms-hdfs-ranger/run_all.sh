@@ -23,5 +23,3 @@ java_8_home=$5
 # so that the user can run the tests in an already running env.
 ./tests/test_all.sh "$abs_path" "spark" "true"
 ./tests/test_all.sh "$abs_path" "trino" "true" "true"
-
-createOrUpdateLastSuccessFile "$abs_path"

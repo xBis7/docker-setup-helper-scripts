@@ -11,9 +11,9 @@ PROJECT_SPARK="spark"
 CURRENT_REPO="docker-setup-helper-scripts"
 
 # Project branches
-SPARK_BRANCH="branch-3.5-dev-env"
-RANGER_BRANCH=
-HIVE_BRANCH=
+SPARK_COMMIT_SHA="be64b875aad77758c0d7a436948c9f835819291c"
+RANGER_COMMIT_SHA=
+HIVE_COMMIT_SHA=
 
 # Project Build versions
 HADOOP_BUILD_VERSION="3.3.6"
@@ -25,21 +25,21 @@ configureHiveVersion() {
     echo ""
     echo "Configuring project for Hive 4."
     echo ""
-
-    HIVE_BRANCH="hive4-latest"
-    RANGER_BRANCH="ranger-docker-hive4"
-
+    # Hive branch: 'hive4-latest'
+    HIVE_COMMIT_SHA="3b3067bb57e92864230140f99cbb16ce39f11e38"
     HIVE_BUILD_VERSION="4.0.0"
+    # Ranger branch: 'ranger-docker-hive4'
+    RANGER_COMMIT_SHA="29b02ed01ffba6cfb6bfbae1d2346623bdce28d4"
     RANGER_BUILD_VERSION="3.0.0-SNAPSHOT"
   else
     echo ""
     echo "Configuring project for Hive 3."
     echo ""
-
-    HIVE_BRANCH="branch-3.1-build-fixed"
-    RANGER_BRANCH="ranger-2.4-with-hmsa"
-
+    # Hive branch: 'branch-3.1-build-fixed'
+    HIVE_COMMIT_SHA="2f7682e412caf81202e223bd2fe9c50b5c1188f4"
     HIVE_BUILD_VERSION="3.1.3-with-backport"
+    # Ranger branch: 'ranger-2.4-with-hmsa'
+    RANGER_COMMIT_SHA="19f42c1d8b8e1edd40b1dd631821568b62a42e34"
     RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
   fi
 }
@@ -74,6 +74,7 @@ HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
+SIMPLIFY_RANGER_DOCKER_PATCH="simplify_ranger_docker.diff"
 PRINT_CMD=""
 
 # Container names
@@ -596,11 +597,11 @@ cloneProjectIfNotExist() {
   fi
 }
 
-updateProjectRepo() {
+checkoutToProjectCommit() {
   base_path=$1
   project_name=$2
   github_remote_user=$3
-  github_branch=$4
+  github_commit_sha=$4
 
   echo "Updating '$project_name' repo."
   cd "$base_path/$project_name"
@@ -620,54 +621,22 @@ updateProjectRepo() {
     fi
   fi
 
-  if git fetch $github_remote_user $github_branch; then
-    echo "Fetching '$github_remote_user $github_branch' succeeded."
+  if git fetch $github_remote_user; then
+    echo "Fetching '$github_remote_user' succeeded."
   else
-    echo "Fetching '$github_remote_user $github_branch' failed. Exiting..."
+    echo "Fetching '$github_remote_user' failed. Exiting..."
     exit 1
   fi
 
-  curr_branch=$(git branch --show-current)
-
-  if [ "$curr_branch" != "$github_branch" ]; then
-    echo ""
-    echo "Current branch is $curr_branch."
-    
-    if [ "$github_remote_user" == "origin" ]; then
-      # If we go 'git checkout origin/branch', then it will checkout
-      # to the particular commit from the remote branch.
-      echo "Checking out to branch '$github_branch'."
-      echo ""
-      if git checkout $github_branch; then
-        echo "Checking out to branch '$github_branch' succeeded."
-      else
-        echo "Checking out to branch '$github_branch' failed. Exiting..."
-        exit 1
-      fi
-    else
-      echo "Checking out to branch '$github_remote_user/$github_branch'."
-      echo ""
-      if git checkout $github_remote_user/$github_branch; then
-        echo "Checking out to branch '$github_remote_user/$github_branch' succeeded."
-      else
-        echo "Checking out to branch '$github_remote_user/$github_branch' failed. Exiting..."
-        exit 1
-      fi
-    fi
-  fi
-
-  echo ""
-  echo "Pulling changes from '$github_remote_user $github_branch'."
-
-  if git pull $github_remote_user $github_branch; then
-    echo "Pulling changes from '$github_remote_user $github_branch' succeeded."
+  if git checkout $github_commit_sha; then
+    echo "Checking out to commit '$github_commit_sha' succeeded."
   else
-    echo "Pulling changes from '$github_remote_user $github_branch' failed. Exiting..."
+    echo "Checking out to commit '$github_commit_sha' failed. Exiting..."
     exit 1
   fi
-  
+
   echo ""
-  echo "Finished updating '$project_name' repo."
+  echo "Finished fetching and checking-out for '$project_name' repo."
   echo ""
 }
 
@@ -859,90 +828,6 @@ execCmdAndHandleErrorIfNeeded() {
   else
     echo "$action_msg failed. Exiting..."
     exit 1
-  fi
-}
-
-createOrUpdateLastSuccessFile() {
-  abs_path=$1
-
-  cd "$abs_path/$CURRENT_REPO"
-
-  # Check if file exists
-  if find . -type f | grep -E "/$LAST_SUCCESS_FILE$"; then
-    echo "File '$LAST_SUCCESS_FILE' exists."
-
-    echo "Cleaning the file."
-    # Clean the file.
-    echo -e "" > "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  else
-    echo "File '$LAST_SUCCESS_FILE' doesn't exist. Creating..."
-    touch "$LAST_SUCCESS_FILE"
-  fi
-
-  # Current repo
-  echo ""
-  
-  curr_branch=$(git branch --show-current)
-  echo "Current branch for repo '$CURRENT_REPO' is '$curr_branch'."
-  
-  curr_commit_SHA=$(git rev-parse HEAD | awk NF)
-  echo "Current commit SHA for repo '$CURRENT_REPO' is '$curr_commit_SHA'."
-
-  # Write text to the file.
-  echo "## $CURRENT_REPO ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "Branch: $curr_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "Commit: $curr_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-
-  # Ranger
-  echo ""
-  cd "$abs_path/$PROJECT_RANGER"
-  
-  ranger_branch=$(git branch --show-current)
-  echo "Current branch for repo '$PROJECT_RANGER' is '$ranger_branch'."
-
-  ranger_commit_SHA=$(git rev-parse HEAD | awk NF)
-  echo "Current branch for repo '$PROJECT_RANGER' is '$ranger_commit_SHA'."
-
-  # Write text to the file.
-  echo "## $PROJECT_RANGER ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "Branch: $ranger_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "Commit: $ranger_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-
-  # Hive
-  echo ""
-  cd "$abs_path/$PROJECT_HIVE"
-  hive_branch=$(git branch --show-current)
-  echo "Current branch for repo '$PROJECT_HIVE' is '$hive_branch'."
-
-  hive_commit_SHA=$(git rev-parse HEAD | awk NF)
-  echo "Current branch for repo '$PROJECT_HIVE' is '$hive_commit_SHA'."
-
-  # Write text to the file.
-  echo "## $PROJECT_HIVE ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "Branch: $hive_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "Commit: $hive_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-  echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-
-  # Add Spark if we are using Hive4.
-  if [[ "${HIVE_VERSION}" == "4" ]]; then
-    echo ""
-    cd "$abs_path/$PROJECT_SPARK"
-    spark_branch=$(git branch --show-current)
-    echo "Current branch for repo '$PROJECT_SPARK' is '$spark_branch'."
-
-    spark_commit_SHA=$(git rev-parse HEAD | awk NF)
-    echo "Current branch for repo '$PROJECT_SPARK' is '$spark_commit_SHA'."
-
-    # Write text to the file.
-    echo "## $PROJECT_SPARK ##" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-    echo "Branch: $spark_branch" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-    echo "Commit: $spark_commit_SHA" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-    echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
-    echo "" >> "$abs_path/$CURRENT_REPO/$LAST_SUCCESS_FILE"
   fi
 }
 

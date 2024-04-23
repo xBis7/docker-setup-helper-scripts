@@ -11,7 +11,7 @@ PROJECT_SPARK="spark"
 CURRENT_REPO="docker-setup-helper-scripts"
 
 # Project branches
-RANGER_COMMIT_SHA="2f7682e412caf81202e223bd2fe9c50b5c1188f4"
+RANGER_COMMIT_SHA=
 HIVE_COMMIT_SHA=
 
 # Project Build versions

@@ -518,7 +518,7 @@ handleSparkEnv() {
     echo ""
     echo "'$PROJECT_SPARK' env started."
   else
-    if [ $(docker ps | grep $SPARK_MASTER_HOSTNAME) ]; then
+    if [[ $(docker ps | grep $SPARK_MASTER_HOSTNAME) ]]; then
       echo ""
       echo "User 'spark' has populated the '$SPARK_WORK_DIR' dir and therefore has ownership."
       echo "We need to cleanup the work dir as user 'spark', otherwise it will fail."

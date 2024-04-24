@@ -506,6 +506,8 @@ handleSparkEnv() {
     fi
     
     # Use '--scale worker=3' to create more workers.
+    # Resources per worker have been increased and
+    # due to that the env is starting with only 1 worker.
     docker compose -p spark -f $docker_compose_path up -d
 
     echo "Cleanup the work dir under all spark containers."
@@ -538,6 +540,10 @@ handleSparkEnv() {
 
     # Work dir is owned by user Spark and the ownership persists due to the mounting.
     # We won't be able to clean it up without using sudo.
+    
+    # Because of the mounting, the data persist between docker env restarts.
+    # As a workaround, the work dir is cleaned up right after the docker env starts.
+    # The cleanup happens inside the container as user 'spark'. Check the code above.
 
     # if [[ "${HIVE_VERSION}" == "4" ]]; then
     #   echo "Cleaning up $SPARK_WORK_DIR dir."

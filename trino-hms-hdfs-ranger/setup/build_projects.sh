@@ -99,9 +99,12 @@ if [ "$buildRanger" == 0 ]; then
   export JAVA_HOME="$java_8_home"
   export MAVEN_OPTS="-Xss64m -Xmx4g -XX:ReservedCodeCacheSize=1g"
 
-  echo "Applying Ranger docker patch."
-  patch -p1 < "$abs_path/$CURRENT_REPO/$SIMPLIFY_RANGER_DOCKER_PATCH"
-  echo "Project successfully patched."
+  # No ranger patching for Hive4 for now.
+  if [ "$HIVE_VERSION" != "4" ]; then # Check the env variable.
+    echo "Applying Ranger docker patch."
+    patch -p1 < "$abs_path/$CURRENT_REPO/$SIMPLIFY_RANGER_DOCKER_PATCH"
+    echo "Project successfully patched."
+  fi
 
   echo ""  
   echo "Checking for an available patch for the '$PROJECT_RANGER' project."

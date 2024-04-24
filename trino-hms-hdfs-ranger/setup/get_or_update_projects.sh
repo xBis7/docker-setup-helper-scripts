@@ -23,10 +23,13 @@ if [[ "${HIVE_VERSION}" == "4" ]]; then
   cloneProjectIfNotExist "$abs_path" "$PROJECT_SPARK" "$github_user"
 fi
 
-# We should discard all Ranger changes from a previous patch.
-echo "Discard all changes from a previous Ranger patch."
-cd "$abs_path/$PROJECT_RANGER"
-git stash
+# No ranger patching for Hive4 for now.
+if [[ "${HIVE_VERSION}" != "4" ]]; then
+  # We should discard all Ranger changes from a previous patch.
+  echo "Discard all changes from a previous Ranger patch."
+  cd "$abs_path/$PROJECT_RANGER"
+  git stash
+fi
 
 # If the current user also owns the remote repo,
 # then 'github_remote_user' should be set to 'origin'.

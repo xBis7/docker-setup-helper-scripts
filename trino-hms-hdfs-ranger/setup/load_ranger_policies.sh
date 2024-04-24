@@ -9,13 +9,7 @@ set -e
 abs_path=$1
 dump_file_name=$2
 
-ranger_version="2.4"
-
-if [ "$HIVE_VERSION" == "4" ]; then
-  ranger_version="3.0"
-fi
-
-dump_file_path="$abs_path/docker-setup-helper-scripts/trino-hms-hdfs-ranger/ranger_dumps/ranger-$ranger_version/$dump_file_name.sql"
+dump_file_path="$abs_path/docker-setup-helper-scripts/trino-hms-hdfs-ranger/ranger_dumps/ranger-$RANGER_DB_DUMP_VERSION/$dump_file_name.sql"
 
 echo ""
 echo "Stopping the Ranger container."

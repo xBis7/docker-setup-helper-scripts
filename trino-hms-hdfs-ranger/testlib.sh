@@ -20,6 +20,8 @@ HADOOP_BUILD_VERSION="3.3.6"
 RANGER_BUILD_VERSION=
 HIVE_BUILD_VERSION=
 
+RANGER_DB_DUMP_VERSION=
+
 configureHiveVersion() {
   if [[ "${HIVE_VERSION}" == "4" ]]; then
     echo ""
@@ -31,6 +33,8 @@ configureHiveVersion() {
     # Ranger branch: 'ranger-docker-hive4'
     RANGER_COMMIT_SHA="29b02ed01ffba6cfb6bfbae1d2346623bdce28d4"
     RANGER_BUILD_VERSION="3.0.0-SNAPSHOT"
+
+    RANGER_DB_DUMP_VERSION="3.0"
   else
     echo ""
     echo "Configuring project for Hive 3."
@@ -41,6 +45,8 @@ configureHiveVersion() {
     # Ranger branch: 'ranger-2.4-with-hmsa'
     RANGER_COMMIT_SHA="19f42c1d8b8e1edd40b1dd631821568b62a42e34"
     RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
+
+    RANGER_DB_DUMP_VERSION="2.4"
   fi
 }
 

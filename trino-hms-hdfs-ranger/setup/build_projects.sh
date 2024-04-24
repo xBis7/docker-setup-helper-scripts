@@ -191,6 +191,18 @@ if [ "$buildSpark" == 0 ]; then
   else
     echo ""
     echo "'$PROJECT_SPARK' build failed."
+
+    if grep -q 'Failed to clean project: Failed to delete' "$abs_path/$CURRENT_REPO/$TMP_FILE"; then
+      echo ""
+      echo "The 'work' dir is mounted in the docker env and therefore any data written inside the container,"
+      echo "will be persisted in the local storage and will be owned by the container user 'spark'."
+      echo ""
+      echo "To workaround it, run these commands manually: "
+      echo "> cd $abs_path/$PROJECT_SPARK/dist/compose/spark/conf"
+      echo "> sudo rm -rf work"
+      echo ""
+      echo "After it succeeds, rerun this script for the rest of the projects that you need to build, start from '$PROJECT_SPARK'."
+    fi
     exit 1
   fi
 fi

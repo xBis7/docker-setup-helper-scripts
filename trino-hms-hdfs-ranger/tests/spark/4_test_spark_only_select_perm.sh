@@ -27,12 +27,6 @@ scala_sql=$(base64encode "alter table $DEFAULT_DB.$SPARK_TABLE rename to $DEFAUL
 scala_msg=$(base64encode "Permission denied: user [spark] does not have [ALTER] privilege on [$DEFAULT_DB/$SPARK_TABLE]")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILENAME $scala_sql $scala_msg" "$SPARK_TEST_SUCCESS_MSG" "false"
 
-echo ""
-echo "- INFO: Drop partition."
-echo "- INFO: User [spark] shouldn't be able to alter table."
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME
-scala_sql=$(base64encode "alter table $TABLE_ANIMALS drop partition (name='cow')")
-
 # Failing for Spark-Hive4
 
 # org.apache.spark.sql.catalyst.analysis.NoSuchPartitionsException: 
@@ -40,6 +34,10 @@ scala_sql=$(base64encode "alter table $TABLE_ANIMALS drop partition (name='cow')
 # Verify the partition specification and table name.
 # To tolerate the error on drop use ALTER TABLE … DROP IF EXISTS PARTITION. 
 if [ "$HIVE_VERSION" != "4" ]; then
+  echo ""
+  echo "- INFO: Drop partition."
+  echo "- INFO: User [spark] shouldn't be able to alter table."
+  cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME
   scala_sql=$(base64encode "alter table $TABLE_ANIMALS drop partition (name='cow')")
   scala_msg=$(base64encode "Permission denied: user [spark] does not have [ALTER] privilege on [$DEFAULT_DB/$TABLE_ANIMALS]")
   retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILENAME $scala_sql $scala_msg" "$SPARK_TEST_SUCCESS_MSG" "false"

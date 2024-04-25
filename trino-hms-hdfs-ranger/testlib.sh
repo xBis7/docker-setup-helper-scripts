@@ -485,6 +485,9 @@ handleSparkEnv() {
   abs_path=$1
   op=$2
 
+  spark_dir_orig_owner=""
+  spark_dir_orig_owner_group=""
+
   spark_path="$abs_path/$CURRENT_REPO/compose/spark"
   docker_compose_path="$spark_path/docker/docker-compose.yml"
 
@@ -506,11 +509,6 @@ handleSparkEnv() {
     mkdir -p $spark_path/conf/$SPARK_EVENTS_DIR
     chmod 777 $spark_path/conf/$SPARK_EVENTS_DIR
 
-    if [[ "${HIVE_VERSION}" == "4" ]]; then
-      mkdir -p $spark_path/conf/$SPARK_WORK_DIR
-      chmod 777 $spark_path/conf/$SPARK_WORK_DIR
-    fi
-    
     # Use '--scale worker=3' to create more workers.
     # Resources per worker have been increased and
     # due to that the env is starting with only 1 worker.
@@ -518,9 +516,37 @@ handleSparkEnv() {
 
     echo ""
     echo "'$PROJECT_SPARK' env started."
+
+    if [[ "${HIVE_VERSION}" == "4" ]]; then
+      echo ""
+      echo "Spark is run from the source code. When the local dist files are mounted under"
+      echo "the containers, user 'spark' doesn't own them or have permissions to write under them."
+      echo "Changing ownership of container dir /opt/spark/$SPARK_WORK_DIR"
+      docker exec -it -u root $SPARK_MASTER_HOSTNAME chown -R spark:spark /opt/spark/$SPARK_WORK_DIR
+      docker exec -it -u root $SPARK_WORKER1_HOSTNAME chown -R spark:spark /opt/spark/$SPARK_WORK_DIR
+      echo ""
+    fi
   else
     echo ""
     echo "Stopping '$PROJECT_SPARK' env."
+
+    # In many cases, we run 'stop' while there are no containers running.
+    if [[ $(docker ps | grep $SPARK_MASTER_HOSTNAME) ]]; then
+      if [[ "${HIVE_VERSION}" == "4" ]]; then
+        # Whoever is the owner of the other directories under '/opt/spark',
+        # is also the original owner of '/opt/spark/work'.
+        # This check exists because the UID might be different depending
+        # on the system and it's preferable to not be hardcoded.
+        spark_dir_orig_owner=$(docker exec $SPARK_MASTER_HOSTNAME ls -n | grep hive-jars | awk '{print $3}')
+        spark_dir_orig_owner_group=$(docker exec $SPARK_MASTER_HOSTNAME ls -n | grep hive-jars | awk '{print $4}')
+
+        echo ""
+        echo "Changing ownership of container dir /opt/spark/$SPARK_WORK_DIR back to its original $spark_dir_orig_owner:$spark_dir_orig_owner_group."
+        docker exec -it -u root $SPARK_MASTER_HOSTNAME chown -R "$spark_dir_orig_owner":"$spark_dir_orig_owner_group" /opt/spark/$SPARK_WORK_DIR
+        docker exec -it -u root $SPARK_WORKER1_HOSTNAME chown -R "$spark_dir_orig_owner":"$spark_dir_orig_owner_group" /opt/spark/$SPARK_WORK_DIR
+        echo ""
+      fi
+    fi
 
     docker compose -p spark -f $docker_compose_path down
 
@@ -530,12 +556,6 @@ handleSparkEnv() {
     echo "Cleaning up $SPARK_EVENTS_DIR dir."
     rm -rf $spark_path/conf/$SPARK_EVENTS_DIR
 
-    # Work dir is owned by user Spark and the ownership persists due to the mounting.
-    # We won't be able to clean it up without using sudo.
-    if [[ "${HIVE_VERSION}" == "4" ]]; then
-      echo "Cleaning up $SPARK_WORK_DIR dir."
-      sudo rm -rf $spark_path/conf/$SPARK_WORK_DIR
-    fi
   fi
 }
 

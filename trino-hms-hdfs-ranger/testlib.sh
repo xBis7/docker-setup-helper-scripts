@@ -516,23 +516,9 @@ handleSparkEnv() {
     # due to that the env is starting with only 1 worker.
     docker compose -p spark -f $docker_compose_path up -d
 
-    echo "Cleanup the work dir under all spark containers."
-    docker exec -it $SPARK_MASTER_HOSTNAME rm -rf work/*
-    docker exec -it $SPARK_WORKER1_HOSTNAME rm -rf work/*
-    echo "Cleaned up contents of '$SPARK_WORK_DIR' dir under all Spark containers."
-
     echo ""
     echo "'$PROJECT_SPARK' env started."
   else
-    if [[ $(docker ps | grep $SPARK_MASTER_HOSTNAME) ]]; then
-      echo ""
-      echo "User 'spark' has populated the '$SPARK_WORK_DIR' dir and therefore has ownership."
-      echo "We need to cleanup the work dir as user 'spark', otherwise it will fail."
-      docker exec -it $SPARK_MASTER_HOSTNAME rm -rf work/*
-      docker exec -it $SPARK_WORKER1_HOSTNAME rm -rf work/*
-      echo "Cleaned up contents of '$SPARK_WORK_DIR' dir under all Spark containers."
-    fi
-
     echo ""
     echo "Stopping '$PROJECT_SPARK' env."
 
@@ -546,15 +532,10 @@ handleSparkEnv() {
 
     # Work dir is owned by user Spark and the ownership persists due to the mounting.
     # We won't be able to clean it up without using sudo.
-    
-    # Because of the mounting, the data persist between docker env restarts.
-    # As a workaround, the work dir is cleaned up right after the docker env starts.
-    # The cleanup happens inside the container as user 'spark'. Check the code above.
-
-    # if [[ "${HIVE_VERSION}" == "4" ]]; then
-    #   echo "Cleaning up $SPARK_WORK_DIR dir."
-    #   rm -rf $spark_path/conf/$SPARK_WORK_DIR
-    # fi
+    if [[ "${HIVE_VERSION}" == "4" ]]; then
+      echo "Cleaning up $SPARK_WORK_DIR dir."
+      sudo rm -rf $spark_path/conf/$SPARK_WORK_DIR
+    fi
   fi
 }
 

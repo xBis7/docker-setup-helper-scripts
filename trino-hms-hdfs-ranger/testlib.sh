@@ -485,9 +485,6 @@ handleSparkEnv() {
   abs_path=$1
   op=$2
 
-  spark_dir_orig_owner=""
-  spark_dir_orig_owner_group=""
-
   spark_path="$abs_path/$CURRENT_REPO/compose/spark"
   docker_compose_path="$spark_path/docker/docker-compose.yml"
 

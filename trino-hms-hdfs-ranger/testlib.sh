@@ -11,13 +11,16 @@ PROJECT_SPARK="spark"
 CURRENT_REPO="docker-setup-helper-scripts"
 
 # Project branches
+SPARK_COMMIT_SHA="4641d1b07f2192e22cb4f9626072956e25adf51e"
 RANGER_COMMIT_SHA=
 HIVE_COMMIT_SHA=
 
 # Project Build versions
-RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
 HADOOP_BUILD_VERSION="3.3.6"
+RANGER_BUILD_VERSION=
 HIVE_BUILD_VERSION=
+
+RANGER_DB_DUMP_VERSION=
 
 configureHiveVersion() {
   if [[ "${HIVE_VERSION}" == "4" ]]; then
@@ -29,6 +32,9 @@ configureHiveVersion() {
     HIVE_BUILD_VERSION="4.0.0"
     # Ranger branch: 'ranger-docker-hive4'
     RANGER_COMMIT_SHA="29b02ed01ffba6cfb6bfbae1d2346623bdce28d4"
+    RANGER_BUILD_VERSION="3.0.0-SNAPSHOT"
+
+    RANGER_DB_DUMP_VERSION="3.0"
   else
     echo ""
     echo "Configuring project for Hive 3."
@@ -38,21 +44,24 @@ configureHiveVersion() {
     HIVE_BUILD_VERSION="3.1.3-with-backport"
     # Ranger branch: 'ranger-2.4-with-hmsa'
     RANGER_COMMIT_SHA="19f42c1d8b8e1edd40b1dd631821568b62a42e34"
+    RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
+
+    RANGER_DB_DUMP_VERSION="2.4"
   fi
 }
 
 configureHiveVersion
 
 # Dump file names
-DEFAULT_POLICIES="1_defaults"
-DEFAULT_AND_NO_HIVE="2_defaults_no_hive_perm_defaultdb"
-HDFS_ACCESS="3_hdfs_all"
-HDFS_AND_HIVE_ALL="4_hive_defaultdb_all"
-TRINO_HDFS_AND_HIVE_ALL="4_trino_hdfs_hive_defaultdb_all"
-HDFS_AND_HIVE_SELECT="5_hive_defaultdb_select"
-HDFS_AND_HIVE_SELECT_ALTER="6_hive_defaultdb_select_alter"
-HDFS_AND_HIVE_SELECT_ALTER_DROP="7_hive_defaultdb_select_alter_drop"
-HDFS_AND_HIVE_AND_CREATE_HIVE_URL="8_hdfs_hive_create_hive_url"
+DEFAULT_POLICIES="0_defaults"
+DEFAULT_AND_NO_HIVE="1_defaults_no_hive_perm_defaultdb"
+HDFS_ACCESS="2_hdfs_all"
+HDFS_AND_HIVE_ALL="3_hive_defaultdb_all"
+TRINO_HDFS_AND_HIVE_ALL="3_trino_hdfs_hive_defaultdb_all"
+HDFS_AND_HIVE_SELECT="4_hive_defaultdb_select"
+HDFS_AND_HIVE_SELECT_ALTER="5_hive_defaultdb_select_alter"
+HDFS_AND_HIVE_SELECT_ALTER_DROP="6_hive_defaultdb_select_alter_drop"
+HDFS_AND_HIVE_AND_CREATE_HIVE_URL="7_hdfs_hive_create_hive_url"
 HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
 HDFS_POLICIES_FOR_RANGER_TESTING="hdfs_policies_for_ranger_testing"
 
@@ -65,6 +74,7 @@ EXTERNAL_DB="poc_db"
 DEFAULT_DB="default"
 HDFS_DIR="test"
 SPARK_EVENTS_DIR="spark-events"
+SPARK_WORK_DIR="work"
 HIVE_WAREHOUSE_DIR="opt/hive/data"
 HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 TMP_FILE="tmp_output.txt"
@@ -88,7 +98,7 @@ RANGER_POSTGRES_HOSTNAME="ranger-postgres"
 
 TRINO_HOSTNAME="trino-coordinator-1"
 
-SPARK_MASTER_HOSTNAME="spark-master-1"
+SPARK_MASTER_HOSTNAME="spark-master-1" # These are the same for Hive3 and Hive4.
 SPARK_WORKER1_HOSTNAME="spark-worker-1"
 
 # Spark test variables
@@ -218,6 +228,11 @@ setupSparkJarsIfNeeded() {
   abs_path=$1
 
   dir_base_path="$abs_path/$CURRENT_REPO/compose/spark/conf"
+
+  if [[ "${HIVE_VERSION}" == "4" ]]; then
+    dir_base_path="$abs_path/$PROJECT_SPARK/dist/compose/spark/conf"
+  fi
+
   jars_dir_name="hive-jars"
   jars_dir_path="$dir_base_path/$jars_dir_name"
   hive_jar_regex_prefix="hive-*"
@@ -293,8 +308,11 @@ setupSparkJarsIfNeeded() {
   cpJarIfNotExist "$jars_dir_path" "$hive_service_rpc_jar_path" "$HIVE_SERVICE_RPC_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_shims_jar_path" "$HIVE_SHIMS_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_shims_common_jar_path" "$HIVE_SHIMS_COMMON_JAR_NAME"
+
+  # These two jars don't exist in Hive4. 'cpJarIfNotExist' is going to ignore them.
   cpJarIfNotExist "$jars_dir_path" "$hive_shims_scheduler_jar_path" "$HIVE_SHIMS_SCHEDULER_JAR_NAME"
   cpJarIfNotExist "$jars_dir_path" "$hive_spark_client_jar_path" "$HIVE_SPARK_CLIENT_JAR_NAME"
+  #
   cpJarIfNotExist "$jars_dir_path" "$hive_standalone_metastore_jar_path" "$HIVE_STANDALONE_METASTORE_JAR_NAME"
 }
 
@@ -470,6 +488,11 @@ handleSparkEnv() {
   spark_path="$abs_path/$CURRENT_REPO/compose/spark"
   docker_compose_path="$spark_path/docker/docker-compose.yml"
 
+  if [[ "${HIVE_VERSION}" == "4" ]]; then
+    spark_path="$abs_path/$PROJECT_SPARK/dist/compose/spark"
+    docker_compose_path="$spark_path/docker-compose.yml"
+  fi
+
   if [ "$op" == "start" ]; then
     # Setup the Spark jars if they don't exist.
     setupSparkJarsIfNeeded "$abs_path"
@@ -480,17 +503,47 @@ handleSparkEnv() {
     echo ""
     echo "Creating /$SPARK_EVENTS_DIR dir and changing permissions."
 
-    mkdir $spark_path/conf/$SPARK_EVENTS_DIR
+    mkdir -p $spark_path/conf/$SPARK_EVENTS_DIR
     chmod 777 $spark_path/conf/$SPARK_EVENTS_DIR
 
-    docker compose -p spark -f $docker_compose_path up -d --scale worker=3
+    # Use '--scale worker=3' to create more workers.
+    # Resources per worker have been increased and
+    # due to that the env is starting with only 1 worker.
+    docker compose -p spark -f $docker_compose_path up -d
 
     echo ""
     echo "'$PROJECT_SPARK' env started."
+
+    if [[ "${HIVE_VERSION}" == "4" ]]; then
+      echo ""
+      echo "Spark is run from the source code. When the local dist files are mounted under"
+      echo "the containers, user 'spark' doesn't own them or have permissions to write under them."
+      echo "Changing ownership of container dir /opt/spark/$SPARK_WORK_DIR"
+      docker exec -it -u root $SPARK_MASTER_HOSTNAME chown -R spark:spark /opt/spark/$SPARK_WORK_DIR
+      docker exec -it -u root $SPARK_WORKER1_HOSTNAME chown -R spark:spark /opt/spark/$SPARK_WORK_DIR
+      echo ""
+    fi
   else
     echo ""
     echo "Stopping '$PROJECT_SPARK' env."
 
+    # In many cases, we run 'stop' while there are no containers running.
+    if [[ $(docker ps | grep $SPARK_MASTER_HOSTNAME) ]]; then
+      if [[ "${HIVE_VERSION}" == "4" ]]; then
+        # Whoever is the owner of the other directories under '/opt/spark',
+        # is also the original owner of '/opt/spark/work'.
+        # This check exists because the UID might be different depending
+        # on the system and it's preferable to not be hardcoded.
+        spark_dir_orig_owner=$(docker exec $SPARK_MASTER_HOSTNAME ls -n | grep hive-jars | awk '{print $3}')
+        spark_dir_orig_owner_group=$(docker exec $SPARK_MASTER_HOSTNAME ls -n | grep hive-jars | awk '{print $4}')
+
+        echo ""
+        echo "Changing ownership of container dir /opt/spark/$SPARK_WORK_DIR back to its original $spark_dir_orig_owner:$spark_dir_orig_owner_group."
+        docker exec -it -u root $SPARK_MASTER_HOSTNAME chown -R "$spark_dir_orig_owner":"$spark_dir_orig_owner_group" /opt/spark/$SPARK_WORK_DIR
+        docker exec -it -u root $SPARK_WORKER1_HOSTNAME chown -R "$spark_dir_orig_owner":"$spark_dir_orig_owner_group" /opt/spark/$SPARK_WORK_DIR
+        echo ""
+      fi
+    fi
 
     docker compose -p spark -f $docker_compose_path down
 
@@ -498,7 +551,8 @@ handleSparkEnv() {
     echo "'$PROJECT_SPARK' env stopped."
 
     echo "Cleaning up $SPARK_EVENTS_DIR dir."
-    rm -r -f $spark_path/conf/$SPARK_EVENTS_DIR
+    rm -rf $spark_path/conf/$SPARK_EVENTS_DIR
+
   fi
 }
 

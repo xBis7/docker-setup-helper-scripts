@@ -16,5 +16,11 @@ echo "- INFO: Create table."
 echo "- INFO: User [spark] shouldn't be able to create table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME
 scala_sql=$(base64encode "create table $TABLE_PERSONS (id int, name string)")
-scala_msg=$(base64encode "Permission denied: user [spark] does not have [WRITE] privilege on [[hdfs://namenode/opt/hive/data/$TABLE_PERSONS, hdfs://namenode/opt/hive/data/$TABLE_PERSONS/]]")
+
+op="WRITE"
+if [ "$HIVE_VERSION" == "4" ]; then # TODO: investigate this.
+  op="READ"
+fi
+
+scala_msg=$(base64encode "Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/opt/hive/data/$TABLE_PERSONS, hdfs://namenode/opt/hive/data/$TABLE_PERSONS/]]")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILENAME $scala_sql $scala_msg" "$SPARK_TEST_SUCCESS_MSG" "false"

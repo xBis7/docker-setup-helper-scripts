@@ -9,7 +9,7 @@ set -e
 abs_path=$1
 dump_file_name=$2
 
-dump_file_path="$abs_path/docker-setup-helper-scripts/trino-hms-hdfs-ranger/ranger_dumps/$dump_file_name.sql"
+dump_file_path="$abs_path/docker-setup-helper-scripts/trino-hms-hdfs-ranger/ranger_dumps/ranger-$RANGER_DB_DUMP_VERSION/$dump_file_name.sql"
 
 echo ""
 echo "Stopping the Ranger container."

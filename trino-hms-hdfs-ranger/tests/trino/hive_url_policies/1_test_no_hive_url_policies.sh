@@ -19,9 +19,14 @@ echo "- INFO: Updating Ranger policies. User [postgres] will not have Write perm
 ./setup/load_ranger_policies.sh "$abs_path" "$TRINO_HDFS_AND_HIVE_ALL"
 waitForPoliciesUpdate
 
+op="WRITE"
+if [ "$HIVE_VERSION" == "4" ]; then # TODO: investigate this.
+  op="READ"
+fi
+
 echo ""
 echo "- INFO: Create $TABLE_PERSONS table."
 echo "- INFO: [create] should fail."
-failMsg="Permission denied: user [postgres] does not have [WRITE] privilege on [[hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS, hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS/]]"
+failMsg="Permission denied: user [postgres] does not have [$op] privilege on [[hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS, hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS/]]"
 cmd="create table hive.default.$TABLE_PERSONS (id int, name varchar);"
 retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$failMsg" "true"

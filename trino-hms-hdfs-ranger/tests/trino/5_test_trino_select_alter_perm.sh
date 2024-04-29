@@ -41,14 +41,23 @@ cmd="insert into hive.default.$TABLE_ANIMALS values (1, 'cat');"
 successMsg="INSERT: 1 row"
 retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
 
-# FIXME: This test fails for Hive 4
-# It fails with the following error: "Query 20240402_105548_00016_g47rj failed: Cannot delete from non-managed Hive table".
-# It should not fail because $TABLE_ANIMALS is created in Hive managed space.
-if [ "$HIVE_VERSION" != "4" ]; then
-  echo ""
-  echo "- INFO: Delete from $TABLE_ANIMALS table."
-  echo "- INFO: [alter] should succeed."
-  cmd="delete from hive.default.$TABLE_ANIMALS;"
-  successMsg="DELETE"
-  retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
-fi
+# This was failing for Spark-Hive4. Adding the property below in the hive-site.xml fixed it.
+#   <property>
+#     <name>metastore.metadata.transformer.class</name>
+#     <value> </value>
+#   </property>
+
+# Simple 'CREATE TABLE' commands should create a managed table but for Hive4 that's not the case.
+# 'DESCRIBE FORMATTED table' is showing 'Table Properties -> TRANSLATED_TO_EXTERNAL'
+# and the table is treated as if it is non-managed.
+
+# That unexpected behavior is caused by the transformer according to these references
+# and the current workaround is to disable it.
+# Check ticket description: https://issues.apache.org/jira/browse/HIVE-24954
+# Check ticket comments: https://issues.apache.org/jira/browse/HIVE-28198
+echo ""
+echo "- INFO: Delete from $TABLE_ANIMALS table."
+echo "- INFO: [alter] should succeed."
+cmd="delete from hive.default.$TABLE_ANIMALS;"
+successMsg="DELETE"
+retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"

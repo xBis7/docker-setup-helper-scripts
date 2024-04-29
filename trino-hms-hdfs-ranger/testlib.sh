@@ -28,7 +28,7 @@ configureHiveVersion() {
     echo "Configuring project for Hive 4."
     echo ""
     # Hive branch: 'hive4-latest'
-    HIVE_COMMIT_SHA="3b3067bb57e92864230140f99cbb16ce39f11e38"
+    HIVE_COMMIT_SHA="97cac504f04d9e44d9c5334770d9a2ccce3c5bfb"
     HIVE_BUILD_VERSION="4.0.0"
     # Ranger branch: 'ranger-docker-hive4'
     RANGER_COMMIT_SHA="29b02ed01ffba6cfb6bfbae1d2346623bdce28d4"

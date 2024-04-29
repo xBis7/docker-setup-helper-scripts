@@ -43,7 +43,7 @@ configureHiveVersion() {
     HIVE_COMMIT_SHA="2f7682e412caf81202e223bd2fe9c50b5c1188f4"
     HIVE_BUILD_VERSION="3.1.3-with-backport"
     # Ranger branch: 'ranger-2.4-with-hmsa'
-    RANGER_COMMIT_SHA="19f42c1d8b8e1edd40b1dd631821568b62a42e34"
+    RANGER_COMMIT_SHA="f05047243d7445f822a32d61385f027047045b08"
     RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
 
     RANGER_DB_DUMP_VERSION="2.4"
@@ -80,7 +80,6 @@ HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
-SIMPLIFY_RANGER_DOCKER_PATCH="simplify_ranger_docker.diff"
 PRINT_CMD=""
 
 # Container names

@@ -340,6 +340,33 @@ setupRangerJarsIfNeeded() {
   cpJarIfNotExist "$jars_dir_path" "$ranger_hdfs_jar_path" "$RANGER_HDFS_JAR"
 }
 
+deleteRangerDistTarballs() {
+  abs_path=$1
+
+  ranger_docker_dist_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker/dist"
+  ranger_tar_regex_prefix="ranger-*"
+
+  echo ""
+  echo "Deleting all ranger tarballs under '$ranger_docker_dist_path'."
+
+  rm -rf $ranger_docker_dist_path/$ranger_tar_regex_prefix
+  echo "Delete finished."
+}
+
+deleteRangerDockerImages() {
+  echo ""
+  echo "Make sure Ranger isn't running in docker before calling this method."
+  echo ""
+
+  docker image rm --force ranger:latest
+  docker image rm --force ranger-base:latest
+  docker image rm --force ranger-build:latest
+  docker image rm --force ranger-usersync:latest
+  docker image rm --force ranger-solr:latest
+  docker image rm --force ranger-postgres:latest
+  docker image rm --force ranger-zk:latest
+}
+
 handleRangerEnv() {
   abs_path=$1
   op=$2

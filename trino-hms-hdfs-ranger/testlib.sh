@@ -94,6 +94,7 @@ HMS_POSTGRES_HOSTNAME="hive-metastore-ranger-postgres-1"
 
 RANGER_HOSTNAME="ranger"
 RANGER_POSTGRES_HOSTNAME="ranger-postgres"
+RANGER_USERSYNC_HOSTNAME="ranger-usersync"
 
 TRINO_HOSTNAME="trino-coordinator-1"
 
@@ -193,6 +194,8 @@ getHostnameFromName() {
     echo "$RANGER_HOSTNAME"
   elif [ "$name" == "ranger_postgres" ]; then
     echo "$RANGER_POSTGRES_HOSTNAME"
+  elif [ "$name" == "ranger_usersync" ]; then
+    echo "$RANGER_USERSYNC_HOSTNAME"
   elif [ "$name" == "trino" ]; then
     echo "$TRINO_HOSTNAME"
   elif [ "$name" == "spark_master" ]; then

@@ -43,7 +43,7 @@ configureHiveVersion() {
     HIVE_COMMIT_SHA="2f7682e412caf81202e223bd2fe9c50b5c1188f4"
     HIVE_BUILD_VERSION="3.1.3-with-backport"
     # Ranger branch: 'ranger-2.4-with-hmsa'
-    RANGER_COMMIT_SHA="19f42c1d8b8e1edd40b1dd631821568b62a42e34"
+    RANGER_COMMIT_SHA="ba202593562c233b4961f0b2dcc82d6352de6e54"
     RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
 
     RANGER_DB_DUMP_VERSION="2.4"
@@ -80,7 +80,6 @@ HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
-SIMPLIFY_RANGER_DOCKER_PATCH="simplify_ranger_docker.diff"
 PRINT_CMD=""
 
 # Container names
@@ -95,6 +94,7 @@ HMS_POSTGRES_HOSTNAME="hive-metastore-ranger-postgres-1"
 
 RANGER_HOSTNAME="ranger"
 RANGER_POSTGRES_HOSTNAME="ranger-postgres"
+RANGER_USERSYNC_HOSTNAME="ranger-usersync"
 
 TRINO_HOSTNAME="trino-coordinator-1"
 
@@ -194,6 +194,8 @@ getHostnameFromName() {
     echo "$RANGER_HOSTNAME"
   elif [ "$name" == "ranger_postgres" ]; then
     echo "$RANGER_POSTGRES_HOSTNAME"
+  elif [ "$name" == "ranger_usersync" ]; then
+    echo "$RANGER_USERSYNC_HOSTNAME"
   elif [ "$name" == "trino" ]; then
     echo "$TRINO_HOSTNAME"
   elif [ "$name" == "spark_master" ]; then
@@ -339,6 +341,33 @@ setupRangerJarsIfNeeded() {
   cpJarIfNotExist "$jars_dir_path" "$ranger_common_uber_jar_path" "$RANGER_COMMON_UBER_JAR"
   cpJarIfNotExist "$jars_dir_path" "$ranger_audit_jar_path" "$RANGER_AUDIT_JAR"
   cpJarIfNotExist "$jars_dir_path" "$ranger_hdfs_jar_path" "$RANGER_HDFS_JAR"
+}
+
+deleteRangerDistTarballs() {
+  abs_path=$1
+
+  ranger_docker_dist_path="$abs_path/$PROJECT_RANGER/dev-support/ranger-docker/dist"
+  ranger_tar_regex_prefix="ranger-*"
+
+  echo ""
+  echo "Deleting all ranger tarballs under '$ranger_docker_dist_path'."
+
+  rm -rf $ranger_docker_dist_path/$ranger_tar_regex_prefix
+  echo "Delete finished."
+}
+
+deleteRangerDockerImages() {
+  echo ""
+  echo "Make sure Ranger isn't running in docker before calling this method."
+  echo ""
+
+  docker image rm --force ranger:latest
+  docker image rm --force ranger-base:latest
+  docker image rm --force ranger-build:latest
+  docker image rm --force ranger-usersync:latest
+  docker image rm --force ranger-solr:latest
+  docker image rm --force ranger-postgres:latest
+  docker image rm --force ranger-zk:latest
 }
 
 handleRangerEnv() {

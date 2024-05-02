@@ -17,8 +17,10 @@ elif [[ "$project" == "trino" ]]; then
   handleTrinoEnv "$abs_path" "stop"
 elif [[ "$project" == "spark" ]]; then
   handleSparkEnv "$abs_path" "stop"
+elif [[ "$project" == "apacheds" ]]; then
+  handleApacheDsEnv "$abs_path" "stop"
 else
   echo "Provided project is unknown."
   echo "Try one of the following: "
-  echo "[ranger, hadoop, hms, trino, spark]"
+  echo "[ranger, hadoop, hms, trino, spark, apacheds]"
 fi

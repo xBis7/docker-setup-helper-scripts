@@ -6,6 +6,7 @@ PROJECT_HADOOP="hadoop"
 PROJECT_HIVE="hive"
 PROJECT_TRINO="trino"
 PROJECT_SPARK="spark"
+PROJECT_APACHEDS="apacheds"
 
 # Current repo paths
 CURRENT_REPO="docker-setup-helper-scripts"
@@ -100,6 +101,8 @@ TRINO_HOSTNAME="trino-coordinator-1"
 
 SPARK_MASTER_HOSTNAME="spark-master-1" # These are the same for Hive3 and Hive4.
 SPARK_WORKER1_HOSTNAME="spark-worker-1"
+
+APACHEDS_HOSTNAME="docker-apacheds-1"
 
 # Spark test variables
 SPARK_TEST_FILENAME="test.scala"
@@ -202,10 +205,12 @@ getHostnameFromName() {
     echo "$SPARK_MASTER_HOSTNAME"
   elif [ "$name" == "spark_worker1" ]; then
     echo "$SPARK_WORKER1_HOSTNAME"
+  elif [ "$name" == "apacheds" ]; then
+    echo "$APACHEDS_HOSTNAME"
   else
     echo "The provided name is unknown."
     echo "Try one of the following: "
-    echo "[namenode, dn1, dn2, dn3, hms, hms_postgres, ranger, ranger_postgres, trino, spark_master, spark_worker1]"
+    echo "[namenode, dn1, dn2, dn3, hms, hms_postgres, ranger, ranger_postgres, trino, spark_master, spark_worker1, apacheds]"
   fi
 }
 
@@ -488,7 +493,7 @@ handleTrinoEnv() {
   abs_path=$1
   op=$2
 
-  trino_path="$abs_path/docker-setup-helper-scripts/compose/trino"
+  trino_path="$abs_path/$CURRENT_REPO/compose/trino"
   docker_compose_path="$trino_path/docker/docker-compose.yml"
 
   if [ "$op" == "start" ]; then
@@ -582,6 +587,32 @@ handleSparkEnv() {
     echo "Cleaning up $SPARK_EVENTS_DIR dir."
     rm -rf $spark_path/conf/$SPARK_EVENTS_DIR
 
+  fi
+}
+
+handleApacheDsEnv() {
+  abs_path=$1
+  op=$2
+
+  apacheds_path="$abs_path/$CURRENT_REPO/compose/apacheds"
+  docker_compose_path="$apacheds_path/docker/docker-compose.yml"
+
+  if [ "$op" == "start" ]; then
+    echo ""
+    echo "Starting '$PROJECT_APACHEDS' env."
+
+    docker compose -f $docker_compose_path up -d
+
+    echo ""
+    echo "'$PROJECT_APACHEDS' env started."
+  else
+    echo ""
+    echo "Stopping '$PROJECT_APACHEDS' env."
+
+    docker compose -f $docker_compose_path down
+
+    echo ""
+    echo "'$PROJECT_APACHEDS' env stopped."
   fi
 }
 

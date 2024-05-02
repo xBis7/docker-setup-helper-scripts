@@ -10,14 +10,22 @@ op=$2
 ./docker/stop_docker_containers.sh "$abs_path" "apacheds"
 ./docker/stop_docker_containers.sh "$abs_path" "ranger"
 
-# ./setup/setup_docker_env.sh "$abs_path"
-
-if [ "$op" == "start" ]; then
-  ./docker/start_docker_containers.sh "$abs_path" "ranger"
-  ./docker/start_docker_containers.sh "$abs_path" "apacheds"
+if [ "$op" == "stop" ]; then
+  exit 0
 fi
 
-# echo ""
-# echo "- INFO: Updating Ranger policies."
-# ./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_ALL"
-# waitForPoliciesUpdate
+./docker/start_docker_containers.sh "$abs_path" "ranger"
+./docker/start_docker_containers.sh "$abs_path" "apacheds"
+
+echo ""
+echo "Search for entry. It will fail and print no such object."
+echo "Testing with '| grep NO_SUCH_OBJECT', if the cmd succeeded and grep failed, then the pipeline failed and the script will exit here."
+ldapsearch -x -D "uid=admin,ou=system" -w secret -b "cn=test_user,dc=openmicroscopy,dc=org" -H ldap://localhost:10389 "(objectClass=*)" | grep NO_SUCH_OBJECT
+
+echo ""
+echo "Importing LDIF file."
+ldapadd -x -D "uid=admin,ou=system" -w secret -f $abs_path/$CURRENT_REPO/compose/apacheds/test_files/test_user.ldif -H ldap://localhost:10389
+
+echo ""
+echo "Search for entry and print output."
+ldapsearch -x -D "uid=admin,ou=system" -w secret -b "cn=test_user,dc=openmicroscopy,dc=org" -H ldap://localhost:10389 "(objectClass=*)"

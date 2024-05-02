@@ -1,0 +1,6 @@
+dn: cn=test_user,dc=openmicroscopy,dc=org
+objectClass: inetOrgPerson
+cn: test_user
+sn: test
+mail: test.user@gr.oss.com
+userPassword: testpass

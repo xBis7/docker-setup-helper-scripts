@@ -18,9 +18,13 @@ fi
 ./docker/start_docker_containers.sh "$abs_path" "apacheds"
 
 echo ""
+echo "Waiting for the ApacheDS container to start."
+sleep 20
+
+echo ""
 echo "Search for entry. It will fail and print no such object."
 echo "Testing with '| grep NO_SUCH_OBJECT', if the cmd succeeded and grep failed, then the pipeline failed and the script will exit here."
-ldapsearch -x -D "uid=admin,ou=system" -w secret -b "cn=test_user,dc=openmicroscopy,dc=org" -H ldap://localhost:10389 "(objectClass=*)" | grep NO_SUCH_OBJECT
+ldapsearch -x -D "uid=admin,ou=system" -w secret -b "cn=test_user,dc=example,dc=com" -H ldap://localhost:10389 "(objectClass=*)" | grep NO_SUCH_OBJECT
 
 echo ""
 echo "Importing LDIF file."
@@ -28,4 +32,4 @@ ldapadd -x -D "uid=admin,ou=system" -w secret -f $abs_path/$CURRENT_REPO/compose
 
 echo ""
 echo "Search for entry and print output."
-ldapsearch -x -D "uid=admin,ou=system" -w secret -b "cn=test_user,dc=openmicroscopy,dc=org" -H ldap://localhost:10389 "(objectClass=*)"
+ldapsearch -x -D "uid=admin,ou=system" -w secret -b "cn=test_user,dc=example,dc=com" -H ldap://localhost:10389 "(objectClass=*)"

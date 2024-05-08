@@ -1,6 +1,20 @@
-dn: cn=test_user,dc=openmicroscopy,dc=org
+dn: cn=test_user,dc=example,dc=com
 objectClass: inetOrgPerson
 cn: test_user
 sn: test
 mail: test.user@gr.oss.com
 userPassword: testpass
+
+dn: cn=jane_doe,dc=example,dc=com
+objectClass: inetOrgPerson
+cn: jane_doe
+sn: doe
+mail: jane.doe@example.com
+userPassword: janepass
+
+dn: cn=john_smith,dc=example,dc=com
+objectClass: inetOrgPerson
+cn: john_smith
+sn: smith
+mail: john.smith@example.com
+userPassword: johnpass

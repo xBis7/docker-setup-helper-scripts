@@ -1,12 +1,14 @@
 dn: cn=test_user,dc=example,dc=com
 objectClass: inetOrgPerson
+objectClass: person
 cn: test_user
 sn: test
-mail: test.user@gr.oss.com
+mail: test.user@example.com
 userPassword: testpass
 
 dn: cn=jane_doe,dc=example,dc=com
 objectClass: inetOrgPerson
+objectClass: person
 cn: jane_doe
 sn: doe
 mail: jane.doe@example.com
@@ -14,6 +16,7 @@ userPassword: janepass
 
 dn: cn=john_smith,dc=example,dc=com
 objectClass: inetOrgPerson
+objectClass: person
 cn: john_smith
 sn: smith
 mail: john.smith@example.com

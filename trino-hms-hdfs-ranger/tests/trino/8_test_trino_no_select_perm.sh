@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 
 echo ""
-echo "- INFO: Updating Ranger policies. User [spark] won't have any Hive privileges."
+echo "- INFO: Updating Ranger policies. User [postgres] won't have any Hive privileges."
 ./setup/load_ranger_policies.sh "$abs_path" "$HDFS_ACCESS"
 waitForPoliciesUpdate
 

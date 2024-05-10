@@ -188,11 +188,13 @@ if [ "$buildSpark" == 0 ]; then
   fi
 fi
 
-echo ""
-echo ""
-echo "**Reminder: "
-echo "Hive version has been set to '3.1.3-with-backport'."
-echo "Ranger is using that custom version."
-echo "For that reason, Hive always needs to be built before Ranger."
-echo "If you are building just Ranger, make sure that Hive has already been built."
+if [ "$HIVE_VERSION" != "4" ]; then
+  echo ""
+  echo ""
+  echo "**Reminder: "
+  echo "Hive version has been set to '3.1.3-with-backport'."
+  echo "Ranger is using that custom version."
+  echo "For that reason, Hive always needs to be built before Ranger."
+  echo "If you are building just Ranger, make sure that Hive has already been built."
+fi
 

@@ -54,6 +54,10 @@ if [ "$component" == "spark" ]; then
   echo ""
   echo "### TEST_7 ###"
   ./tests/spark/7_test_spark_drop_table_perm.sh "$abs_path"
+
+  echo ""
+  echo "### TEST_8 ###"
+  ./tests/spark/8_test_spark_no_select_perm.sh "$abs_path"
 else
   echo ""
   echo "### TEST_1 ###"
@@ -88,6 +92,10 @@ else
   echo ""
   echo "### TEST_7 ###"
   ./tests/trino/7_test_trino_drop_table_perm.sh "$abs_path"
+
+  echo ""
+  echo "### TEST_8 ###"
+  ./tests/trino/8_test_trino_no_select_perm.sh "$abs_path"
 fi
 
 echo ""

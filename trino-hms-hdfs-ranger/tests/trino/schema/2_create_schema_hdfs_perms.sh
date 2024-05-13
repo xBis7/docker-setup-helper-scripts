@@ -10,7 +10,7 @@ echo ""
 echo "- INFO: Updating Ranger policies. User [postgres] now will have [ALL] privileges on all HDFS paths."
 echo "- INFO: There will be no Hive permissions."
 
-./setup/load_ranger_policies.sh "$abs_path" "$HDFS_ACCESS"
+./setup/load_ranger_policies.sh "$abs_path" "$HDFS_ACCESS_WITH_SELECT"
 waitForPoliciesUpdate
 
 echo ""

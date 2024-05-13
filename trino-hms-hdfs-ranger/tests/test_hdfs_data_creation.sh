@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 
 # Load the default Ranger policies.
-./setup/load_ranger_policies.sh "$abs_path" "$DEFAULT_AND_NO_HIVE"
+./setup/load_ranger_policies.sh "$abs_path" "$DEFAULT_AND_HIVE_ONLY_SELECT"
 
 echo ""
 echo "- INFO: Ranger policies updated."

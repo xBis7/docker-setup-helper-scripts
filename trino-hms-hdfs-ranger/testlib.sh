@@ -55,7 +55,9 @@ configureHiveVersion
 # Dump file names
 DEFAULT_POLICIES="0_defaults"
 DEFAULT_AND_NO_HIVE="1_defaults_no_hive_perm_defaultdb"
+DEFAULT_AND_HIVE_ONLY_SELECT="1_defaults_hive_only_select"
 HDFS_ACCESS="2_hdfs_all"
+HDFS_ACCESS_WITH_SELECT="2_hdfs_all_with_select"
 HDFS_AND_HIVE_ALL="3_hive_defaultdb_all"
 TRINO_HDFS_AND_HIVE_ALL="3_trino_hdfs_hive_defaultdb_all"
 HDFS_AND_HIVE_SELECT="4_hive_defaultdb_select"

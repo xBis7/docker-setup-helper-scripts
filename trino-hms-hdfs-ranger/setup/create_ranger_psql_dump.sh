@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "./testlib.sh"
+
 set -e
 
 abs_path=$1

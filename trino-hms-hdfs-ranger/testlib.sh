@@ -66,6 +66,7 @@ HDFS_AND_HIVE_SELECT_ALTER_DROP="6_hive_defaultdb_select_alter_drop"
 HDFS_AND_HIVE_AND_CREATE_HIVE_URL="7_hdfs_hive_create_hive_url"
 HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
 HDFS_POLICIES_FOR_RANGER_TESTING="hdfs_policies_for_ranger_testing"
+HIVE_URL_NO_HDFS="hive_url_no_hdfs"
 
 # Const shared variables
 TRINO_TABLE="trino_test_table"

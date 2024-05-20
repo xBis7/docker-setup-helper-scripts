@@ -110,7 +110,7 @@
 	
 	<property>
 		<name>xasecure.add-hadoop-authorization</name>
-		<value>false</value>
+		<value>true</value>
 		<description>
 			Enable/Disable the default hadoop authorization (based on
 			rwxrwxrwx permission on the resource) if Ranger Authorization fails.

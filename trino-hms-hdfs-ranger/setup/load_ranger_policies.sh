@@ -52,11 +52,7 @@ fi
 
 echo ""
 echo "Populate the empty ranger DB with the '$dump_file_name.sql' contents."
-# This is polluting the output a lot.
-# TODO: find a way to hide the output.
-# With -q option output is only partly hidden.
-# When using > /dev/null terminal is blocked and no output appears (command might not even execute fully).
-if docker exec -it ranger-postgres psql -U rangeradmin -d ranger -f dump.sql -q; then
+if docker exec ranger-postgres psql -U rangeradmin -d ranger -f dump.sql -q >& /dev/null; then
   echo "Populate the empty ranger DB with the '$dump_file_name.sql' contents succeeded."
 else
   echo "Populate the empty ranger DB with the '$dump_file_name.sql' contents failed. Exiting..."

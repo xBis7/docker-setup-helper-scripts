@@ -4,8 +4,9 @@ source "./ranger_api/lib.sh"
 
 set -e
 
-accesses=$1
-users=$2
+resources_path=$1
+accesses=$2
+users=$3
 
 policy_name="all%20-%20path"
 
@@ -22,6 +23,8 @@ echo ""
 echo "id: $id"
 echo "guid: $guid"
 echo ""
+
+resource_values_array=$(getResourcesJsonArray "$resources_path")
 
 accesses_array=$(getAccessesJsonArray "$accesses")
 
@@ -44,9 +47,7 @@ json_payload=$(cat <<EOF
   "name": "all - path",
   "resources": {
     "path": {
-      "values": [
-        "/*"
-      ],
+      "values":$resource_values_array,
       "isExcludes": false,
       "isRecursive": true
     }

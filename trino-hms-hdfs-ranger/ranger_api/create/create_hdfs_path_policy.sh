@@ -7,8 +7,7 @@ set -e
 resources_path=$1
 accesses=$2
 users=$3
-
-policy_name="all - path" # This isn't part of a URI and shouldn't include ASCII chars.
+policy_name=${4:-"all - path"} # This isn't part of a URI and shouldn't include ASCII chars.
 
 resource_values_array=$(getResourcesJsonArray "$resources_path")
 accesses_array=$(getAccessesJsonArray "$accesses")

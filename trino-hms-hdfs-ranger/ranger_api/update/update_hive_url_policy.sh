@@ -6,6 +6,7 @@ set -e
 
 accesses=$1
 users=$2
+resources_url=${3:-"*"}
 
 policy_name="all%20-%20url"
 
@@ -22,13 +23,9 @@ id=$(getIdFromRangerPolicyJsonRes "$hivedev_res")
 # Get the GUID from the JSON response.
 guid=$(getGuidFromRangerPolicyJsonRes "$hivedev_res")
 
-resource_sig=$(getHiveUrlResourceSignature "$hivedev_res")
+resource_sig=$(getResourceSignature "$hivedev_res")
 
-echo ""
-echo "id: $id"
-echo "guid: $guid"
-echo "resourceSignature: $resource_sig"
-echo ""
+url_values_array=$(getResourcesJsonArray "$resources_url")
 
 echo ""
 echo "Splitting accesses and creating the json array."
@@ -59,9 +56,7 @@ json_payload=$(cat <<EOF
   "isAuditEnabled":true,
   "resources":{
     "url":{
-        "values":[
-          "*"
-        ],
+        "values":$url_values_array,
         "isExcludes":false,
         "isRecursive":true
     }

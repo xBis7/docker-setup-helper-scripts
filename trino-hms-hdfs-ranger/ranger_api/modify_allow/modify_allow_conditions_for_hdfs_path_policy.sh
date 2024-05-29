@@ -4,7 +4,8 @@ source "./ranger_api/lib.sh"
 
 set -e
 
-policy_items=$1
+resources_path=$1
+policy_items=$2
 
 policy_name="all%20-%20path"
 
@@ -21,8 +22,9 @@ id=$(getIdFromRangerPolicyJsonRes "$hadoopdev_res")
 # Get the GUID from the JSON response.
 guid=$(getGuidFromRangerPolicyJsonRes "$hadoopdev_res")
 
-policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
+resource_values_array=$(getResourcesJsonArray "$resources_path")
 
+policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
 
 json_payload=$(cat <<EOF
 {
@@ -33,9 +35,7 @@ json_payload=$(cat <<EOF
   "name": "all - path",
   "resources": {
     "path": {
-      "values": [
-        "/*"
-      ],
+      "values":$resource_values_array,
       "isExcludes": false,
       "isRecursive": true
     }
@@ -46,5 +46,8 @@ json_payload=$(cat <<EOF
 }
 EOF
 )
+
+echo ""
+echo "$json_payload"
 
 putUpdatedRangerPolicyJson "$json_payload" "$id"

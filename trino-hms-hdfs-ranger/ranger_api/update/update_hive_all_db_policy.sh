@@ -6,6 +6,9 @@ set -e
 
 accesses=$1
 users=$2
+resources_database=${3:-"*"}
+resources_column=${4:-"*"}
+resources_table=${5:-"*"}
 
 policy_name="all%20-%20database,%20table,%20column"
 
@@ -22,13 +25,11 @@ id=$(getIdFromRangerPolicyJsonRes "$hivedev_res")
 # Get the GUID from the JSON response.
 guid=$(getGuidFromRangerPolicyJsonRes "$hivedev_res")
 
-resource_sig=$(getHiveUrlResourceSignature "$hivedev_res")
+resource_sig=$(getResourceSignature "$hivedev_res")
 
-echo ""
-echo "id: $id"
-echo "guid: $guid"
-echo "resourceSignature: $resource_sig"
-echo ""
+database_values_array=$(getResourcesJsonArray "$resources_database")
+column_values_array=$(getResourcesJsonArray "$resources_column")
+table_values_array=$(getResourcesJsonArray "$resources_table")
 
 echo ""
 echo "Splitting accesses and creating the json array."
@@ -58,23 +59,17 @@ json_payload=$(cat <<EOF
   "resourceSignature":"$resource_sig",
   "resources":{
     "database":{
-      "values":[
-        "*"
-      ],
+      "values":$database_values_array,
       "isExcludes":false,
       "isRecursive":false
     },
     "column":{
-      "values":[
-        "*"
-      ],
+      "values":$column_values_array,
       "isExcludes":false,
       "isRecursive":false
     },
     "table":{
-      "values":[
-        "*"
-      ],
+      "values":$table_values_array,
       "isExcludes":false,
       "isRecursive":false
     }

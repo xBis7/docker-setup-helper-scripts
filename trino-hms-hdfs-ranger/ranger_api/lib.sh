@@ -1,22 +1,34 @@
 #!/bin/bash
 
-# Ranger API variables
+# Service names.
 HADOOP_RANGER_SERVICE="hadoopdev"
 HIVE_RANGER_SERVICE="hivedev"
 
+# Ranger ui variables.
+RANGER_UI_USERNAME=
+RANGER_UI_PASSWORD=
+RANGER_UI_HOSTNAME=
+RANGER_UI_PORT=
+
+if [[ "${USE_RANGER_UI_CUSTOM_VALUES}" != "true" ]]; then
+  RANGER_UI_USERNAME="admin"
+  RANGER_UI_PASSWORD="rangerR0cks!"
+  RANGER_UI_HOSTNAME="localhost"
+  RANGER_UI_PORT="6080"
+fi
 
 getRangerPolicyJsonRes() {
   service_name=$1
   policy_name=$2
 
-  curl -s -u admin:rangerR0cks! -H "Content-Type: application/json" -X GET "http://localhost:6080/service/public/v2/api/service/$service_name/policy/$policy_name"
+  curl -s -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -X GET "http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/service/$service_name/policy/$policy_name"
 }
 
 # Create a new Ranger policy.
 createRangerPolicy() {
   json_payload=$1
 
-  curl -iv -u admin:rangerR0cks! -H "Content-Type: application/json" -d "$json_payload" -X POST http://localhost:6080/service/public/v2/api/policy
+  curl -iv -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy
 }
 
 # Update an existing Ranger policy.
@@ -24,14 +36,14 @@ putUpdatedRangerPolicyJson() {
   json_payload=$1
   id=$2
 
-  curl -iv -u admin:rangerR0cks! -H "Content-Type: application/json" -d "$json_payload" -X PUT http://localhost:6080/service/public/v2/api/policy/$id
+  curl -iv -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id
 }
 
 # Delete one of the existing Ranger policies.
 deleteRangerPolicy() {
   id=$1
 
-  curl -iv -u admin:rangerR0cks! -X DELETE http://localhost:6080/service/public/v2/api/policy/$id
+  curl -iv -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id
 }
 
 getIdFromRangerPolicyJsonRes() {
@@ -237,20 +249,99 @@ getPolicyItemsJsonArray() {
   #
   # Finally, we will split each by ','. That will give us each value.
 
+  # 'policyItems' example:
+  #
+  # "policyItems":[
+  #   {
+  #     "accesses":[
+  #       {
+  #           "type":"read",
+  #           "isAllowed":true
+  #       }
+  #     ],
+  #     "users":[
+  #       "spark"
+  #     ],
+  #     "delegateAdmin":false
+  #   },
+  #   {
+  #     "accesses":[
+  #       {
+  #           "type":"read",
+  #           "isAllowed":true
+  #       },
+  #       {
+  #           "type":"write",
+  #           "isAllowed":true
+  #       },
+  #       {
+  #           "type":"execute",
+  #           "isAllowed":true
+  #       }
+  #     ],
+  #     "users":[
+  #       "hadoop"
+  #     ],
+  #     "delegateAdmin":false
+  #   }
+  # ],
+  #
+  # Identation for 'policyItems' is 2 spaces. We need to start identation from that.
+
   IFS='/'
 
   read -ra conditions <<< "$policy_items"
+
+  # We got the conditions. Reset IFS so that we can use it to split each condition.
+  IFS=' '
+
   conditions_size=${#conditions[@]}
 
-  policy_items_array="[\n"
+  policy_items_array="["
 
   for (( i=0; i<$conditions_size; i++ )); do
+    condition="${conditions[$i]}"
 
+    IFS=':'
+    read -ra items <<< "$condition"
+    IFS=' '
 
+    policy_items_array+="\n"
+    # 2 spaces for 'policyItems' + 2.
+    policy_items_array+="    "
+    policy_items_array+="{\n"
 
+    # 4 spaces for '{' + 2
+    policy_items_array+="      "
+    policy_items_array+="\"accesses\":"
+
+    # items should have only two elements. 1. accesses, 2. users
+    policy_items_array+=$(getAccessesJsonArray "${items[0]}")
+    policy_items_array+=",\n"
+
+    # 4 spaces for '{' + 2
+    policy_items_array+="      "
+    policy_items_array+="\"users\":"
+    policy_items_array+=$(getUsersJsonArray "${items[1]}")
+    policy_items_array+=",\n"
+
+    # 4 spaces for '{' + 2
+    policy_items_array+="      "
+    policy_items_array+="\"delegateAdmin\":true"
+    policy_items_array+="\n"
+
+    # 2 spaces for 'policyItems' + 2. Closing '}'.
+    policy_items_array+="    "
+    policy_items_array+="}"
+
+    # If this isn't the last element, then add a comma.
+    if [ $i -lt $((conditions_size - 1)) ]; then
+      policy_items_array+=","
+    fi
   done
 
-  IFS=' '
+  # 2 spaces like 'policyItems'.
+  policy_items_array+="\n  ]"
 
   echo -e "$policy_items_array"
 }

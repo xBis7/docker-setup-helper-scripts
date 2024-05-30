@@ -19,13 +19,3 @@ echo "- INFO: Updating Ranger policies. User [spark] will have Write permission 
 ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_URL_NO_HDFS"
 sleep 15
 
-echo ""
-echo ""
-echo "==================================================="
-echo "Run the command below on a spark shell for testing."
-echo "spark.sql(\"create database if not exists squirrel location '/opt/hive/data/squirrel.db'\")"
-echo "==================================================="
-echo ""
-echo ""
-
-./utils/connect_to_spark_shell.sh

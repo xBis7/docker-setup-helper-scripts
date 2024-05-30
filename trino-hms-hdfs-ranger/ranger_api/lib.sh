@@ -28,6 +28,10 @@ getRangerPolicyJsonRes() {
 createRangerPolicy() {
   json_payload=$1
 
+  # If we use 'jq' when creating each json string, then identation for each variable will be off.
+  # Prettify the json.
+  json_payload=$(echo "$json_payload" | jq '.')
+
   curl -iv -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy
 }
 
@@ -35,6 +39,9 @@ createRangerPolicy() {
 putUpdatedRangerPolicyJson() {
   json_payload=$1
   id=$2
+
+  # Prettify the json.
+  json_payload=$(echo "$json_payload" | jq '.')
 
   curl -iv -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id
 }
@@ -98,7 +105,7 @@ getResourcesJsonArray() {
   #   }
   # },
   #
-  # Identation for 'values' is 6 spaces. We need to start from that.
+  # 'jq' will be used by the caller to prettify the result.
 
   # Set IFS to a comma.
   IFS=','
@@ -106,23 +113,20 @@ getResourcesJsonArray() {
   # The input will be split based on the IFS. Store each value in a tmp array.
   read -ra values_tmp <<< "$resource_values"
 
-  array="[\n"
+  array="["
 
   values_tmp_size=${#values_tmp[@]}
 
   # Iterate over the tmp array to get each value and create the json array string.
   for (( i=0; i<$values_tmp_size; i++ )); do
-    # 6 spaces for 'values' + 2.
-    array+="        "
     array+="\"${values_tmp[$i]}\""
 
     # If this isn't the last element, then add a comma.
     if [ $i -lt $((values_tmp_size - 1)) ]; then
-      array+=",\n"
+      array+=","
     fi
   done
-  # 6 spaces like 'values'.
-  array+="\n      ]"
+  array+="]"
 
   # Reset IFS to its default value.
   IFS=' '
@@ -152,28 +156,16 @@ getAccessesJsonArray() {
   #   }
   # ],
   #
-  # Identation for 'accesses' is 6 spaces. We need to start identation from that.
+  # 'jq' will be used by the caller to prettify the result.
   accesses_array="["
 
   accesses_tmp_size=${#accesses_tmp[@]}
 
   # Iterate over the tmp array to get each value and create the json array string.
   for (( i=0; i<$accesses_tmp_size; i++ )); do
-    accesses_array+="\n"
-    # 6 spaces for 'acceeses' + 2.
-    accesses_array+="        "
-    accesses_array+="{\n"
-
-    # 8 spaces for parent + 2.
-    accesses_array+="          "
+    accesses_array+="{"
     accesses_array+="\"type\":\"${accesses_tmp[$i]}\","
-    accesses_array+="\n"
-    accesses_array+="          "
     accesses_array+="\"isAllowed\":true"
-
-    accesses_array+="\n"
-    # 6 spaces for 'acceeses' + 2.
-    accesses_array+="        "
     accesses_array+="}"
 
     # If this isn't the last element, then add a comma.
@@ -181,8 +173,7 @@ getAccessesJsonArray() {
       accesses_array+=","
     fi
   done
-  # 6 spaces like 'accesses'.
-  accesses_array+="\n      ]"
+  accesses_array+="]"
 
   # Reset IFS to its default value.
   IFS=' '
@@ -204,23 +195,19 @@ getUsersJsonArray() {
   #   "root"
   # ],
   #
-  # Identation for 'users' is 6 spaces. We need to start identation from that.
-  users_array="[\n"
-
+  # 'jq' will be used by the caller to prettify the result.
+  users_array="["
   users_tmp_size=${#users_tmp[@]}
 
   for (( i=0; i<$users_tmp_size; i++ )); do
-    # 6 spaces for 'users' + 2.
-    users_array+="        "
     users_array+="\"${users_tmp[$i]}\""
 
     # If this isn't the last element, then add a comma.
     if [ $i -lt $((users_tmp_size - 1)) ]; then
-      users_array+=",\n"
+      users_array+=","
     fi
   done
-  # 6 spaces like 'users'.
-  users_array+="\n      ]"
+  users_array+="]"
 
   # Reset IFS to its default value.
   IFS=' '
@@ -286,7 +273,7 @@ getPolicyItemsJsonArray() {
   #   }
   # ],
   #
-  # Identation for 'policyItems' is 2 spaces. We need to start identation from that.
+  # 'jq' will be used by the caller to prettify the result.
 
   IFS='/'
 
@@ -306,32 +293,18 @@ getPolicyItemsJsonArray() {
     read -ra items <<< "$condition"
     IFS=' '
 
-    policy_items_array+="\n"
-    # 2 spaces for 'policyItems' + 2.
-    policy_items_array+="    "
-    policy_items_array+="{\n"
-
-    # 4 spaces for '{' + 2
-    policy_items_array+="      "
+    policy_items_array+="{"
     policy_items_array+="\"accesses\":"
 
     # items should have only two elements. 1. accesses, 2. users
     policy_items_array+=$(getAccessesJsonArray "${items[0]}")
-    policy_items_array+=",\n"
+    policy_items_array+=","
 
-    # 4 spaces for '{' + 2
-    policy_items_array+="      "
     policy_items_array+="\"users\":"
     policy_items_array+=$(getUsersJsonArray "${items[1]}")
-    policy_items_array+=",\n"
+    policy_items_array+=","
 
-    # 4 spaces for '{' + 2
-    policy_items_array+="      "
     policy_items_array+="\"delegateAdmin\":true"
-    policy_items_array+="\n"
-
-    # 2 spaces for 'policyItems' + 2. Closing '}'.
-    policy_items_array+="    "
     policy_items_array+="}"
 
     # If this isn't the last element, then add a comma.
@@ -339,9 +312,7 @@ getPolicyItemsJsonArray() {
       policy_items_array+=","
     fi
   done
-
-  # 2 spaces like 'policyItems'.
-  policy_items_array+="\n  ]"
+  policy_items_array+="]"
 
   echo -e "$policy_items_array"
 }

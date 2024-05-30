@@ -19,6 +19,7 @@ json_payload+=$(cat <<EOF
 EOF
 )
 
+# If it's a create request, then we need to include the id and the guid in the json.
 if [ "$request_type" != "create" ]; then
   # Get the JSON response from the Ranger API.
   hivedev_res=$(getRangerPolicyJsonRes "$HIVE_RANGER_SERVICE" "$policy_uri_name")

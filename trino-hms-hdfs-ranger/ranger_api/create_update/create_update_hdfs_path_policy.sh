@@ -6,7 +6,7 @@ set -e
 
 resources_path=$1
 
-# This can be like this for multiple conditions:
+# It can be like this for multiple conditions:
 # accesses1:users1/accesses2:users2/accesses3:users3
 # If there is only 1 allow condition, then it will be just: accesses1:users1
 policy_items=$2

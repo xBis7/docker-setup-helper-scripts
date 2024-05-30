@@ -74,6 +74,9 @@ getGuidFromRangerPolicyJsonRes() {
   echo "$guid"
 }
 
+# If the policy has custom resources, then there is a resource signature.
+# We can perform api calls without specifying this.
+# This method is currently not used. I'm leaving it here in case it's needed.
 getResourceSignature() {
   res=$1
   
@@ -303,7 +306,7 @@ getPolicyItemsJsonArray() {
     policy_items_array+="\"users\":"
     policy_items_array+=$(getUsersJsonArray "${items[1]}")
     policy_items_array+=","
-
+    policy_items_array+="\"groups\":[],\"conditions\":[],"
     policy_items_array+="\"delegateAdmin\":true"
     policy_items_array+="}"
 

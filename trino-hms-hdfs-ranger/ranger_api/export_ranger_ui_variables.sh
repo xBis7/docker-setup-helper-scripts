@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script needs to be run with 'source'.
+
 username=$1
 password=$2
 hostname=$3

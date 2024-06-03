@@ -4,6 +4,8 @@
 tmp_output.txt
 pg_tmp_output.txt
 
+trino-hms-hdfs-ranger/ranger_api/tmp.txt
+
 compose/spark/conf/spark-events
 compose/spark/conf/hive-jars
 

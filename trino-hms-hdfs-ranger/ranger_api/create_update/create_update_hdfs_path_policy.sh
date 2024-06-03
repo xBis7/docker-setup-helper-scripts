@@ -23,17 +23,17 @@ EOF
 # If it's a create request, then we need to include the id and the guid in the json.
 if [ "$request_type" != "create" ]; then
   # Get the JSON response from the Ranger API.
-  hadoopdev_res=$(getRangerPolicyJsonRes "$HADOOP_RANGER_SERVICE" "$policy_uri_name")
+  hadoopdev_res=$(getRangerPolicyJsonResponse "$HADOOP_RANGER_SERVICE" "$policy_uri_name")
 
   # Get the ID from the JSON response.
-  id=$(getIdFromRangerPolicyJsonRes "$hadoopdev_res")
+  id=$(getIdFromRangerPolicyJsonResponse "$hadoopdev_res")
 
   # Get the GUID from the JSON response.
-  guid=$(getGuidFromRangerPolicyJsonRes "$hadoopdev_res")
+  guid=$(getGuidFromRangerPolicyJsonResponse "$hadoopdev_res")
 
   json_payload+=$(cat <<EOF
     "id": $id,
-    "guid": "$guid",
+    "guid": $guid,
 EOF
 )
 fi

@@ -17,7 +17,7 @@ if [[ "${USE_RANGER_UI_CUSTOM_VALUES}" != "true" ]]; then
   RANGER_UI_PORT="6080"
 fi
 
-getRangerPolicyJsonRes() {
+getRangerPolicyJsonResponse() {
   service_name=$1
   policy_name=$2
 
@@ -53,25 +53,16 @@ deleteRangerPolicy() {
   curl -iv -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id
 }
 
-getIdFromRangerPolicyJsonRes() {
+getIdFromRangerPolicyJsonResponse() {
   res=$1
 
-  # Example: "id":22,
-  # and we need to get just the number.
-  id=$(echo "$res" | grep -o '"id":[0-9]*' | awk -F: '{print $2}')
-
-  echo "$id"
+  echo "$res" | jq '."id"'
 }
 
-getGuidFromRangerPolicyJsonRes() {
+getGuidFromRangerPolicyJsonResponse() {
   res=$1
   
-  # Example: "guid":"d0be1b59-31be-4d0f-94e9-e936f25d0794"
-  # We need to get everything between the double quotes.
-  # (tr -d '"') trims it and removes the quotes.
-  guid=$(echo "$res" | grep -o '"guid":"[^"]*"' | awk -F':' '{print $2}' | tr -d '"')
-
-  echo "$guid"
+  echo "$res" | jq '."guid"'
 }
 
 # If the policy has custom resources, then there is a resource signature.
@@ -79,11 +70,8 @@ getGuidFromRangerPolicyJsonRes() {
 # This method is currently not used. I'm leaving it here in case it's needed.
 getResourceSignature() {
   res=$1
-  
-  # Example: "resourceSignature":"a6a328c623a4eb15d84ccf34df65c83acba3c59c7df4a601780b1caa153aa870"
-  resource_sig=$(echo "$res" | grep -o '"resourceSignature":"[^"]*"' | awk -F':' '{print $2}' | tr -d '"')
 
-  echo "$resource_sig"
+  echo "$res" | jq '."resourceSignature"'
 }
 
 getResourcesJsonArray() {
@@ -318,4 +306,20 @@ getPolicyItemsJsonArray() {
   policy_items_array+="]"
 
   echo -e "$policy_items_array"
+}
+
+checkApiCallStatusCode() {
+  cmd=$1
+  msg=$2
+
+  tmp_file="ranger_api/tmp.txt"
+
+  $cmd 2>&1 | tee $tmp_file > /dev/null
+
+  if (grep -q "HTTP/1.1 2[0-9][0-9]" "$tmp_file" > /dev/null); then
+    echo -e "$msg, status code: OK"
+  else
+    code=$(grep -o "HTTP/1.1 [2-5][0-9][0-9]" "$tmp_file" | awk '{print $2}')
+    echo -e "$msg, status code: $code"
+  fi
 }

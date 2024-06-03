@@ -38,10 +38,10 @@ else
 fi
 
 # Get the JSON response from the Ranger API.
-policy_res=$(getRangerPolicyJsonRes "$service_name" "$policy_uri_name")
+policy_res=$(getRangerPolicyJsonResponse "$service_name" "$policy_uri_name")
 
 # Get the ID from the JSON response.
-id=$(getIdFromRangerPolicyJsonRes "$policy_res")
+id=$(getIdFromRangerPolicyJsonResponse "$policy_res")
 
 echo ""
 echo "Deleting Ranger policy with id: $id"

@@ -15,10 +15,7 @@ resources_table=${4:-"*"}
 policy_name="default database tables columns"
 policy_uri_name="default%20database%20tables%20columns"
 
-json_payload+=$(cat <<EOF
-{
-EOF
-)
+json_payload+="{"
 
 # If it's a create request, then we need to include the id and the guid in the json.
 if [ "$request_type" != "create" ]; then

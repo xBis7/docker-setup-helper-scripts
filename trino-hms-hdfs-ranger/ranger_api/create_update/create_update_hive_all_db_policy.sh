@@ -16,10 +16,7 @@ resources_table=${5:-"*"}
 policy_name="all - database, table, column"
 policy_uri_name="all%20-%20database,%20table,%20column"
 
-json_payload+=$(cat <<EOF
-{
-EOF
-)
+json_payload+="{"
 
 # If it's a create request, then we need to include the id and the guid in the json.
 if [ "$request_type" != "create" ]; then

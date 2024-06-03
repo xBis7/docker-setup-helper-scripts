@@ -75,6 +75,7 @@ getResourceSignature() {
 }
 
 getResourcesJsonArray() {
+  # Example value of the parameter: '/*,/test/*,/dir1/dir2/*'
   resource_values=$1
 
   # Resources example:
@@ -96,43 +97,24 @@ getResourcesJsonArray() {
   #   }
   # },
   #
-  # 'jq' will be used by the caller to prettify the result.
+  # This method will be called once for each resource.
+  # Example usage:
+  # ❯ echo "/*,/test/*,/dir1/dir2/*" | jq -R 'split(",")'
+  # [
+  #   "/*",
+  #   "/test/*",
+  #   "/dir1/dir2/*"
+  # ]
 
-  # Set IFS to a comma.
-  IFS=','
-
-  # The input will be split based on the IFS. Store each value in a tmp array.
-  read -ra values_tmp <<< "$resource_values"
-
-  array="["
-
-  values_tmp_size=${#values_tmp[@]}
-
-  # Iterate over the tmp array to get each value and create the json array string.
-  for (( i=0; i<$values_tmp_size; i++ )); do
-    array+="\"${values_tmp[$i]}\""
-
-    # If this isn't the last element, then add a comma.
-    if [ $i -lt $((values_tmp_size - 1)) ]; then
-      array+=","
-    fi
-  done
-  array+="]"
-
-  # Reset IFS to its default value.
-  IFS=' '
+  array=$(echo "$resource_values" | jq -R 'split(",")')
 
   echo -e "$array"
 }
 
 getAccessesJsonArray() {
+  # This parameter will be a comma separated list of accesses.
+  # e.g. 'select,update,lock,index'
   accesses=$1
-
-  # Set IFS to a comma.
-  IFS=','
-
-  # The input will be split based on the IFS. Store each value in a tmp array.
-  read -ra accesses_tmp <<< "$accesses"
 
   # Accesses example:
   #
@@ -146,16 +128,20 @@ getAccessesJsonArray() {
   #     "isAllowed":true
   #   }
   # ],
-  #
-  # 'jq' will be used by the caller to prettify the result.
-  accesses_array="["
 
-  accesses_tmp_size=${#accesses_tmp[@]}
+  # Store to a tmp array.
+  accesses_tmp=$(echo "$accesses" | jq -R 'split(",")')
+  # Get the size of the tmp array.
+  accesses_tmp_size=$(echo "$accesses_tmp" | jq '. | length')
+
+  accesses_array="["
 
   # Iterate over the tmp array to get each value and create the json array string.
   for (( i=0; i<$accesses_tmp_size; i++ )); do
+    access=$(echo "$accesses_tmp" | jq ".[$i]" | tr -d '"')
+
     accesses_array+="{"
-    accesses_array+="\"type\":\"${accesses_tmp[$i]}\","
+    accesses_array+="\"type\":\"$access\","
     accesses_array+="\"isAllowed\":true"
     accesses_array+="}"
 
@@ -166,49 +152,26 @@ getAccessesJsonArray() {
   done
   accesses_array+="]"
 
-  # Reset IFS to its default value.
-  IFS=' '
-
   echo -e "$accesses_array"
 }
 
 getUsersJsonArray() {
+  # This parameter will be a comma separated list of users.
+  # e.g. 'hadoop,spark,trino'
   users=$1
-
-  # Set IFS to a comma.
-  IFS=','
-
-  read -ra users_tmp <<< "$users"
 
   # Users example:
   #
   # "users":[
   #   "root"
   # ],
-  #
-  # 'jq' will be used by the caller to prettify the result.
-  users_array="["
-  users_tmp_size=${#users_tmp[@]}
 
-  for (( i=0; i<$users_tmp_size; i++ )); do
-    users_array+="\"${users_tmp[$i]}\""
-
-    # If this isn't the last element, then add a comma.
-    if [ $i -lt $((users_tmp_size - 1)) ]; then
-      users_array+=","
-    fi
-  done
-  users_array+="]"
-
-  # Reset IFS to its default value.
-  IFS=' '
+  users_array=$(echo "$users" | jq -R 'split(",")')
 
   echo -e "$users_array"
 }
 
 getPolicyItemsJsonArray() {
-  policy_items=$1
-
   # The policy_items parameter will have this format:
   # -select,drop,create:spark,hadoop/select:games,root
   #
@@ -226,6 +189,7 @@ getPolicyItemsJsonArray() {
   # -games,root
   #
   # Finally, we will split each by ','. That will give us each value.
+  policy_items=$1
 
   # 'policyItems' example:
   #
@@ -266,33 +230,28 @@ getPolicyItemsJsonArray() {
   #
   # 'jq' will be used by the caller to prettify the result.
 
-  IFS='/'
-
-  read -ra conditions <<< "$policy_items"
-
-  # We got the conditions. Reset IFS so that we can use it to split each condition.
-  IFS=' '
-
-  conditions_size=${#conditions[@]}
+  conditions=$(echo "$policy_items" | jq -R 'split("/")')
+  conditions_size=$(echo "$conditions" | jq '. | length')
 
   policy_items_array="["
 
   for (( i=0; i<$conditions_size; i++ )); do
-    condition="${conditions[$i]}"
+    condition=$(echo "$conditions" | jq ".[$i]" | tr -d '"')
 
-    IFS=':'
-    read -ra items <<< "$condition"
-    IFS=' '
+    items=$(echo "$condition" | jq -R 'split(":")')
+
+    # items should have only two elements. 1. accesses, 2. users
+    items_accesses=$(echo "$items" | jq ".[0]" | tr -d '"')
+    items_users=$(echo "$items" | jq ".[1]" | tr -d '"')
 
     policy_items_array+="{"
     policy_items_array+="\"accesses\":"
 
-    # items should have only two elements. 1. accesses, 2. users
-    policy_items_array+=$(getAccessesJsonArray "${items[0]}")
+    policy_items_array+=$(getAccessesJsonArray "$items_accesses")
     policy_items_array+=","
 
     policy_items_array+="\"users\":"
-    policy_items_array+=$(getUsersJsonArray "${items[1]}")
+    policy_items_array+=$(getUsersJsonArray "$items_users")
     policy_items_array+=","
     policy_items_array+="\"groups\":[],\"conditions\":[],"
     policy_items_array+="\"delegateAdmin\":true"

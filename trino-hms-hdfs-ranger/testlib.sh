@@ -87,6 +87,9 @@ PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
 HIVE_GROSS_TEST_DIR="$HIVE_WAREHOUSE_DIR/gross_test"
 HIVE_GROSS_DB_TEST_DIR="$HIVE_GROSS_TEST_DIR/gross_test.db"
+GROSS_DB_NAME="gross_test"
+GROSS_TABLE_NAME="gross_test_table"
+NEW_GROSS_TABLE_NAME="new_$GROSS_TABLE_NAME"
 PRINT_CMD=""
 
 # Container names
@@ -1012,12 +1015,13 @@ runSparkTest() {
   testFileName=$1
   sql_arg=$(echo -n "$2" | base64 --decode)
   msg_arg=$(echo -n "$3" | base64 --decode)
+  user=${4:-"spark"}
   message="Running Spark test: [$testFileName] with arguments sql_arg: [$sql_arg] and msg_arg: [$msg_arg]"
 
   if [ "$PRINT_CMD" == "true" ]; then
       printCmdString "$message"
   else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell --conf spark.app.sql=\"$sql_arg\" --conf spark.app.msg=\"$msg_arg\" -I test.scala"
+    docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell --conf spark.app.sql=\"$sql_arg\" --conf spark.app.msg=\"$msg_arg\" -I test.scala"
   fi
 }
 

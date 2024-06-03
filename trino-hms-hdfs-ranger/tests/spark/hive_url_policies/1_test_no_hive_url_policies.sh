@@ -22,5 +22,5 @@ if [ "$HIVE_VERSION" == "4" ]; then # TODO: investigate this.
   op="READ"
 fi
 
-scala_msg=$(base64encode "Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/opt/hive/data/$TABLE_PERSONS, hdfs://namenode/opt/hive/data/$TABLE_PERSONS/]]")
+scala_msg=$(base64encode "Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS, hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS/]]")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILENAME $scala_sql $scala_msg" "$SPARK_TEST_SUCCESS_MSG" "false"

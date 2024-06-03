@@ -245,4 +245,7 @@ checkApiCallStatusCode() {
     code=$(grep -o "HTTP/1.1 [2-5][0-9][0-9]" "$tmp_file" | awk '{print $2}')
     echo -e "$msg, status code: $code"
   fi
+
+  # Delete the tmp file.
+  rm "$tmp_file"
 }

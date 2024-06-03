@@ -112,13 +112,25 @@ echo ""
 echo "User 'spark' doesn't have access to create a table. Operation should fail."
 
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME
-scala_sql=$(base64encode "create table $GROSS_TABLE_NAME (id INT, num INT) USING parquet LOCATION 'hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR'")
+# If the command is
+# spark.sql("CREATE TABLE gross_table (id INT, num INT) USING parquet LOCATION 'hdfs://namenode/opt/hive/data/gross_test/gross_test.db'")
+#
+# The expected exception is
+# Permission denied: user [spark] does not have [WRITE] privilege on [[hdfs://namenode/opt/hive/data/gross_test/gross_test.db, hdfs://namenode/opt/hive/data/gross_test/gross_test.db/
+#
+# We get that exception along with another one
+# Permission denied: user [spark] does not have [WRITE] privilege on [[hdfs://namenode/opt/hive/data/gross_test/gross_test.db/gross_test_table-__PLACEHOLDER__, hdfs://namenode/opt/hive/data/gross_test/gross_test.db/gross_test_table-__PLACEHOLDER__/]]
+#
+# The scala script reads only the second exception and the test fails.
+# By specifying the external db and omitting the location, spark realizes that the table belongs to the external db and there is no issue.
+scala_sql=$(base64encode "create table $GROSS_DB_NAME.$GROSS_TABLE_NAME (id INT, num INT)")
 op="WRITE"
 if [ "$HIVE_VERSION" == "4" ]; then # TODO: investigate this.
   op="READ"
 fi
-scala_msg=$(base64encode "Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/]]")
+scala_msg=$(base64encode "Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME/")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILENAME $scala_sql $scala_msg" "$SPARK_TEST_SUCCESS_MSG" "false"
+
 
 echo ""
 echo "Creating Hive URL policies again."
@@ -130,12 +142,20 @@ echo ""
 echo "User 'spark' has access to create a table. Operation should succeed."
 
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(base64encode "create table $GROSS_TABLE_NAME (id INT, num INT) USING parquet LOCATION 'hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR'")
+scala_sql=$(base64encode "create table $GROSS_DB_NAME.$GROSS_TABLE_NAME (id INT, num INT)")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
-echo "Section4: ############### rename table without and with Hive URL policies ###############"
+echo "Section4: ############### rename table location without and with Hive URL policies ###############"
 echo ""
+
+echo ""
+echo "Create the new URI."
+
+# Create external DB directory 'gross_test2.db'.
+notExpMsg="Permission denied"
+retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR_SEC" "$notExpMsg" "false" "true"
+
 
 echo ""
 echo "Deleting Hive URL policies."
@@ -144,11 +164,17 @@ echo "Deleting Hive URL policies."
 waitForPoliciesUpdate
 
 echo ""
-echo "User 'spark' doesn't have access to rename a table. Operation should fail."
+echo "User 'spark' doesn't have access to move a table under a new URI. Operation should fail."
+
+# For Hive URL policies to get invoked we need to rename the table URI.
 
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME
-scala_sql=$(base64encode "alter table $GROSS_DB_NAME.$GROSS_TABLE_NAME rename to $GROSS_DB_NAME.$NEW_GROSS_TABLE_NAME")
-scala_msg=$(base64encode "Permission denied: user [spark] does not have [ALTER] privilege on [$GROSS_DB_NAME/$GROSS_TABLE_NAME]")
+scala_sql=$(base64encode "alter table $GROSS_DB_NAME.$GROSS_TABLE_NAME set location '/$HIVE_GROSS_DB_TEST_DIR_SEC'")
+op="WRITE"
+if [ "$HIVE_VERSION" == "4" ]; then # TODO: investigate this.
+  op="READ"
+fi
+scala_msg=$(base64encode "Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR_SEC, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR_SEC/")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILENAME $scala_sql $scala_msg" "$SPARK_TEST_SUCCESS_MSG" "false"
 
 echo ""
@@ -158,8 +184,8 @@ echo "Creating Hive URL policies again."
 waitForPoliciesUpdate
 
 echo ""
-echo "User 'spark' has access to rename a table. Operation should succeed."
+echo "User 'spark' has access to move a table under a new URI. Operation should succeed."
 
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(base64encode "alter table $GROSS_DB_NAME.$GROSS_TABLE_NAME rename to $GROSS_DB_NAME.$NEW_GROSS_TABLE_NAME")
+scala_sql=$(base64encode "alter table $GROSS_DB_NAME.$GROSS_TABLE_NAME set location '/$HIVE_GROSS_DB_TEST_DIR_SEC'")
 retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"

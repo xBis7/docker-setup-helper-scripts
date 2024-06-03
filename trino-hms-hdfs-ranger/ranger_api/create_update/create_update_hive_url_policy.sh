@@ -34,7 +34,7 @@ EOF
 )
 fi
 
-url_values_array=$(getResourcesJsonArray "$resources_url")
+url_values_array=$(getJsonArrayFromCommaSeparatedList "$resources_url")
 
 policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
 

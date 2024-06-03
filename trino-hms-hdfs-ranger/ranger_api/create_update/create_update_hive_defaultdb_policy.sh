@@ -35,8 +35,8 @@ EOF
 )
 fi
 
-column_values_array=$(getResourcesJsonArray "$resources_column")
-table_values_array=$(getResourcesJsonArray "$resources_table")
+column_values_array=$(getJsonArrayFromCommaSeparatedList "$resources_column")
+table_values_array=$(getJsonArrayFromCommaSeparatedList "$resources_table")
 
 policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
 

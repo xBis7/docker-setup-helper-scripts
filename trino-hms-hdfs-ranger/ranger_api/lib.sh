@@ -74,43 +74,6 @@ getResourceSignature() {
   echo "$res" | jq '."resourceSignature"'
 }
 
-getResourcesJsonArray() {
-  # Example value of the parameter: '/*,/test/*,/dir1/dir2/*'
-  resource_values=$1
-
-  # Resources example:
-  #
-  # "resources":{
-  #   "database":{
-  #     "values":[
-  #       "default"
-  #     ],
-  #     "isExcludes":false,
-  #     "isRecursive":false
-  #   },
-  #   "column":{
-  #     "values":[
-  #       "*"
-  #     ],
-  #     "isExcludes":false,
-  #     "isRecursive":false
-  #   }
-  # },
-  #
-  # This method will be called once for each resource.
-  # Example usage:
-  # ❯ echo "/*,/test/*,/dir1/dir2/*" | jq -R 'split(",")'
-  # [
-  #   "/*",
-  #   "/test/*",
-  #   "/dir1/dir2/*"
-  # ]
-
-  array=$(echo "$resource_values" | jq -R 'split(",")')
-
-  echo -e "$array"
-}
-
 getAccessesJsonArray() {
   # This parameter will be a comma separated list of accesses.
   # e.g. 'select,update,lock,index'
@@ -155,20 +118,21 @@ getAccessesJsonArray() {
   echo -e "$accesses_array"
 }
 
-getUsersJsonArray() {
-  # This parameter will be a comma separated list of users.
-  # e.g. 'hadoop,spark,trino'
-  users=$1
+getJsonArrayFromCommaSeparatedList() {
+  # This parameter will be a comma separated list of users or resources.
+  # e.g. 'hadoop,spark,trino' or '/*,/test/*,/dir1/dir2/*'
+  list=$1
 
-  # Users example:
-  #
-  # "users":[
-  #   "root"
-  # ],
+  # Example method output:
+  # [
+  #   "/*",
+  #   "/test/*",
+  #   "/dir1/dir2/*"
+  # ]
 
-  users_array=$(echo "$users" | jq -R 'split(",")')
+  json_array=$(echo "$list" | jq -R 'split(",")')
 
-  echo -e "$users_array"
+  echo -e "$json_array"
 }
 
 getPolicyItemsJsonArray() {
@@ -251,7 +215,7 @@ getPolicyItemsJsonArray() {
     policy_items_array+=","
 
     policy_items_array+="\"users\":"
-    policy_items_array+=$(getUsersJsonArray "$items_users")
+    policy_items_array+=$(getJsonArrayFromCommaSeparatedList "$items_users")
     policy_items_array+=","
     policy_items_array+="\"groups\":[],\"conditions\":[],"
     policy_items_array+="\"delegateAdmin\":true"

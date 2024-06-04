@@ -4,6 +4,12 @@ source "./testlib.sh"
 
 set -e
 
+user=$1
+
 docker_hostname=$(getHostnameFromName "trino")
 
-docker exec -it "$docker_hostname" trino
+if [ "$user" != "" ]; then
+  docker exec -it -u "$user" "$docker_hostname" trino
+else
+  docker exec -it "$docker_hostname" trino
+fi

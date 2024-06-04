@@ -17,7 +17,6 @@ echo "Creating the new URI."
 notExpMsg="Permission denied"
 retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR_SEC" "$notExpMsg" "false" "true"
 
-
 echo ""
 echo "Deleting Hive URL policies."
 

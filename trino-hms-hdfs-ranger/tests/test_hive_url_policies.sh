@@ -15,7 +15,10 @@ if [[ ("$component" != "spark") && ("$component" != "trino") ]]; then
   exit 1
 fi
 
-./tests/"$component"/hive_url_policies/test.sh "$abs_path" "$prepare_env"
+./tests/hive_url_policies_env_setup.sh "$abs_path" "$prepare_env"
+
+# Don't pass the "$prepare_env" variable because we have already setup the env.
+./tests/"$component"/hive_url_policies/test.sh "$abs_path"
 
 if [ "$stop_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"

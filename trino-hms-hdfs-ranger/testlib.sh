@@ -768,7 +768,7 @@ createTrinoTable() {
   hdfs_dir_name=$2
   schema_name=$3
 
-  c="create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
+  c="create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode/$hdfs_dir_name',format = 'CSV');"
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "$c"
@@ -819,8 +819,9 @@ dropTrinoTable() {
 
 createSchemaWithTrino() {
   schema_name=$1
+  location=${2:-"$HIVE_WAREHOUSE_DIR/$schema_name/external/$schema_name.db"}
 
-  c="CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/opt/hive/data/$schema_name/external/$schema_name.db');"
+  c="CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/$location');"
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "$c"

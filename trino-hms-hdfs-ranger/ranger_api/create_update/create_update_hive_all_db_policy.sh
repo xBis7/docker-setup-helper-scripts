@@ -18,7 +18,7 @@ policy_uri_name="all%20-%20database,%20table,%20column"
 
 json_payload+="{"
 
-# If it's a create request, then we need to include the id and the guid in the json.
+# If it's not a create request, then we need to include the id and the guid in the json.
 if [ "$request_type" != "create" ]; then
   # Get the JSON response from the Ranger API.
   hivedev_res=$(getRangerPolicyJsonResponse "$HIVE_RANGER_SERVICE" "$policy_uri_name")

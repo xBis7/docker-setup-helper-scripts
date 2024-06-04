@@ -41,7 +41,6 @@ echo ""
 echo "##### Managed Table #####"
 
 # Goal of this test is to verify that user postgres can't create a table managed by Hive without Write permission for Hive URL policies.
-# It consists of two parts - first part is to update Ranger policies and the second part is verifying that table creation failed.
 # Ranger policies have two requirements
 #   - user postgres must not have Write permission for Hive URL policy.
 #   - user trino must have Write permission for HDFS policy.

@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 prepare_env=$2
 
-# This if block is in case we need to run this script independently.
+# The if block is in case we need to run this script independently.
 if [ "$prepare_env" == "true" ]; then
   ./tests/hive_url_policies_env_setup.sh "$abs_path" "$prepare_env"
 fi

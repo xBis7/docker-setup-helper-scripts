@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 
 echo ""
-echo "Section3: ############### create table without and with Hive URL policies ###############"
+echo "Test3: ############### create table (managed + not-managed) without and with Hive URL policies ###############"
 echo ""
 
 echo ""

@@ -7,11 +7,11 @@ set -e
 abs_path=$1
 
 echo ""
-echo "Section4: ############### rename table location without and with Hive URL policies ###############"
+echo "Test4: ############### rename table location without and with Hive URL policies ###############"
 echo ""
 
 echo ""
-echo "Create the new URI."
+echo "Creating the new URI."
 
 # Create external DB directory 'gross_test2.db'.
 notExpMsg="Permission denied"

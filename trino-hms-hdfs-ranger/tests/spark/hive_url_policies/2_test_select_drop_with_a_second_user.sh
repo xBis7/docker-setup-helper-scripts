@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 
 echo ""
-echo "Section2: ############### test select and drop with user 'games' ###############"
+echo "Test2: ############### test select and drop with user 'games' ###############"
 echo ""
 
 echo ""

@@ -9,31 +9,13 @@ component=$2
 prepare_env=$3
 stop_env=$4
 
-if [ "$prepare_env" == "true" ]; then
-  ./docker/stop_docker_env.sh "$abs_path"
-  ./setup/setup_docker_env.sh "$abs_path"
-  ./docker/start_docker_env.sh "$abs_path" "true"
-  createHdfsDir "$HIVE_WAREHOUSE_DIR" # This isn't called with retryOperationIfNeeded and it won't print any descriptive output.
+if [[ ("$component" != "spark") && ("$component" != "trino") ]]; then
+  echo "Unknown component, exiting..."
+  echo "Try one of the following: 'spark', 'trino'"
+  exit 1
 fi
 
-if [ "$component" == "spark" ]; then
-  echo ""
-  echo "### TEST_1 ###"
-  ./tests/spark/hive_url_policies/1_test_no_hive_url_policies.sh "$abs_path"
-
-  echo ""
-  echo "### TEST_2 ###"
-  ./tests/spark/hive_url_policies/2_test_create_hive_url_policies.sh "$abs_path"
-
-else
-  echo ""
-  echo "### TEST_1 ###"
-  ./tests/trino/hive_url_policies/1_test_no_hive_url_policies.sh "$abs_path"
-
-  echo ""
-  echo "### TEST_2 ###"
-  ./tests/trino/hive_url_policies/2_test_create_hive_url_policies.sh "$abs_path"
-fi
+./tests/"$component"/hive_url_policies/test.sh "$abs_path" "$prepare_env"
 
 if [ "$stop_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"

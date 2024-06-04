@@ -12,15 +12,12 @@ resources_path=$1
 policy_items=$2
 request_type=$3
 
-policy_name="all - path"
-policy_uri_name="all%20-%20path"
-
 json_payload+="{"
 
 # If it's not a create request, then we need to include the id and the guid in the json.
 if [ "$request_type" != "create" ]; then
   # Get the JSON response from the Ranger API.
-  hadoopdev_res=$(getRangerPolicyJsonResponse "$HADOOP_RANGER_SERVICE" "$policy_uri_name")
+  hadoopdev_res=$(getRangerPolicyJsonResponse "$HADOOP_RANGER_SERVICE" "$HDFS_ALL_POLICY_URI_NAME")
 
   # Get the ID from the JSON response.
   id=$(getIdFromRangerPolicyJsonResponse "$hadoopdev_res")
@@ -42,7 +39,7 @@ policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
 json_payload+=$(cat <<EOF
   "isEnabled": true,
   "service": "$HADOOP_RANGER_SERVICE",
-  "name": "$policy_name",
+  "name": "$HDFS_ALL_POLICY_NAME",
   "resources": {
     "path": {
       "values":$resource_values_array,
@@ -74,12 +71,12 @@ EOF
 
 if [ "$request_type" == "create" ]; then
   echo ""
-  echo "-- Creating Ranger policy: hdfs / $policy_name"
+  echo "-- Creating Ranger policy: hdfs / $HDFS_ALL_POLICY_NAME"
 
   createRangerPolicy "$json_payload"
 else
   echo ""
-  echo "-- Updating Ranger policy: hdfs / $policy_name"
+  echo "-- Updating Ranger policy: hdfs / $HDFS_ALL_POLICY_NAME"
 
   putUpdatedRangerPolicyJson "$json_payload" "$id"
 fi

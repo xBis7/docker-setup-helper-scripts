@@ -4,6 +4,16 @@
 HADOOP_RANGER_SERVICE="hadoopdev"
 HIVE_RANGER_SERVICE="hivedev"
 
+# Policy names and URIs.
+HDFS_ALL_POLICY_NAME="all - path"
+HDFS_ALL_POLICY_URI_NAME="all%20-%20path"
+HIVE_ALL_DB_POLICY_NAME="all - database, table, column"
+HIVE_ALL_DB_POLICY_URI_NAME="all%20-%20database,%20table,%20column"
+HIVE_DEFAULTDB_POLICY_NAME="default database tables columns"
+HIVE_DEFAULTDB_POLICY_URI_NAME="default%20database%20tables%20columns"
+HIVE_URL_POLICY_NAME="all - url"
+HIVE_URL_POLICY_URI_NAME="all%20-%20url"
+
 # Ranger ui variables.
 RANGER_UI_USERNAME=
 RANGER_UI_PASSWORD=
@@ -22,6 +32,45 @@ getRangerPolicyJsonResponse() {
   policy_name=$2
 
   curl -s -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -X GET "http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/service/$service_name/policy/$policy_name"
+}
+
+getRangerPolicyJsonResponseUsingShortNames() {
+  service=$1
+  policy=$2
+
+  service_name=
+  policy_uri_name=
+
+  if [ "$service" == "hdfs" ]; then
+    service_name=$HADOOP_RANGER_SERVICE
+
+    if [ "$policy" == "all" ]; then
+      policy_uri_name="$HDFS_ALL_POLICY_URI_NAME"
+    else
+      # It's a custom name, set 'policy_name' to that.
+      policy_uri_name="$policy"
+    fi
+  else
+    service_name=$HIVE_RANGER_SERVICE
+
+    if [ "$policy" == "all_db" ]; then
+      policy_uri_name="$HIVE_ALL_DB_POLICY_URI_NAME"
+
+    elif [ "$policy" == "defaultdb" ]; then
+      policy_uri_name="$HIVE_DEFAULTDB_POLICY_URI_NAME"
+
+    elif [ "$policy" == "url" ]; then
+      policy_uri_name="$HIVE_URL_POLICY_URI_NAME"
+
+    else
+      # It's a custom name, set 'policy_name' to that.
+      policy_uri_name="$policy"
+    fi
+  fi
+
+  policy_res=$(getRangerPolicyJsonResponse "$service_name" "$policy_uri_name")
+
+  echo "$policy_res"
 }
 
 # Create a new Ranger policy.
@@ -248,5 +297,19 @@ checkApiCallStatusCode() {
     echo ""
     echo -e "Status code: $code"
     echo ""
+  fi
+}
+
+checkIfPolicyExists() {
+  service=$1
+  policy=$2
+
+  response=$(getRangerPolicyJsonResponseUsingShortNames "$service" "$policy")
+
+  if $(echo "$response" | grep "Not found" > /dev/null); then
+    echo "$service / $policy - Deleted successfully."
+  else
+    echo "$service / $policy - Delete failed."
+    exit 1
   fi
 }

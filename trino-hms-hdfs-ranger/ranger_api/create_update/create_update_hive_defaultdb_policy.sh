@@ -12,15 +12,12 @@ request_type=$2
 resources_column=${3:-"*"}
 resources_table=${4:-"*"}
 
-policy_name="default database tables columns"
-policy_uri_name="default%20database%20tables%20columns"
-
 json_payload+="{"
 
 # If it's not a create request, then we need to include the id and the guid in the json.
 if [ "$request_type" != "create" ]; then
   # Get the JSON response from the Ranger API.
-  hivedev_res=$(getRangerPolicyJsonResponse "$HIVE_RANGER_SERVICE" "$policy_uri_name")
+  hivedev_res=$(getRangerPolicyJsonResponse "$HIVE_RANGER_SERVICE" "$HIVE_DEFAULTDB_POLICY_URI_NAME")
 
   # Get the ID from the JSON response.
   id=$(getIdFromRangerPolicyJsonResponse "$hivedev_res")
@@ -43,7 +40,7 @@ policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
 json_payload+=$(cat <<EOF
   "isEnabled":true,
   "service":"$HIVE_RANGER_SERVICE",
-  "name":"$policy_name",
+  "name":"$HIVE_DEFAULTDB_POLICY_NAME",
   "isAuditEnabled":true,
   "resources":{
     "database":{
@@ -88,12 +85,12 @@ EOF
 
 if [ "$request_type" == "create" ]; then
   echo ""
-  echo "-- Creating Ranger policy: hive / $policy_name"
+  echo "-- Creating Ranger policy: hive / $HIVE_DEFAULTDB_POLICY_NAME"
 
   createRangerPolicy "$json_payload"
 else
   echo ""
-  echo "-- Updating Ranger policy: hive / $policy_name"
+  echo "-- Updating Ranger policy: hive / $HIVE_DEFAULTDB_POLICY_NAME"
 
   putUpdatedRangerPolicyJson "$json_payload" "$id"
 fi

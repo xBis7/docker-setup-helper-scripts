@@ -12,14 +12,18 @@ if [ "$prepare_env" == "true" ]; then
   ./setup/setup_for_trino_spark_testing.sh "$abs_path"
 fi
 
-# Delete all policies.
+# Delete all policies and test that they don't exist anymore.
 ./ranger_api/delete_policy.sh "hdfs" "all"
+checkIfPolicyExists "hdfs" "all"
 
 ./ranger_api/delete_policy.sh "hive" "all_db"
+checkIfPolicyExists "hive" "all_db"
 
 ./ranger_api/delete_policy.sh "hive" "defaultdb"
+checkIfPolicyExists "hive" "defaultdb"
 
 ./ranger_api/delete_policy.sh "hive" "url"
+checkIfPolicyExists "hive" "url"
 
 # Create the policies again with new values.
 ./ranger_api/create_update/create_update_hdfs_path_policy.sh "/*" "read,write:hadoop" "create"

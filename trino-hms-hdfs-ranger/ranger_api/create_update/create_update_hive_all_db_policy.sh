@@ -86,7 +86,13 @@ EOF
 )
 
 if [ "$request_type" == "create" ]; then
+  echo ""
+  echo "-- Creating Ranger policy: hive / $policy_name"
+
   createRangerPolicy "$json_payload"
 else
+  echo ""
+  echo "-- Updating Ranger policy: hive / $policy_name"
+
   putUpdatedRangerPolicyJson "$json_payload" "$id"
 fi

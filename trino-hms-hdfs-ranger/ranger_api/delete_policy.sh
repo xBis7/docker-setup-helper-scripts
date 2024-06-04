@@ -44,7 +44,6 @@ policy_res=$(getRangerPolicyJsonResponse "$service_name" "$policy_uri_name")
 id=$(getIdFromRangerPolicyJsonResponse "$policy_res")
 
 echo ""
-echo "Deleting Ranger policy with id: $id"
-echo ""
+echo "-- Deleting Ranger policy with id: $id"
 
 deleteRangerPolicy "$id"

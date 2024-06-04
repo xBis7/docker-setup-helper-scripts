@@ -13,28 +13,28 @@ if [ "$prepare_env" == "true" ]; then
 fi
 
 # Delete all policies.
-checkApiCallStatusCode "./ranger_api/delete_policy.sh hdfs all" "hdfs           - delete"
+./ranger_api/delete_policy.sh "hdfs" "all"
 
-checkApiCallStatusCode "./ranger_api/delete_policy.sh hive all_db" "hive_db        - delete"
+./ranger_api/delete_policy.sh "hive" "all_db"
 
-checkApiCallStatusCode "./ranger_api/delete_policy.sh hive defaultdb" "hive_defaultdb - delete"
+./ranger_api/delete_policy.sh "hive" "defaultdb"
 
-checkApiCallStatusCode "./ranger_api/delete_policy.sh hive url" "hive_url       - delete"
+./ranger_api/delete_policy.sh "hive" "url"
 
 # Create the policies again with new values.
-checkApiCallStatusCode "./ranger_api/create_update/create_update_hdfs_path_policy.sh '/*' read,write:hadoop create" "hdfs           - create"
+./ranger_api/create_update/create_update_hdfs_path_policy.sh "/*" "read,write:hadoop" "create"
 
-checkApiCallStatusCode "./ranger_api/create_update/create_update_hive_all_db_policy.sh select,drop:hadoop/alter,read:spark create" "hive_db        - create"
+./ranger_api/create_update/create_update_hive_all_db_policy.sh "select,drop:hadoop/alter,read:spark" "create"
 
-checkApiCallStatusCode "./ranger_api/create_update/create_update_hive_defaultdb_policy.sh select,drop:hadoop/alter,read:spark create" "hive_defaultdb - create"
+./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "select,drop:hadoop/alter,read:spark" "create"
 
-checkApiCallStatusCode "./ranger_api/create_update/create_update_hive_url_policy.sh read:spark create" "hive_url       - create"
+./ranger_api/create_update/create_update_hive_url_policy.sh "read:spark" "create"
 
 # Update all policies with more or less allow conditions.
-checkApiCallStatusCode "./ranger_api/create_update/create_update_hdfs_path_policy.sh '/dir1,/test/*' read,write:hadoop/execute:spark put" "hdfs           - update"
+./ranger_api/create_update/create_update_hdfs_path_policy.sh "/dir1,/test/*" "read,write:hadoop/execute:spark" "put"
 
-checkApiCallStatusCode "./ranger_api/create_update/create_update_hive_all_db_policy.sh select,alter:trino put" "hive_db        - update"
+./ranger_api/create_update/create_update_hive_all_db_policy.sh "select,alter:trino" "put"
 
-checkApiCallStatusCode "./ranger_api/create_update/create_update_hive_defaultdb_policy.sh select,index,lock:spark put test_col" "hive_defaultdb - update"
+./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "select,index,lock:spark" "put" "test_col"
 
-checkApiCallStatusCode "./ranger_api/create_update/create_update_hive_url_policy.sh read:spark/write:hadoop put" "hive_url       - update"
+./ranger_api/create_update/create_update_hive_url_policy.sh "read:spark/write:hadoop" "put"

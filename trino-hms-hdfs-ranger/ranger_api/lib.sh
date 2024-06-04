@@ -32,7 +32,9 @@ createRangerPolicy() {
   # Prettify the json.
   json_payload=$(echo "$json_payload" | jq '.')
 
-  curl -iv -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy
+  output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy)
+
+  checkApiCallStatusCode "$output"
 }
 
 # Update an existing Ranger policy.
@@ -43,14 +45,18 @@ putUpdatedRangerPolicyJson() {
   # Prettify the json.
   json_payload=$(echo "$json_payload" | jq '.')
 
-  curl -iv -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id
+  output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
+
+  checkApiCallStatusCode "$output"
 }
 
 # Delete one of the existing Ranger policies.
 deleteRangerPolicy() {
   id=$1
 
-  curl -iv -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id
+  output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE http://$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
+
+  checkApiCallStatusCode "$output"
 }
 
 getIdFromRangerPolicyJsonResponse() {
@@ -232,20 +238,15 @@ getPolicyItemsJsonArray() {
 }
 
 checkApiCallStatusCode() {
-  cmd=$1
-  msg=$2
+  code=$1
 
-  tmp_file="ranger_api/tmp.txt"
-
-  $cmd 2>&1 | tee $tmp_file > /dev/null
-
-  if (grep -q "HTTP/1.1 2[0-9][0-9]" "$tmp_file" > /dev/null); then
-    echo -e "$msg, status code: OK"
+  if [[ "$code" =~ 2[0-9][0-9] ]]; then
+    echo ""
+    echo -e "Status code: OK"
+    echo ""
   else
-    code=$(grep -o "HTTP/1.1 [2-5][0-9][0-9]" "$tmp_file" | awk '{print $2}')
-    echo -e "$msg, status code: $code"
+    echo ""
+    echo -e "Status code: $code"
+    echo ""
   fi
-
-  # Delete the tmp file.
-  rm "$tmp_file"
 }

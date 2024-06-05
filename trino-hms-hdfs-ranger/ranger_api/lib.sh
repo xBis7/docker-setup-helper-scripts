@@ -331,7 +331,9 @@ validateResult() {
 
 iterateAndValidateResources() {
   json_response=$1
+  # e.g. "path", "database", "column", "table", "url"
   resource_type=$2
+  # e.g. "/*,/dir1/*"
   resources=$3
 
   res_array=$(echo "$resources" | jq -R 'split(",")')
@@ -348,6 +350,7 @@ iterateAndValidateResources() {
 
 iterateAndValidatePolicies() {
   json_response=$1
+  # e.g. "select,drop:hadoop/alter,read:spark"
   policies=$2
 
   conditions=$(echo "$policies" | jq -R 'split("/")')

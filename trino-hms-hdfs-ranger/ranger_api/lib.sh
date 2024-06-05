@@ -313,3 +313,95 @@ checkIfPolicyExists() {
     exit 1
   fi
 }
+
+validateResult() {
+  result=$1
+  description=$2
+
+  if [ "$result" == "Failure" ]; then
+    echo "Failure - $description"
+    exit 1
+  else
+    echo "Success - $description"
+  fi
+}
+
+iterateAndValidateResources() {
+  json_response=$1
+  resource_type=$2
+  resources=$3
+
+  res_array=$(echo "$resources" | jq -R 'split(",")')
+  # Get the size of the tmp array.
+  res_array_size=$(echo "$res_array" | jq '. | length')
+
+  for (( i=0; i<$res_array_size; i++ )); do
+    res=$(echo "$res_array" | jq ".[$i]" | tr -d '"')
+
+    out=$(echo "$json_response" | jq -r ".resources.$resource_type | if .values[$i] == \"$res\" then \"Success\" else \"Failure\" end")
+    validateResult "$out" "resource_$resource_type: $res"
+  done
+}
+
+iterateAndValidatePolicies() {
+  json_response=$1
+  policies=$2
+
+  conditions=$(echo "$policies" | jq -R 'split("/")')
+  conditions_size=$(echo "$conditions" | jq '. | length')
+
+  for (( i=0; i<$conditions_size; i++ )); do
+    condition=$(echo "$conditions" | jq ".[$i]" | tr -d '"')
+
+    items=$(echo "$condition" | jq -R 'split(":")')
+
+    # items should have only two elements. 1. accesses, 2. users
+    items_accesses=$(echo "$items" | jq ".[0]" | tr -d '"')
+    items_users=$(echo "$items" | jq ".[1]" | tr -d '"')
+
+    # Split provided accesses & users and store the values in arrays.
+    accesses_array=$(echo "$items_accesses" | jq -R 'split(",")')
+    users_array=$(echo "$items_users" | jq -R 'split(",")')
+
+    # Get array size.
+    accesses_array_size=$(echo "$accesses_array" | jq '. | length')
+    users_array_size=$(echo "$users_array" | jq '. | length')
+
+    # Iterate and validate accesses.
+    for (( j=0; j<$accesses_array_size; j++ )); do
+      access=$(echo "$accesses_array" | jq ".[$j]" | tr -d '"')
+
+      out=$(echo "$json_response" | jq -r ".policyItems[$i].accesses[$j] | if .type == \"$access\" then \"Success\" else \"Failure\" end")
+      validateResult "$out" "policy_access: $access"
+    done
+
+    # Iterate and validate users.
+    for (( k=0; k<$users_array_size; k++ )); do
+      user=$(echo "$users_array" | jq ".[$k]" | tr -d '"')
+
+      out=$(echo "$json_response" | jq -r ".policyItems[$i] | if .users[$k] == \"$user\" then \"Success\" else \"Failure\" end")
+      validateResult "$out" "policy_user: $user"
+    done
+  done
+}
+
+validateRangerData() {
+  # e.g. "hdfs", "hive"
+  service_short_name=$1
+  # e.g. "all", "all_db", "defaultdb", "url"
+  policy_short_name=$2
+  # e.g. "select,drop:hadoop/alter,read:spark"
+  policies=$3
+  # e.g. "path", "database", "column", "table", "url"
+  resource_type=$4
+  # e.g. "/*,/dir1/*"
+  resources=$5
+
+  json_res=$(getRangerPolicyJsonResponseUsingShortNames "$service_short_name" "$policy_short_name")
+
+  if [ -n "$resource_type" ] && [ -n "$resources" ]; then
+    iterateAndValidateResources "$json_res" "$resource_type" "$resources"
+  fi
+
+  iterateAndValidatePolicies "$json_res" "$policies"
+}

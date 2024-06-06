@@ -88,14 +88,6 @@
 	</property>
 
 	<property>
-		<name>xasecure.hive.uri.permission.coarse.check</name>
-		<value>true</value>
-		<description>
-			Skip recursive permission check for URIs. 'true' to skip the check.
-		</description>
-	</property>
-
-	<property>
 		<name>ranger.plugin.hive.urlauth.filesystem.schemes</name>
 		<value>file:</value>
 	</property>

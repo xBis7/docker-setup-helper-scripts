@@ -7,6 +7,10 @@ set -e
 abs_path=$1
 prepare_env=$2
 
+# This script sets up the environment and the correct policies needed by
+# the Hive URL policies tests. It's placed here because it's used by both
+# Spark and Trino tests.
+
 if [ "$prepare_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"
   ./setup/setup_docker_env.sh "$abs_path"

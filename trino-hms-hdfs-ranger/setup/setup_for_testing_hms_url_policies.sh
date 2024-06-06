@@ -7,6 +7,10 @@ set -e
 abs_path=$1
 prepare_env=$2
 
+# This script is useful for manual testing.
+# It sets up the environment with Hive URL policies enabled and
+# sets the minimum policies needed.
+
 if [ "$prepare_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"
   ./setup/setup_docker_env.sh "$abs_path"

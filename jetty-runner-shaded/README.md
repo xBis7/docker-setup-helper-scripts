@@ -27,6 +27,8 @@ Hive doesn't have the `org.apache.directory.api:api-ldap-model` dependency but i
 
 Same thing goes for `org.apache.mina` but we will focus on `org.apache.directory.api` for the rest of the README because the approach is the same.
 
+Hadoop doesn't use the `jetty-runner` dependency and that's why it doesn't have the issues that appear in Hive after the upgrade.
+
 The issue is that
 * Hive calls Hadoop code
 * The Hadoop code calls some classes from the `org.apache.directory.api` package

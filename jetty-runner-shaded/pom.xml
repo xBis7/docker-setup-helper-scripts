@@ -29,6 +29,10 @@
                   <pattern>org.apache.directory.api</pattern>
                   <shadedPattern>org.apache.directory.api.shaded</shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>org.apache.mina</pattern>
+                  <shadedPattern>org.apache.mina.shaded</shadedPattern>
+                </relocation>
               </relocations>
               <artifactSet>
                 <includes>

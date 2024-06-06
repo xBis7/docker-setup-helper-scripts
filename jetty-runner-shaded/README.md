@@ -23,7 +23,9 @@ Hadoop uses classes from this dependency
 </dependency>
 ```
 
-Hive doesn't have the `org.apache.directory.api:api-ldap-model` dependency but it has the `org.eclipse.jetty:jetty-runner` dependency which contains its own version of the entire `org.apache.directory.api` package.
+Hive doesn't have the `org.apache.directory.api:api-ldap-model` dependency but it has the `org.eclipse.jetty:jetty-runner` dependency which contains its own version of the entire `org.apache.directory.api` package. 
+
+Same thing goes for `org.apache.mina` but we will focus on `org.apache.directory.api` for the rest of the README because the approach is the same.
 
 The issue is that
 * Hive calls Hadoop code

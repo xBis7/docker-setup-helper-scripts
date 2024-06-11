@@ -60,12 +60,15 @@ HDFS_ACCESS="2_hdfs_all"
 HDFS_ACCESS_WITH_SELECT="2_hdfs_all_with_select"
 HDFS_AND_HIVE_ALL="3_hive_defaultdb_all"
 TRINO_HDFS_AND_HIVE_ALL="3_trino_hdfs_hive_defaultdb_all"
+HIVE_ALL_NO_HDFS="3_hive_defaultdb_all_no_hdfs"
 HDFS_AND_HIVE_SELECT="4_hive_defaultdb_select"
 HDFS_AND_HIVE_SELECT_ALTER="5_hive_defaultdb_select_alter"
 HDFS_AND_HIVE_SELECT_ALTER_DROP="6_hive_defaultdb_select_alter_drop"
 HDFS_AND_HIVE_AND_CREATE_HIVE_URL="7_hdfs_hive_create_hive_url"
 HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
 HDFS_POLICIES_FOR_RANGER_TESTING="hdfs_policies_for_ranger_testing"
+HIVE_URL_NO_HDFS="hive_url_no_hdfs"
+HIVE_URL_BASE_POLICIES="hive_url_base_policies"
 
 # Const shared variables
 TRINO_TABLE="trino_test_table"
@@ -82,6 +85,13 @@ HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
+HIVE_GROSS_TEST_DIR="$HIVE_WAREHOUSE_DIR/gross_test"
+HIVE_GROSS_DB_TEST_DIR="$HIVE_GROSS_TEST_DIR/gross_test.db"
+HIVE_GROSS_TEST_DIR_SEC="$HIVE_WAREHOUSE_DIR/gross_test2"
+HIVE_GROSS_DB_TEST_DIR_SEC="$HIVE_GROSS_TEST_DIR_SEC/gross_test2.db"
+GROSS_DB_NAME="gross_test"
+GROSS_TABLE_NAME="gross_test_table"
+NEW_GROSS_TABLE_NAME="new_$GROSS_TABLE_NAME"
 PRINT_CMD=""
 
 # Container names
@@ -758,7 +768,7 @@ createTrinoTable() {
   hdfs_dir_name=$2
   schema_name=$3
 
-  c="create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode:8020/$hdfs_dir_name',format = 'CSV');"
+  c="create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode/$hdfs_dir_name',format = 'CSV');"
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "$c"
@@ -809,8 +819,9 @@ dropTrinoTable() {
 
 createSchemaWithTrino() {
   schema_name=$1
+  location=${2:-"$HIVE_WAREHOUSE_DIR/$schema_name/external/$schema_name.db"}
 
-  c="CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/opt/hive/data/$schema_name/external/$schema_name.db');"
+  c="CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/$location');"
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "$c"
@@ -1007,12 +1018,13 @@ runSparkTest() {
   testFileName=$1
   sql_arg=$(echo -n "$2" | base64 --decode)
   msg_arg=$(echo -n "$3" | base64 --decode)
+  user=${4:-"spark"}
   message="Running Spark test: [$testFileName] with arguments sql_arg: [$sql_arg] and msg_arg: [$msg_arg]"
 
   if [ "$PRINT_CMD" == "true" ]; then
       printCmdString "$message"
   else
-    docker exec -it "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell --conf spark.app.sql=\"$sql_arg\" --conf spark.app.msg=\"$msg_arg\" -I test.scala"
+    docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell --conf spark.app.sql=\"$sql_arg\" --conf spark.app.msg=\"$msg_arg\" -I test.scala"
   fi
 }
 

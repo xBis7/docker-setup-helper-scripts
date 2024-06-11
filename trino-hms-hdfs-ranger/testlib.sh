@@ -41,7 +41,7 @@ configureHiveVersion() {
     echo "Configuring project for Hive 3."
     echo ""
     # Hive branch: 'branch-3.1-build-fixed'
-    HIVE_COMMIT_SHA="553f8795ff6d337d6e86fbac10a0715a0e2cffef"
+    HIVE_COMMIT_SHA="36303b00b0167ed9ad2226fba0fc7b68d0c05910"
     HIVE_BUILD_VERSION="3.1.3-with-backport"
     # Ranger branch: 'ranger-2.4-with-hmsa'
     RANGER_COMMIT_SHA="c3c38c12dfabbc97e1bc8d7218a7c65b9a75f53a"

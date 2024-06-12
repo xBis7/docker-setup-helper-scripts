@@ -1,6 +1,7 @@
 // Create database / Drop database - 100 iterations.
 
 val iterations = spark.conf.get("spark.iteration_num", "10").toInt
+val db_location = spark.conf.get("spark.db_location", "/opt/hive/data/gross_test/gross_test.db")
 
 var counter = 0
 
@@ -9,7 +10,7 @@ while (counter < iterations) {
   val errorMsg = " failed during iteration '" + counter + "'"
 
   try {
-    spark.sql("create database gross_test location '/opt/hive/data/gross_test/gross_test.db'")
+    spark.sql("create database gross_test location '" + db_location + "'")
   } catch {
     case e: Exception =>
       println("'create database' " + errorMsg)

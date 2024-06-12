@@ -6,6 +6,7 @@ set -e
 
 abs_path=$1
 hive_url_policies_enabled=$2
+workers_num=$3
 
 # All environments are using Ranger's network. Ranger needs to start first.
 
@@ -25,4 +26,4 @@ handleHiveEnv "$abs_path" "start" "$hive_url_policies_enabled"
 
 handleTrinoEnv "$abs_path" "start"
 
-handleSparkEnv "$abs_path" "start"
+handleSparkEnv "$abs_path" "start" "$workers_num"

@@ -6,6 +6,7 @@ set -e
 
 abs_path=$1
 project=$2
+spark_workers_num=$3
 
 if [ "$project" == "ranger" ]; then
   handleRangerEnv "$abs_path" "start"
@@ -16,7 +17,7 @@ elif [ "$project" == "hms" ]; then
 elif [[ "$project" == "trino" ]]; then
   handleTrinoEnv "$abs_path" "start"
 elif [[ "$project" == "spark" ]]; then
-  handleSparkEnv "$abs_path" "start"
+  handleSparkEnv "$abs_path" "start" "$spark_workers_num"
 else
   echo "Provided project is unknown."
   echo "Try one of the following: "

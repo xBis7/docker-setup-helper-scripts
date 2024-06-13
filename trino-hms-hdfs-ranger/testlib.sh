@@ -9,7 +9,6 @@ PROJECT_SPARK="spark"
 
 # Current repo paths
 CURRENT_REPO="docker-setup-helper-scripts"
-JETTY_RUNNER_SHADED="jetty-runner-shaded"
 
 # Project branches
 SPARK_COMMIT_SHA="cde6109471a4e51a063c9d35d6d51d38ca536b68"

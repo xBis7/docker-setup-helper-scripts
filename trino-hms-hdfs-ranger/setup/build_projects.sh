@@ -57,13 +57,6 @@ if [ "$buildHive" == 0 ]; then
   exitIfProjectNotExist $abs_path $PROJECT_HIVE
 
   echo ""
-  echo "Creating and installing locally the 'jetty-runner' shaded jar."
-  echo "This jar needs to be used by Hive and needs to be available locally for the Hive build to succeed."
-
-  cd "$abs_path/$CURRENT_REPO/$JETTY_RUNNER_SHADED"
-  ./install_jetty_runner_jar.sh
-
-  echo ""
   echo "Building '$PROJECT_HIVE'"
 
   cd "$abs_path/$PROJECT_HIVE"

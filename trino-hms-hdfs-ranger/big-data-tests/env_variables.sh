@@ -34,6 +34,7 @@ NAMENODE_NAME="namenode"
 
 # Env variables.
 HIVE_WAREHOUSE_DIR="opt/hive/data"
+HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 EXTERNAL_HIVE_DB_PATH="data/projects"
 HIVE_GROSS_TEST_DIR="$EXTERNAL_HIVE_DB_PATH/gross_test"
 HIVE_GROSS_DB_TEST_DIR="$HIVE_GROSS_TEST_DIR/gross_test.db"
@@ -46,3 +47,4 @@ TEST2_FILE="2_create_db_no_hdfs_perms.scala"
 TEST3_FILE="3_create_db_with_hive_hdfs_perms.scala"
 TEST4_FILE="4_drop_db_as_another_user_with_no_perms.scala"
 TEST5_FILE="5_drop_db_and_recreate_under_hive_warehouse_dir.scala"
+TEST6_FILE="6_create_managed_db_with_hdfs_and_hive_url_perms.scala"

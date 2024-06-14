@@ -19,6 +19,7 @@ copyTestFilesUnderSpark() {
   test_files_array+=("$TEST3_FILE")
   test_files_array+=("$TEST4_FILE")
   test_files_array+=("$TEST5_FILE")
+  test_files_array+=("$TEST6_FILE")
 
   for file in "${test_files_array[@]}"
   do
@@ -59,6 +60,29 @@ createHdfsDir() {
   echo "Command succeeded."
   echo ""
 }
+
+changeHdfsDirPermissions() {
+  path=$1
+  permissions=$2
+
+  hdfs_cmd="hdfs dfs -chmod $permissions /$path"
+
+  echo ""
+  echo "Running command:"
+  echo "$hdfs_cmd"
+  echo ""
+
+  if [ "$CURRENT_ENV" == "local" ]; then
+    docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
+  else
+    echo "Implement this."
+  fi
+
+  echo ""
+  echo "Command succeeded."
+  echo ""
+}
+
 
 runScalaFileInSparkShell() {
   spark_shell_cmd=$1

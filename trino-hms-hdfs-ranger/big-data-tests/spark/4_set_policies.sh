@@ -1,16 +1,12 @@
 #!/bin/bash
 
+source "./big-data-tests/lib.sh"
+source "./big-data-tests/env_variables.sh"
+
 set -e
 
-hdfs_user=$1
-hive_user=$2
-spark_user=$3
+./ranger_api/create_update/create_update_hive_all_db_policy.sh "alter,create,drop,index,lock,select,update:$HIVE_USER,$SPARK_USER1/select:$SPARK_USER2" "put" "gross_test"
 
-./ranger_api/create_update/create_update_hdfs_path_policy.sh "/*" "read,write,execute:$hdfs_user,$hive_user,$spark_user" "put"
+./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "select:$HIVE_USER,$SPARK_USER1,$SPARK_USER2" "put"
 
-./ranger_api/create_update/create_update_hive_all_db_policy.sh "select:$hive_user,$spark_user" "put"
-
-./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "select:$hive_user,$spark_user" "put"
-
-./ranger_api/create_update/create_update_hive_url_policy.sh "read:$spark_user" "put"
-
+waitForPoliciesUpdate

@@ -5,6 +5,12 @@ CURRENT_ENV="local"
 # Update according to the config value. The value is in seconds.
 POLICIES_UPDATE_INTERVAL=10
 
+# Ranger users.
+HDFS_USER="hadoop"
+HIVE_USER="postgres"
+SPARK_USER1="spark"
+SPARK_USER2="test1"
+
 # Hostnames.
 NAMENODE_HOSTNAME="docker-namenode-1"
 DN1_HOSTNAME="docker-datanode-1"
@@ -38,4 +44,5 @@ TMP_COMBINED_FILE="tmp_combined.scala"
 TEST1_FILE="1_create_db_no_create_perm.scala"
 TEST2_FILE="2_create_db_no_hdfs_perms.scala"
 TEST3_FILE="3_create_db_with_hive_hdfs_perms.scala"
-
+TEST4_FILE="4_drop_db_as_another_user_with_no_perms.scala"
+TEST5_FILE="5_drop_db_and_recreate_under_hive_warehouse_dir.scala"

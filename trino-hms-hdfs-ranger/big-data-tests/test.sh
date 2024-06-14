@@ -22,5 +22,3 @@ echo "- INFO: Updating Ranger policies. Loading base Hive URL policies. No user 
 ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_URL_BASE_POLICIES"
 
 createHdfsDir "$HIVE_GROSS_DB_TEST_DIR"
-
-./big-data-tests/copy_files.sh

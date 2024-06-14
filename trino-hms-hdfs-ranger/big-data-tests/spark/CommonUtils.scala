@@ -68,7 +68,7 @@ object CommonUtils {
 
     try {
       if (isManaged) {
-        spark.sql("create database " + dbName + "'")
+        spark.sql("create database " + dbName)
       } else {
         spark.sql("create database " + dbName + " location '" + location + "'")
       }
@@ -121,7 +121,7 @@ object CommonUtils {
 
     try {
       if (isManaged) {
-        spark.sql("create database " + dbName + "'")
+        spark.sql("create database " + dbName)
       } else {
         spark.sql("create database " + dbName + " location '" + location + "'")
       }
@@ -191,6 +191,59 @@ object CommonUtils {
 
     sys.exit(0)
   }
+
+// Drop table.
+  def dropTableWithException(dbName: String, tableName: String, expectedErrorMsg: String): Any = {
+    val operation = "drop table"
+
+    printf("\n\n")
+    println("Running command:")
+    println(s"""spark.sql("drop table $dbName.$tableName")""")
+    println("\nExpecting it to fail.")
+    println("--------------------------")
+    printf("\n\n")
+
+    try {
+      spark.sql("drop table " + dbName + "." + tableName)
+    } catch {
+      case e: Exception =>
+        CommonUtils.handleExpectedExceptionWithMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
+    }
+
+    printf("\n\n")
+    println("--------------------------")
+    println("Test finished without issues while it was expected to fail.")
+    println("--------------------------")
+    printf("\n\n")
+
+    sys.exit(1)
+  }
+
+  def dropTableNoException(dbName: String, tableName: String): Any = {
+    val operation = "drop table"
+
+    printf("\n\n")
+    println("Running command:")
+    println(s"""spark.sql("drop table $dbName.$tableName")""")
+    println("\nExpecting it to succeed.")
+    println("--------------------------")
+    printf("\n\n")
+
+    try {
+      spark.sql("drop table " + dbName + "." + tableName)
+    } catch {
+      case e: Exception =>
+        CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
+    }
+
+    printf("\n\n")
+    println("--------------------------")
+    println(s"'$operation' succeeded as expected.")
+    println("--------------------------")
+    printf("\n\n")
+
+    sys.exit(0)
+  } 
 
   
 }

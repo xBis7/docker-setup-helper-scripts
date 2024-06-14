@@ -5,9 +5,13 @@ val dbBaseDir = spark.conf.get("spark.db_base_dir", "/data/projects")
 
 val dbName="gross_test"
 
-val dbLocation = dbBaseDir + "/gross_test/gross_test.db"
+// Drop DB.
+CommonUtils.dropDBNoException(dbName = dbName)
+
+val dbLocation = dbBaseDir + "/gross_test.db"
 val hdfsLocation: String = s"hdfs://$namenode$dbLocation"
 
 val expectedErrorMsg = s"Permission denied: user [$user] does not have [WRITE] privilege on [[$hdfsLocation, $hdfsLocation/]]"
 
-CommonUtils.createDBwithException(isManaged = false, expectedErrorMsg = expectedErrorMsg, dbName = dbName, dbLocation = Some(dbLocation))
+// Create the DB again but this time as managed.
+CommonUtils.createDBwithException(isManaged = true, expectedErrorMsg = expectedErrorMsg, dbName = dbName, dbLocation = None)

@@ -72,6 +72,11 @@ RUN set -ex; \
 
 COPY entrypoint.sh /opt/
 
+## Add new users.
+RUN useradd -m -s /bin/bash test1 && echo "test1:pass1" | chpasswd
+RUN useradd -m -s /bin/bash test2 && echo "test2:pass2" | chpasswd
+RUN useradd -m -s /bin/bash test3 && echo "test3:pass3" | chpasswd
+
 ENV SPARK_HOME /opt/spark
 
 WORKDIR /opt/spark/work-dir

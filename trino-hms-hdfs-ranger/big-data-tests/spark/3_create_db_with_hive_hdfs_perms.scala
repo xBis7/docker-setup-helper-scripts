@@ -5,4 +5,4 @@ val dbName="gross_test"
 
 val dbLocation = dbBaseDir + "/gross_test/gross_test.db"
 
-CommonUtils.createDBNoException(dbName, dbLocation)
+CommonUtils.createDBNoException(isManaged = false, dbName = dbName, dbLocation = Some(dbLocation))

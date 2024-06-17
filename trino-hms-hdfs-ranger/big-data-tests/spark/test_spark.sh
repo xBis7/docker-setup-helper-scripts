@@ -141,3 +141,21 @@ echo ""
 
 combineFileWithCommonUtilsFile "$TEST10_FILE"
 runScalaFileInSparkShell "bin/spark-shell --conf spark.user=\"$SPARK_USER2\" -I $TMP_COMBINED_FILE" "$SPARK_USER2"
+
+echo ""
+echo "## Test 11 ##"
+echo "Repeat using an external table"
+echo ""
+
+./big-data-tests/spark/11_set_policies.sh
+
+combineFileWithCommonUtilsFile "$TEST11_1_FILE"
+runScalaFileInSparkShell "bin/spark-shell --conf spark.db_base_dir=\"/$EXTERNAL_HIVE_DB_PATH\" -I $TMP_COMBINED_FILE" "$SPARK_USER1"
+
+combineFileWithCommonUtilsFile "$TEST11_2_FILE"
+runScalaFileInSparkShell "bin/spark-shell -I $TMP_COMBINED_FILE" "$SPARK_USER2"
+
+./big-data-tests/spark/11_1_set_policies.sh
+
+combineFileWithCommonUtilsFile "$TEST11_3_FILE"
+runScalaFileInSparkShell "bin/spark-shell --conf spark.user=\"$SPARK_USER2\" --conf spark.db_base_dir=\"/$EXTERNAL_HIVE_DB_PATH\" -I $TMP_COMBINED_FILE" "$SPARK_USER2"

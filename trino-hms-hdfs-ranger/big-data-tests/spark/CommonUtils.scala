@@ -390,6 +390,29 @@ object CommonUtils {
     true
   }
 
+// Show tables.
+  def showTablesNoException(dbName: String, showResults: Boolean): Boolean = {
+    val operation = "show tables"
+
+    printf("\n\n")
+    println("Running command:")
+    println(s"""spark.sql("show tables in $dbName").show($showResults)""")
+    println("\nExpecting it to succeed.")
+    println("--------------------------")
+    printf("\n\n")
+
+    try {
+      spark.sql("show tables in " + dbName).show(showResults)
+    } catch {
+      case e: Exception =>
+        return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
+    }
+
+    CommonUtils.printSuccessMsg(operation = operation)
+
+    true
+  }
+
 // Insert into.
   def insertIntoTableWithException(dbName: String, tableName: String, expectedErrorMsg: String): Boolean = {
     val operation = "insert into table"

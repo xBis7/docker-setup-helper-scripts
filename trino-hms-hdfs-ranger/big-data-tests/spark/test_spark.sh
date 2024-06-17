@@ -78,3 +78,47 @@ createHdfsDir "$HIVE_WAREHOUSE_DIR/gross_test.db"
 combineFileWithCommonUtilsFile "$TEST6_FILE"
 runScalaFileInSparkShell "bin/spark-shell -I $TMP_COMBINED_FILE" "$SPARK_USER1"
 
+echo ""
+echo "## Test 7 ##"
+echo "Create a managed table"
+echo ""
+
+./big-data-tests/spark/7_set_policies.sh
+
+# Create the managed table.
+combineFileWithCommonUtilsFile "$TEST7_AND_8_1_FILE"
+runScalaFileInSparkShell "bin/spark-shell -I $TMP_COMBINED_FILE" "$SPARK_USER1"
+
+# Select table, describe table and drop table.
+combineFileWithCommonUtilsFile "$TEST7_2_FILE"
+runScalaFileInSparkShell "bin/spark-shell -I $TMP_COMBINED_FILE" "$SPARK_USER1"
+
+# 'hdfs dfs -ls' and check data after drop.
+listContentsOnHdfsPath "$HIVE_WAREHOUSE_DIR/gross_test.db" "true"
+
+echo ""
+echo "## Test 8 ##"
+echo "Create a managed table and attempt to access it as a different user"
+echo ""
+
+./big-data-tests/spark/8_set_policies.sh
+
+# Create the managed table.
+combineFileWithCommonUtilsFile "$TEST7_AND_8_1_FILE"
+runScalaFileInSparkShell "bin/spark-shell -I $TMP_COMBINED_FILE" "$SPARK_USER1"
+
+# c3 - TODO.
+# kdestroy
+# kinit user2
+
+# Try to access it as another user.
+combineFileWithCommonUtilsFile "$TEST8_2_FILE"
+runScalaFileInSparkShell "bin/spark-shell --conf spark.user=\"$SPARK_USER2\" --conf spark.namenode=\"$NAMENODE_NAME\" --conf spark.hive_warehouse_dir=\"/$HIVE_WAREHOUSE_DIR\" -I $TMP_COMBINED_FILE" "$SPARK_USER2"
+
+# Update the HDFS policies
+./big-data-tests/spark/8_1_set_policies.sh
+
+# Try to insert into the table as another user.
+combineFileWithCommonUtilsFile "$TEST8_3_FILE"
+runScalaFileInSparkShell "bin/spark-shell --conf spark.user=\"$SPARK_USER2\" --conf spark.namenode=\"$NAMENODE_NAME\" --conf spark.hive_warehouse_dir=\"/$HIVE_WAREHOUSE_DIR\" -I $TMP_COMBINED_FILE" "$SPARK_USER2"
+

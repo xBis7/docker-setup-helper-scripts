@@ -1,17 +1,17 @@
 
 object CommonUtils {
 
-  def printUnexpectedExceptionMsg(operation: String, e: Exception): Any = {
+  def printUnexpectedExceptionMsg(operation: String, e: Exception): Boolean = {
     printf("\n\n")
     println("--------------------------")
     println(s"'$operation' failed while it was expected to succeed.")
     println("\nMessage: " + e.getMessage)
     println("--------------------------")
     printf("\n\n")
-    sys.exit(1)
+    return false
   }
 
-  def handleExpectedExceptionWithMsg(operation: String, expectedErrorMsg: String, e: Exception): Any = {
+  def hasFailedWithTheExceptionAndMsg(operation: String, expectedErrorMsg: String, e: Exception): Boolean = {
     if (e.getMessage().contains(expectedErrorMsg)) {
       printf("\n\n")
       println("--------------------------")
@@ -19,7 +19,7 @@ object CommonUtils {
       println("\nMessage: " + e.getMessage)
       println("--------------------------")
       printf("\n\n")
-      sys.exit(0)
+      return true
     } else {
       printf("\n\n")
       println("--------------------------")
@@ -28,12 +28,12 @@ object CommonUtils {
       println("\nActual Message: " + e.getMessage())
       println("--------------------------")
       printf("\n\n")
-      sys.exit(1)
+      return false
     }
   }
 
 // Create DB.
-  def createDBwithException(isManaged: Boolean, expectedErrorMsg: String, dbName: String, dbLocation: Option[String]): Any = {
+  def createDBwithException(isManaged: Boolean, expectedErrorMsg: String, dbName: String, dbLocation: Option[String]): Boolean = {
 
     if (isManaged && dbLocation.isDefined) {
       throw new IllegalArgumentException("'dbLocation' shouldn't be specified for a managed DB.")
@@ -74,7 +74,7 @@ object CommonUtils {
       }
     } catch {
       case e: Exception =>
-        CommonUtils.handleExpectedExceptionWithMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
+        return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
     }
 
     printf("\n\n")
@@ -83,10 +83,10 @@ object CommonUtils {
     println("--------------------------")
     printf("\n\n")
 
-    sys.exit(1)
+    false
   }
 
-  def createDBNoException(isManaged: Boolean, dbName: String, dbLocation: Option[String]): Any = {
+  def createDBNoException(isManaged: Boolean, dbName: String, dbLocation: Option[String]): Boolean = {
 
     if (isManaged && dbLocation.isDefined) {
       throw new IllegalArgumentException("'dbLocation' shouldn't be specified for a managed DB.")
@@ -127,7 +127,7 @@ object CommonUtils {
       }
     } catch {
       case e: Exception =>
-        CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
+        return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
     }
 
     printf("\n\n")
@@ -136,11 +136,11 @@ object CommonUtils {
     println("--------------------------")
     printf("\n\n")
 
-    sys.exit(0)
+    true
   }
 
 // Drop DB.
-  def dropDBwithException(dbName: String, expectedErrorMsg: String): Any = {
+  def dropDBwithException(dbName: String, expectedErrorMsg: String): Boolean = {
     val operation = "drop database"
 
     printf("\n\n")
@@ -154,7 +154,7 @@ object CommonUtils {
       spark.sql("drop database " + dbName)
     } catch {
       case e: Exception =>
-        CommonUtils.handleExpectedExceptionWithMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
+        return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
     }
 
     printf("\n\n")
@@ -163,10 +163,10 @@ object CommonUtils {
     println("--------------------------")
     printf("\n\n")
 
-    sys.exit(1)
+    false
   }
 
-  def dropDBNoException(dbName: String): Any = {
+  def dropDBNoException(dbName: String): Boolean = {
     val operation = "drop database"
 
     printf("\n\n")
@@ -180,7 +180,7 @@ object CommonUtils {
       spark.sql("drop database " + dbName)
     } catch {
       case e: Exception =>
-        CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
+        return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
     }
 
     printf("\n\n")
@@ -189,11 +189,11 @@ object CommonUtils {
     println("--------------------------")
     printf("\n\n")
 
-    sys.exit(0)
+    true
   }
 
 // Drop table.
-  def dropTableWithException(dbName: String, tableName: String, expectedErrorMsg: String): Any = {
+  def dropTableWithException(dbName: String, tableName: String, expectedErrorMsg: String): Boolean = {
     val operation = "drop table"
 
     printf("\n\n")
@@ -207,7 +207,7 @@ object CommonUtils {
       spark.sql("drop table " + dbName + "." + tableName)
     } catch {
       case e: Exception =>
-        CommonUtils.handleExpectedExceptionWithMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
+        return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
     }
 
     printf("\n\n")
@@ -216,10 +216,10 @@ object CommonUtils {
     println("--------------------------")
     printf("\n\n")
 
-    sys.exit(1)
+    false
   }
 
-  def dropTableNoException(dbName: String, tableName: String): Any = {
+  def dropTableNoException(dbName: String, tableName: String): Boolean = {
     val operation = "drop table"
 
     printf("\n\n")
@@ -233,7 +233,7 @@ object CommonUtils {
       spark.sql("drop table " + dbName + "." + tableName)
     } catch {
       case e: Exception =>
-        CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
+        return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
     }
 
     printf("\n\n")
@@ -242,9 +242,186 @@ object CommonUtils {
     println("--------------------------")
     printf("\n\n")
 
-    sys.exit(0)
+    true
   } 
 
-  
+// Create table.
+  def createTableWithDfAndNoException(dbName: String, tableName: String, tablePath: Option[String]): Boolean = {
+    // Unwrap the Option variable. If it's not defined then 'path' will be empty.
+    val path = tablePath.getOrElse("")
+
+    val operation = "create table with df"
+
+    printf("\n\n")
+    println("Running commands:")
+    println(s"""val df = Seq((1, "John"), (2, "Jane"), (3, "Bob")).toDF("id", "name")""")
+
+    if (path.nonEmpty) {
+      println(s"""df.write.option("path", "$path").saveAsTable("$dbName.$tableName")""")
+    } else {
+      println(s"""df.write.saveAsTable("$dbName.$tableName")""")
+    }
+
+    println("\nExpecting it to succeed.")
+    println("--------------------------")
+    printf("\n\n")
+
+    val df = Seq((1, "John"), (2, "Jane"), (3, "Bob")).toDF("id", "name")
+
+    try {
+      if (path.nonEmpty) {
+        df.write.option("path", path).saveAsTable(dbName + "." + tableName)
+      } else {
+        df.write.saveAsTable(dbName + "." + tableName)
+      }
+
+    } catch {
+      case e: Exception =>
+        return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
+    }
+
+    printf("\n\n")
+    println("--------------------------")
+    println(s"'$operation' succeeded as expected.")
+    println("--------------------------")
+    printf("\n\n")
+
+    true
+  }
+
+
+// Select table.
+  def selectTableWithException(dbName: String, tableName: String, showResults: Boolean, expectedErrorMsg: String): Boolean = {
+    val operation = "select table"
+
+    printf("\n\n")
+    println("Running command:")
+    println(s"""spark.sql("select * from $dbName.$tableName").show($showResults)""")
+    println("\nExpecting it to fail.")
+    println("--------------------------")
+    printf("\n\n")
+
+    try {
+      spark.sql("select * from " + dbName + "." + tableName).show(showResults)
+    } catch {
+      case e: Exception =>
+        return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
+    }
+
+    printf("\n\n")
+    println("--------------------------")
+    println("Test finished without issues while it was expected to fail.")
+    println("--------------------------")
+    printf("\n\n")
+
+    false
+  }
+
+  def selectTableNoException(dbName: String, tableName: String, showResults: Boolean): Boolean = {
+    val operation = "select table"
+
+    printf("\n\n")
+    println("Running command:")
+    println(s"""spark.sql("select * from $dbName.$tableName").show($showResults)""")
+    println("\nExpecting it to succeed.")
+    println("--------------------------")
+    printf("\n\n")
+
+    try {
+      spark.sql("select * from " + dbName + "." + tableName).show(showResults)
+    } catch {
+      case e: Exception =>
+        return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
+    }
+
+    printf("\n\n")
+    println("--------------------------")
+    println(s"'$operation' succeeded as expected.")
+    println("--------------------------")
+    printf("\n\n")
+
+    true
+  }
+
+// Describe table.
+  def describeTableNoException(dbName: String, tableName: String, showResults: Boolean): Boolean = {
+    val operation = "describe table"
+
+    printf("\n\n")
+    println("Running command:")
+    println(s"""spark.sql("describe $dbName.$tableName").show($showResults)""")
+    println("\nExpecting it to succeed.")
+    println("--------------------------")
+    printf("\n\n")
+
+    try {
+      spark.sql("describe " + dbName + "." + tableName).show(showResults)
+    } catch {
+      case e: Exception =>
+        return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
+    }
+
+    printf("\n\n")
+    println("--------------------------")
+    println(s"'$operation' succeeded as expected.")
+    println("--------------------------")
+    printf("\n\n")
+
+    true
+  }
+
+// Show databases.
+  def showDatabasesNoException(showResults: Boolean): Boolean = {
+    val operation = "show databases"
+
+    printf("\n\n")
+    println("Running command:")
+    println(s"""spark.sql("show databases").show($showResults)""")
+    println("\nExpecting it to succeed.")
+    println("--------------------------")
+    printf("\n\n")
+
+    try {
+      spark.sql("show databases").show(showResults)
+    } catch {
+      case e: Exception =>
+        return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
+    }
+
+    printf("\n\n")
+    println("--------------------------")
+    println(s"'$operation' succeeded as expected.")
+    println("--------------------------")
+    printf("\n\n")
+
+    true
+  }
+
+// Insert into.
+  def insertIntoTableWithException(dbName: String, tableName: String, expectedErrorMsg: String): Boolean = {
+    val operation = "insert into table"
+
+    printf("\n\n")
+    println("Running command:")
+    println(s"""spark.sql("insert into $dbName.$tableName values (4, 'Austin')")""")
+    println("\nExpecting it to fail.")
+    println("--------------------------")
+    printf("\n\n")
+
+    try {
+      spark.sql("insert into " + dbName + "." + tableName + "values (4, 'Austin')")
+    } catch {
+      case e: Exception =>
+        return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
+    }
+
+    printf("\n\n")
+    println("--------------------------")
+    println("Test finished without issues while it was expected to fail.")
+    println("--------------------------")
+    printf("\n\n")
+
+    false
+  }
 }
 

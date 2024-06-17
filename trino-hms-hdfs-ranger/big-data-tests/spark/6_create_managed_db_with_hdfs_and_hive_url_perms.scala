@@ -1,4 +1,10 @@
 
 val dbName="gross_test"
 
-CommonUtils.createDBNoException(isManaged = true, dbName = dbName, dbLocation = None)
+val result = CommonUtils.createDBNoException(isManaged = true, dbName = dbName, dbLocation = None)
+
+if (result) {
+  sys.exit(0)
+} else {
+  sys.exit(1)
+}

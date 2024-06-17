@@ -6,5 +6,10 @@ val dbName="gross_test"
 
 val expectedErrorMsg = s"Permission denied: user [$user] does not have [DROP] privilege on [$dbName]"
 
-CommonUtils.dropDBwithException(dbName = dbName, expectedErrorMsg = expectedErrorMsg)
+val result = CommonUtils.dropDBwithException(dbName = dbName, expectedErrorMsg = expectedErrorMsg)
 
+if (result) {
+  sys.exit(0)
+} else {
+  sys.exit(1)
+}

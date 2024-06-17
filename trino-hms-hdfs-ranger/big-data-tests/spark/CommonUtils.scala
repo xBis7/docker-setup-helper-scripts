@@ -32,6 +32,22 @@ object CommonUtils {
     }
   }
 
+  def printUnexpectedSuccessMsg(): Any = {
+    printf("\n\n")
+    println("--------------------------")
+    println("Test finished without issues while it was expected to fail.")
+    println("--------------------------")
+    printf("\n\n")
+  }
+
+  def printSuccessMsg(operation: String): Any = {
+    printf("\n\n")
+    println("--------------------------")
+    println(s"'$operation' succeeded as expected.")
+    println("--------------------------")
+    printf("\n\n")
+  }
+
 // Create DB.
   def createDBwithException(isManaged: Boolean, expectedErrorMsg: String, dbName: String, dbLocation: Option[String]): Boolean = {
 
@@ -77,11 +93,7 @@ object CommonUtils {
         return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println("Test finished without issues while it was expected to fail.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printUnexpectedSuccessMsg
 
     false
   }
@@ -130,11 +142,7 @@ object CommonUtils {
         return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println(s"'$operation' succeeded as expected.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printSuccessMsg(operation = operation)
 
     true
   }
@@ -157,11 +165,7 @@ object CommonUtils {
         return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println("Test finished without issues while it was expected to fail.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printUnexpectedSuccessMsg
 
     false
   }
@@ -183,11 +187,7 @@ object CommonUtils {
         return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println(s"'$operation' succeeded as expected.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printSuccessMsg(operation = operation)
 
     true
   }
@@ -210,11 +210,7 @@ object CommonUtils {
         return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println("Test finished without issues while it was expected to fail.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printUnexpectedSuccessMsg
 
     false
   }
@@ -236,11 +232,7 @@ object CommonUtils {
         return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println(s"'$operation' succeeded as expected.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printSuccessMsg(operation = operation)
 
     true
   } 
@@ -280,15 +272,32 @@ object CommonUtils {
         return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println(s"'$operation' succeeded as expected.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printSuccessMsg(operation = operation)
 
     true
   }
 
+  def createTableWithException(dbName: String, tableName: String, expectedErrorMsg: String): Boolean = {
+    val operation = "create table"
+
+    printf("\n\n")
+    println("Running command:")
+    println(s"""spark.sql("create table $dbName.$tableName (id int, greeting string)")""")
+    println("\nExpecting it to fail.")
+    println("--------------------------")
+    printf("\n\n")
+
+    try {
+      spark.sql("create table " + dbName + "." + tableName + " (id int, greeting string)")
+    } catch {
+      case e: Exception =>
+        return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
+    }
+
+    CommonUtils.printUnexpectedSuccessMsg
+
+    false
+  }
 
 // Select table.
   def selectTableWithException(dbName: String, tableName: String, showResults: Boolean, expectedErrorMsg: String): Boolean = {
@@ -308,11 +317,7 @@ object CommonUtils {
         return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println("Test finished without issues while it was expected to fail.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printUnexpectedSuccessMsg
 
     false
   }
@@ -334,11 +339,7 @@ object CommonUtils {
         return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println(s"'$operation' succeeded as expected.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printSuccessMsg(operation = operation)
 
     true
   }
@@ -361,11 +362,7 @@ object CommonUtils {
         return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println(s"'$operation' succeeded as expected.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printSuccessMsg(operation = operation)
 
     true
   }
@@ -388,11 +385,7 @@ object CommonUtils {
         return CommonUtils.printUnexpectedExceptionMsg(operation = operation, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println(s"'$operation' succeeded as expected.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printSuccessMsg(operation = operation)
 
     true
   }
@@ -415,13 +408,34 @@ object CommonUtils {
         return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
     }
 
-    printf("\n\n")
-    println("--------------------------")
-    println("Test finished without issues while it was expected to fail.")
-    println("--------------------------")
-    printf("\n\n")
+    CommonUtils.printUnexpectedSuccessMsg
 
     false
   }
+
+// Alter table.
+  def alterTableWithException(dbName: String, oldTableName: String, newTableName: String, expectedErrorMsg: String): Boolean = {
+    val operation = "alter table"
+
+    printf("\n\n")
+    println("Running command:")
+    println(s"""spark.sql("alter table $dbName.$oldTableName rename to $dbName.$newTableName")""")
+    println("\nExpecting it to fail.")
+    println("--------------------------")
+    printf("\n\n")
+
+    try {
+      spark.sql("alter table " + dbName + "." + oldTableName + " rename to " + dbName + "." + newTableName)
+    } catch {
+      case e: Exception =>
+        return CommonUtils.hasFailedWithTheExceptionAndMsg(operation = operation, expectedErrorMsg = expectedErrorMsg, e = e)
+    }
+
+    CommonUtils.printUnexpectedSuccessMsg
+
+    false
+  }
+
+
 }
 

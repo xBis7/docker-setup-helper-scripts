@@ -42,6 +42,34 @@ copyTestFilesUnderSpark() {
   done
 }
 
+copySimplifiedTestFilesUnderSpark() {
+  abs_path=$1
+
+  # Initialize an empty array.
+  test_files_array=()
+
+  # Populate the array.
+  test_files_array+=("$TEST1_FILE")
+  test_files_array+=("$TEST2_FILE")
+
+  index=1
+
+  for file in "${test_files_array[@]}"
+  do
+    # Copy the test file.
+    if [ "$CURRENT_ENV" == "local" ]; then
+      project_path="docker-setup-helper-scripts/trino-hms-hdfs-ranger"
+
+      docker cp "$abs_path/$project_path/big-data-tests/spark/simplified/test_$index/$file" "$SPARK_MASTER_HOSTNAME:/opt/spark"
+    else
+      # c3 - TODO.
+      echo "Implement this."
+    fi
+
+    index=$((index + 1))
+  done
+}
+
 waitForPoliciesUpdate() {
   echo ""
   echo "Wait for the policies to get updated."

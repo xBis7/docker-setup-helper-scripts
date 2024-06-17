@@ -7,8 +7,6 @@ source "./big-data-tests/env_variables.sh"
 copyTestFilesUnderSpark() {
   abs_path=$1
 
-  project_path="docker-setup-helper-scripts/trino-hms-hdfs-ranger"
-
   # Initialize an empty array.
   test_files_array=()
 
@@ -20,13 +18,20 @@ copyTestFilesUnderSpark() {
   test_files_array+=("$TEST4_FILE")
   test_files_array+=("$TEST5_FILE")
   test_files_array+=("$TEST6_FILE")
+  test_files_array+=("$TEST7_AND_8_1_FILE")
+  test_files_array+=("$TEST7_2_FILE")
+  test_files_array+=("$TEST8_2_FILE")
+  test_files_array+=("$TEST8_3_FILE")
 
   for file in "${test_files_array[@]}"
   do
     # Copy the test file.
     if [ "$CURRENT_ENV" == "local" ]; then
+      project_path="docker-setup-helper-scripts/trino-hms-hdfs-ranger"
+
       docker cp "$abs_path/$project_path/big-data-tests/spark/$file" "$SPARK_MASTER_HOSTNAME:/opt/spark"
     else
+      # c3 - TODO.
       echo "Implement this."
     fi
   done
@@ -53,6 +58,7 @@ createHdfsDir() {
   if [ "$CURRENT_ENV" == "local" ]; then
     docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
   else
+    # c3 - TODO.
     echo "Implement this."
   fi
 
@@ -75,7 +81,48 @@ changeHdfsDirPermissions() {
   if [ "$CURRENT_ENV" == "local" ]; then
     docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
   else
+    # c3 - TODO.
     echo "Implement this."
+  fi
+
+  echo ""
+  echo "Command succeeded."
+  echo ""
+}
+
+listContentsOnHdfsPath() {
+  path=$1
+  expectedEmptyResult=$2
+  expectedOutput=$3
+
+  hdfs_cmd="hdfs dfs -ls /$path"
+
+  echo ""
+  echo "Running command:"
+  echo "$hdfs_cmd"
+  echo "and checking results."
+  echo ""
+
+  # Initialize the variable.
+  result=
+
+  if [ "$CURRENT_ENV" == "local" ]; then
+    result=$(docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd")
+  else
+    # c3 - TODO.
+    echo "Implement this."
+    # result=$()
+  fi
+
+  if [ "$expectedEmptyResult" == "true" ]; then
+    # Check that the result is empty as expected.
+    if [ "$result" != "" ]; then
+      echo "Result is expected to be empty but it isn't. Exiting..."
+      exit 1
+    fi
+  else
+    # If grep fails then it will exit.
+    cat "$result" | grep "$expectedOutput"
   fi
 
   echo ""
@@ -91,6 +138,7 @@ runScalaFileInSparkShell() {
   if [ "$CURRENT_ENV" == "local" ]; then
     docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "$spark_shell_cmd"
   else
+    # c3 - TODO.
     echo "Implement this."
   fi
 }
@@ -107,6 +155,7 @@ combineFileWithCommonUtilsFile() {
   if [ "$CURRENT_ENV" == "local" ]; then
     docker exec -it -u spark "$SPARK_MASTER_HOSTNAME" bash -c "$cmd"
   else
+    # c3 - TODO.
     echo "Implement this."
   fi
 }

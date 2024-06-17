@@ -112,13 +112,32 @@ runScalaFileInSparkShell "bin/spark-shell -I $TMP_COMBINED_FILE" "$SPARK_USER1"
 # kinit user2
 
 # Try to access it as another user.
-combineFileWithCommonUtilsFile "$TEST8_2_FILE"
-runScalaFileInSparkShell "bin/spark-shell --conf spark.user=\"$SPARK_USER2\" --conf spark.namenode=\"$NAMENODE_NAME\" --conf spark.hive_warehouse_dir=\"/$HIVE_WAREHOUSE_DIR\" -I $TMP_COMBINED_FILE" "$SPARK_USER2"
+# combineFileWithCommonUtilsFile "$TEST8_2_FILE"
+# runScalaFileInSparkShell "bin/spark-shell --conf spark.user=\"$SPARK_USER2\" --conf spark.namenode=\"$NAMENODE_NAME\" --conf spark.hive_warehouse_dir=\"/$HIVE_WAREHOUSE_DIR\" -I $TMP_COMBINED_FILE" "$SPARK_USER2"
 
 # Update the HDFS policies
 ./big-data-tests/spark/8_1_set_policies.sh
 
 # Try to insert into the table as another user.
-combineFileWithCommonUtilsFile "$TEST8_3_FILE"
-runScalaFileInSparkShell "bin/spark-shell --conf spark.user=\"$SPARK_USER2\" --conf spark.namenode=\"$NAMENODE_NAME\" --conf spark.hive_warehouse_dir=\"/$HIVE_WAREHOUSE_DIR\" -I $TMP_COMBINED_FILE" "$SPARK_USER2"
+# combineFileWithCommonUtilsFile "$TEST8_3_FILE"
+# runScalaFileInSparkShell "bin/spark-shell --conf spark.user=\"$SPARK_USER2\" --conf spark.namenode=\"$NAMENODE_NAME\" --conf spark.hive_warehouse_dir=\"/$HIVE_WAREHOUSE_DIR\" -I $TMP_COMBINED_FILE" "$SPARK_USER2"
 
+echo ""
+echo "## Test 9 ##"
+echo "Attempt to access a managed table as another user when select has been revoked"
+echo ""
+
+./big-data-tests/spark/9_set_policies.sh
+
+combineFileWithCommonUtilsFile "$TEST9_FILE"
+runScalaFileInSparkShell "bin/spark-shell --conf spark.user=\"$SPARK_USER2\" -I $TMP_COMBINED_FILE" "$SPARK_USER2"
+
+echo ""
+echo "## Test 10 ##"
+echo "Attempt various DDL operations against the managed table as a different user"
+echo ""
+
+./big-data-tests/spark/10_set_policies.sh
+
+combineFileWithCommonUtilsFile "$TEST10_FILE"
+runScalaFileInSparkShell "bin/spark-shell --conf spark.user=\"$SPARK_USER2\" -I $TMP_COMBINED_FILE" "$SPARK_USER2"

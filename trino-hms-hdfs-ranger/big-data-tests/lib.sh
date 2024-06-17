@@ -24,6 +24,9 @@ copyTestFilesUnderSpark() {
   test_files_array+=("$TEST8_3_FILE")
   test_files_array+=("$TEST9_FILE")
   test_files_array+=("$TEST10_FILE")
+  test_files_array+=("$TEST11_1_FILE")
+  test_files_array+=("$TEST11_2_FILE")
+  test_files_array+=("$TEST11_3_FILE")
 
   for file in "${test_files_array[@]}"
   do

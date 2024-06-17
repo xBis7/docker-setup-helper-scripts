@@ -8,4 +8,10 @@ val dbLocation = dbBaseDir + "/gross_test/gross_test.db"
 
 val expectedErrorMsg = s"Permission denied: user [$user] does not have [CREATE] privilege on [$dbName]"
 
-CommonUtils.createDBwithException(isManaged = false, expectedErrorMsg = expectedErrorMsg, dbName = dbName, dbLocation = Some(dbLocation))
+val result = CommonUtils.createDBwithException(isManaged = false, expectedErrorMsg = expectedErrorMsg, dbName = dbName, dbLocation = Some(dbLocation))
+
+if (result) {
+  sys.exit(0)
+} else {
+  sys.exit(1)
+}

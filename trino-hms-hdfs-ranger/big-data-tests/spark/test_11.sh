@@ -18,8 +18,8 @@ updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$SPARK_USER1/s
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy "select:$SPARK_USER1,$SPARK_USER2"
 
-# It's the same as in the previous test.
-updateHiveUrlPolicy "read,write:$SPARK_USER1" "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
+# In the BigData notes, this isn't part of the policies 'hdfs://$NAMENODE_NAME/data/projects/gross_test'
+updateHiveUrlPolicy "read,write:$SPARK_USER1" "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db,hdfs://$NAMENODE_NAME/data/projects/gross_test"
 
 waitForPoliciesUpdate
 

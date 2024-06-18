@@ -12,21 +12,23 @@ copyTestFilesUnderSpark() {
 
   # Populate the array.
   test_files_array+=("$COMMON_UTILS_FILE")
-  test_files_array+=("$TEST1_FILE")
-  test_files_array+=("$TEST2_FILE")
-  test_files_array+=("$TEST3_FILE")
-  test_files_array+=("$TEST4_FILE")
-  test_files_array+=("$TEST5_FILE")
-  test_files_array+=("$TEST6_FILE")
-  test_files_array+=("$TEST7_AND_8_1_FILE")
-  test_files_array+=("$TEST7_2_FILE")
-  test_files_array+=("$TEST8_2_FILE")
-  test_files_array+=("$TEST8_3_FILE")
-  test_files_array+=("$TEST9_FILE")
-  test_files_array+=("$TEST10_FILE")
-  test_files_array+=("$TEST11_1_FILE")
-  test_files_array+=("$TEST11_2_FILE")
-  test_files_array+=("$TEST11_3_FILE")
+  test_files_array+=("$TEST_CMD_SUCCESS_FILE")
+  test_files_array+=("$TEST_CMD_FAILURE_FILE")
+  # test_files_array+=("$TEST1_FILE")
+  # test_files_array+=("$TEST2_FILE")
+  # test_files_array+=("$TEST3_FILE")
+  # test_files_array+=("$TEST4_FILE")
+  # test_files_array+=("$TEST5_FILE")
+  # test_files_array+=("$TEST6_FILE")
+  # test_files_array+=("$TEST7_AND_8_1_FILE")
+  # test_files_array+=("$TEST7_2_FILE")
+  # test_files_array+=("$TEST8_2_FILE")
+  # test_files_array+=("$TEST8_3_FILE")
+  # test_files_array+=("$TEST9_FILE")
+  # test_files_array+=("$TEST10_FILE")
+  # test_files_array+=("$TEST11_1_FILE")
+  # test_files_array+=("$TEST11_2_FILE")
+  # test_files_array+=("$TEST11_3_FILE")
 
   for file in "${test_files_array[@]}"
   do
@@ -39,34 +41,6 @@ copyTestFilesUnderSpark() {
       # c3 - TODO.
       echo "Implement this."
     fi
-  done
-}
-
-copySimplifiedTestFilesUnderSpark() {
-  abs_path=$1
-
-  # Initialize an empty array.
-  test_files_array=()
-
-  # Populate the array.
-  test_files_array+=("$TEST1_FILE")
-  test_files_array+=("$TEST2_FILE")
-
-  index=1
-
-  for file in "${test_files_array[@]}"
-  do
-    # Copy the test file.
-    if [ "$CURRENT_ENV" == "local" ]; then
-      project_path="docker-setup-helper-scripts/trino-hms-hdfs-ranger"
-
-      docker cp "$abs_path/$project_path/big-data-tests/spark/simplified/test_$index/$file" "$SPARK_MASTER_HOSTNAME:/opt/spark"
-    else
-      # c3 - TODO.
-      echo "Implement this."
-    fi
-
-    index=$((index + 1))
   done
 }
 
@@ -163,7 +137,6 @@ listContentsOnHdfsPath() {
   echo ""
 }
 
-
 runScalaFileInSparkShell() {
   spark_shell_cmd=$1
   user=$2
@@ -191,4 +164,67 @@ combineFileWithCommonUtilsFile() {
     # c3 - TODO.
     echo "Implement this."
   fi
+}
+
+base64encode() {
+  input=$1
+
+  # Because of OS differences, it is necessary to use -w 0 for Linux distros.
+  if [[ $(uname) != "Darwin"* ]]; then
+    echo -n "$input" | base64 -w 0
+  else
+    echo -n "$input" | base64
+  fi
+}
+
+runSpark() {
+  user=$1
+  spark_cmd=$2
+  expectSuccess=$3
+  expectedError=$4
+
+  # The cmd and the error, occasionally aren't properly passed to the scala file.
+  # Some times, everything after the first space is truncated.
+  # To workaround the issue:
+  # - encode the string here
+  # - decode the string on the scala file
+  encoded_cmd=$(base64encode "$spark_cmd")
+  encoded_error=$(base64encode "$expectedError")
+
+  if [ "$expectSuccess" == "true" ]; then
+    combineFileWithCommonUtilsFile "$TEST_CMD_SUCCESS_FILE"
+
+    runScalaFileInSparkShell "bin/spark-shell --conf spark.encoded.command=\"$encoded_cmd\" -I $TMP_COMBINED_FILE" "$user"
+  else
+    combineFileWithCommonUtilsFile "$TEST_CMD_FAILURE_FILE"
+
+    runScalaFileInSparkShell "bin/spark-shell --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_error=\"$encoded_error\" -I $TMP_COMBINED_FILE" "$user"
+  fi
+}
+
+updateHdfsPathPolicy() {
+  permissions=$1
+  path_list=$2
+
+  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "$path_list" "$permissions" "put"
+}
+
+updateHiveDbAllPolicy() {
+  permissions=$1
+  db_list=$2
+
+  ./ranger_api/create_update/create_update_hive_all_db_policy.sh "$permissions" "put" "$db_list"
+}
+
+updateHiveDefaultDbPolicy() {
+  permissions=$1
+
+  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "$permissions" "put"
+}
+
+updateHiveUrlPolicy() {
+  permissions=$1
+  url_list=$2
+
+  ./ranger_api/create_update/create_update_hive_url_policy.sh "$permissions" "put" "$url_list"
 }

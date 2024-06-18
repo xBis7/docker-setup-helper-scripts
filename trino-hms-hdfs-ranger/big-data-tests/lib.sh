@@ -14,21 +14,6 @@ copyTestFilesUnderSpark() {
   test_files_array+=("$COMMON_UTILS_FILE")
   test_files_array+=("$TEST_CMD_SUCCESS_FILE")
   test_files_array+=("$TEST_CMD_FAILURE_FILE")
-  # test_files_array+=("$TEST1_FILE")
-  # test_files_array+=("$TEST2_FILE")
-  # test_files_array+=("$TEST3_FILE")
-  # test_files_array+=("$TEST4_FILE")
-  # test_files_array+=("$TEST5_FILE")
-  # test_files_array+=("$TEST6_FILE")
-  # test_files_array+=("$TEST7_AND_8_1_FILE")
-  # test_files_array+=("$TEST7_2_FILE")
-  # test_files_array+=("$TEST8_2_FILE")
-  # test_files_array+=("$TEST8_3_FILE")
-  # test_files_array+=("$TEST9_FILE")
-  # test_files_array+=("$TEST10_FILE")
-  # test_files_array+=("$TEST11_1_FILE")
-  # test_files_array+=("$TEST11_2_FILE")
-  # test_files_array+=("$TEST11_3_FILE")
 
   for file in "${test_files_array[@]}"
   do
@@ -121,7 +106,7 @@ listContentsOnHdfsPath() {
     # result=$()
   fi
 
-  if [ "$expectedEmptyResult" == "true" ]; then
+  if [ "$expectedEmptyResult" == "shouldBeEmpty" ]; then
     # Check that the result is empty as expected.
     if [ "$result" != "" ]; then
       echo "Result is expected to be empty but it isn't. Exiting..."
@@ -191,7 +176,7 @@ runSpark() {
   encoded_cmd=$(base64encode "$spark_cmd")
   encoded_error=$(base64encode "$expectedError")
 
-  if [ "$expectSuccess" == "true" ]; then
+  if [ "$expectSuccess" == "shouldPass" ]; then
     combineFileWithCommonUtilsFile "$TEST_CMD_SUCCESS_FILE"
 
     runScalaFileInSparkShell "bin/spark-shell --conf spark.encoded.command=\"$encoded_cmd\" -I $TMP_COMBINED_FILE" "$user"

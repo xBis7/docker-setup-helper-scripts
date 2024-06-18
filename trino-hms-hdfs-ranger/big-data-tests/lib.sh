@@ -21,7 +21,7 @@ copyTestFilesUnderSpark() {
     if [ "$CURRENT_ENV" == "local" ]; then
       project_path="docker-setup-helper-scripts/trino-hms-hdfs-ranger"
 
-      docker cp "$abs_path/$project_path/big-data-tests/spark/$file" "$SPARK_MASTER_HOSTNAME:/opt/spark"
+      docker cp "$abs_path/$project_path/big-data-tests/spark/scala_test_files/$file" "$SPARK_MASTER_HOSTNAME:/opt/spark"
     else
       # c3 - TODO.
       echo "Implement this."

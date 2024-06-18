@@ -42,6 +42,8 @@ HIVE_GROSS_DB_TEST_DIR="$HIVE_GROSS_TEST_DIR/gross_test.db"
 # Test file names.
 COMMON_UTILS_FILE="CommonUtils.scala"
 TMP_COMBINED_FILE="tmp_combined.scala"
+TEST_CMD_SUCCESS_FILE="test_cmd_success.scala"
+TEST_CMD_FAILURE_FILE="test_cmd_failure.scala"
 TEST1_FILE="1_create_db_no_create_perm.scala"
 TEST2_FILE="2_create_db_no_hdfs_perms.scala"
 TEST3_FILE="3_create_db_with_hive_hdfs_perms.scala"

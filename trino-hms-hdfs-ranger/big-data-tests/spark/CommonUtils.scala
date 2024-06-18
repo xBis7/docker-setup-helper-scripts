@@ -70,11 +70,15 @@ object CommonUtils {
     try {
       // Using Scala reflection, we can execute the String as scala code.
       val mkToolBox = currentMirror.mkToolBox()
+      // This command is running in a new context and we need to make the spark object available.
+      // In case the cmd contains `toDF`, we need to add 'import spark.implicits._',
+      // after the spark object has been created.
       val wrappedCommand = s"""
-        import org.apache.spark.sql.SparkSession
-        val spark = SparkSession.builder().getOrCreate()
-        $decodedCommandStr
-      """
+        |import org.apache.spark.sql.SparkSession
+        |val spark = SparkSession.builder().getOrCreate()
+        |import spark.implicits._
+        |$decodedCommandStr
+      """.stripMargin
       mkToolBox.eval(mkToolBox.parse(wrappedCommand))
     } catch {
       case e: Exception =>
@@ -112,11 +116,15 @@ object CommonUtils {
     try {
       // Using Scala reflection, we can execute the String as scala code.
       val mkToolBox = currentMirror.mkToolBox()
+      // This command is running in a new context and we need to make the spark object available.
+      // In case the cmd contains `toDF`, we need to add 'import spark.implicits._',
+      // after the spark object has been created.
       val wrappedCommand = s"""
-        import org.apache.spark.sql.SparkSession
-        val spark = SparkSession.builder().appName("Spark SQL").master("local").getOrCreate()
-        $decodedCommandStr
-      """
+        |import org.apache.spark.sql.SparkSession
+        |val spark = SparkSession.builder().appName("Spark SQL").master("local").getOrCreate()
+        |import spark.implicits._
+        |$decodedCommandStr
+      """.stripMargin
       mkToolBox.eval(mkToolBox.parse(wrappedCommand))
     } catch {
       case e: Exception =>

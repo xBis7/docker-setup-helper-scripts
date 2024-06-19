@@ -21,7 +21,7 @@ updateHiveDefaultDbPolicy "select:$SPARK_USER1,$SPARK_USER2"
 # It's the same as in the previous test.
 updateHiveUrlPolicy "read,write:$SPARK_USER1" "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
 
-# waitForPoliciesUpdate
+waitForPoliciesUpdate
 
 # Drop.
 command="spark.sql(\"drop table gross_test.test\")"

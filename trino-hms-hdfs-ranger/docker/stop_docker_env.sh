@@ -14,6 +14,8 @@ handleTrinoEnv "$abs_path" "stop"
 
 handleSparkEnv "$abs_path" "stop"
 
+handleHivePostgresEnv "$abs_path" "stop"
+
 handleHiveEnv "$abs_path" "stop"
 
 handleHadoopEnv "$abs_path" "stop"

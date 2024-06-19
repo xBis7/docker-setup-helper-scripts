@@ -444,6 +444,37 @@ handleHadoopEnv() {
   fi
 }
 
+handleHivePostgresEnv() {
+  abs_path=$1
+  op=$2
+
+  hive_docker_path="$abs_path/$PROJECT_HIVE/packaging/target/apache-hive-$HIVE_BUILD_VERSION-bin/apache-hive-$HIVE_BUILD_VERSION-bin/compose/hive-metastore-ranger/postgres"
+
+  cd $hive_docker_path
+
+  if [ "$op" == "start" ]; then
+    echo ""
+    echo "Starting '$PROJECT_HIVE postgres' env."
+    echo ""
+
+    docker compose -f "$hive_docker_path/docker-compose.yaml" up -d
+
+    echo ""
+    echo "'$PROJECT_HIVE postgres' env started."
+    echo ""
+  else
+    echo ""
+    echo "Stopping '$PROJECT_HIVE postgres' env."
+    echo ""
+
+    docker compose -f "$hive_docker_path/docker-compose.yaml" down
+
+    echo ""
+    echo "'$PROJECT_HIVE postgres' env stopped."
+    echo ""
+  fi
+}
+
 handleHiveEnv() {
   abs_path=$1
   op=$2

@@ -21,6 +21,10 @@ handleRangerEnv "$abs_path" "start"
 
 handleHadoopEnv "$abs_path" "start"
 
+handleHivePostgresEnv "$abs_path" "start"
+
+sleep 10
+
 handleHiveEnv "$abs_path" "start" "$hive_url_policies_enabled"
 
 handleTrinoEnv "$abs_path" "start"

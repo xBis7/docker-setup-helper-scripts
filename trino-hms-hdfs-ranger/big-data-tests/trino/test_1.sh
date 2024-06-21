@@ -12,7 +12,7 @@ echo ""
 
 # 1st parameter in all policy methods is 'permissions'.
 # 'permissions' have this format -> 'operation1,operation2:user1,user2/operation4,operation5,operation6:user3'
-# e.g. 'read,write:hadoop,spark/read,execute:hive'
+# e.g. 'read,write:hadoop,trino/read,execute:hive'
 
 # 1st parameter: permissions
 # 2nd parameter: comma-separated list of paths

@@ -11,11 +11,6 @@ echo "Test3: ############### create table (managed + not-managed) without and wi
 echo ""
 
 echo ""
-echo "Adding user trino to the HDFS policies."
-
-updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
-
-echo ""
 echo "Deleting Hive URL policies."
 
 ./ranger_api/delete_policy.sh "hive" "url"

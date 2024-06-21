@@ -12,7 +12,9 @@ abs_path=$1
 
 ./docker/start_docker_env.sh "$abs_path"
 
-./setup/load_ranger_policies.sh "$abs_path" "$DEFAULT_AND_NO_HIVE"
+./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
+
+waitForPoliciesUpdate
 
 notExpMsg="Permission denied"
 retryOperationIfNeeded "$abs_path" "createHdfsDir $HDFS_DIR" "$notExpMsg" "false" "true"

@@ -62,7 +62,7 @@ retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILEN
 echo ""
 echo "Creating Hive URL policies again."
 
-./ranger_api/create_update/create_update_hive_url_policy.sh "read,write:spark" "create"
+createHiveUrlPolicy "read,write:spark"
 waitForPoliciesUpdate
 
 echo ""

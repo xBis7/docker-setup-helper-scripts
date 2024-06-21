@@ -12,6 +12,10 @@ echo "- INFO: all you need is HDFS perms. No Hive perms are needed."
 echo "- INFO: User [spark] doesn't have HDFS or Hive permissions."
 echo "- INFO: Create database."
 echo "- INFO: User [spark] shouldn't be able to create database."
+
+updateHiveDefaultDbPolicy "select,read:spark,trino"
+waitForPoliciesUpdate
+
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME
 scala_sql=$(base64encode "create database $EXTERNAL_DB location 'hdfs://namenode/opt/hive/data/$EXTERNAL_DB/external/$EXTERNAL_DB.db'")
 scala_msg=$(base64encode "Permission denied: user [spark] does not have [ALL] privilege on [hdfs://namenode/opt/hive/data/$EXTERNAL_DB/external/$EXTERNAL_DB.db]")

@@ -22,6 +22,8 @@ echo ""
 echo "- INFO: Updating Ranger policies. Loading base Hive URL policies. No user will have any access."
 ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
 
+waitForPoliciesUpdate
+
 # Create external DB directory 'gross_test.db'.
 notExpMsg="Permission denied"
 retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR" "$notExpMsg" "false" "true"

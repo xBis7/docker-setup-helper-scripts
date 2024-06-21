@@ -53,21 +53,7 @@ configureHiveVersion() {
 configureHiveVersion
 
 # Dump file names
-DEFAULT_POLICIES="0_defaults"
-DEFAULT_AND_NO_HIVE="1_defaults_no_hive_perm_defaultdb"
-DEFAULT_AND_HIVE_ONLY_SELECT="1_defaults_hive_only_select"
-HDFS_ACCESS="2_hdfs_all"
-HDFS_ACCESS_WITH_SELECT="2_hdfs_all_with_select"
-HDFS_AND_HIVE_ALL="3_hive_defaultdb_all"
-TRINO_HDFS_AND_HIVE_ALL="3_trino_hdfs_hive_defaultdb_all"
-HIVE_ALL_NO_HDFS="3_hive_defaultdb_all_no_hdfs"
-HDFS_AND_HIVE_SELECT="4_hive_defaultdb_select"
-HDFS_AND_HIVE_SELECT_ALTER="5_hive_defaultdb_select_alter"
-HDFS_AND_HIVE_SELECT_ALTER_DROP="6_hive_defaultdb_select_alter_drop"
-HDFS_AND_HIVE_AND_CREATE_HIVE_URL="7_hdfs_hive_create_hive_url"
-HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
-HDFS_POLICIES_FOR_RANGER_TESTING="hdfs_policies_for_ranger_testing"
-HIVE_URL_NO_HDFS="hive_url_no_hdfs"
+HDFS_POLICIES_FOR_RANGER_TESTING="hdfs_policies_for_ranger_testing" # It has a deny condition.
 HIVE_BASE_POLICIES="hive_base_policies"
 
 # Const shared variables

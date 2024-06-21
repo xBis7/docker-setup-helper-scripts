@@ -7,10 +7,14 @@ set -e
 abs_path=$1
 
 echo ""
-echo "- INFO: Updating Ranger policies. User [postgres] now will have [ALL] privileges on all HDFS paths."
+echo "- INFO: Updating Ranger policies. User [trino] now will have [ALL] privileges on all HDFS paths."
 echo "- INFO: There will be no Hive permissions."
 
-./setup/load_ranger_policies.sh "$abs_path" "$HDFS_ACCESS_WITH_SELECT"
+updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
+updateHiveDbAllPolicy "select,read:spark,trino"
+updateHiveDefaultDbPolicy "select,read:spark,trino"
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
 waitForPoliciesUpdate
 
 echo ""

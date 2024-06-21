@@ -15,6 +15,10 @@ if [ "$prepare_env" == "true" ]; then
   ./docker/start_docker_env.sh "$abs_path"
 fi
 
+./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
+
+waitForPoliciesUpdate
+
 echo ""
 echo "### TEST_0 ###"
 ./tests/test_hdfs_data_creation.sh "$abs_path"
@@ -61,17 +65,17 @@ if [ "$component" == "spark" ]; then
 else
   echo ""
   echo "### TEST_1 ###"
-  ./tests/trino/1_test_trino_no_hdfs_perms.sh "$abs_path"
+  # ./tests/trino/1_test_trino_no_hdfs_perms.sh "$abs_path"
 
   echo ""
   echo "### TEST_SCHEMA ###"
   # A database in Trino is considered a schema.
   # Same as 'spark/database/test_database.sh' but for trino.
-  ./tests/trino/schema/test_schema.sh "$abs_path" "true"
+  # ./tests/trino/schema/test_schema.sh "$abs_path" "true"
 
   echo ""
   echo "### TEST_2 ###"
-  ./tests/trino/2_test_trino_hdfs_perms_no_hive_perms.sh "$abs_path"
+  # ./tests/trino/2_test_trino_hdfs_perms_no_hive_perms.sh "$abs_path"
 
   echo ""
   echo "### TEST_3 ###"

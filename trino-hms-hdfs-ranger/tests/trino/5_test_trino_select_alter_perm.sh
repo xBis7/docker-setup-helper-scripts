@@ -8,9 +8,15 @@ abs_path=$1
 
 echo ""
 echo "- INFO: Updating Ranger policies."
-echo "- INFO: Users [postgres] will now have [select, alter] access to Hive default DB."
+echo "- INFO: Users [trino] will now have [select, alter] access to Hive default DB."
 echo "- INFO: User [trino] will now have [Write] permission for HDFS policy."
-./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_SELECT_ALTER"
+# ./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_SELECT_ALTER"
+
+updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
+updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveDefaultDbPolicy "select,Alter:spark,trino"
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
 waitForPoliciesUpdate
 
 echo ""
@@ -18,14 +24,14 @@ echo "- INFO: Insert into $TRINO_TABLE table."
 echo "- INFO: [alter] should succeed."
 cmd="insert into hive.default.$TRINO_TABLE values ('5', 'cat');"
 successMsg="INSERT: 1 row"
-retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
+retryOperationIfNeeded "$abs_path" "performTrinoCmd trino $cmd" "$successMsg" "false"
 
 echo ""
 echo "- INFO: Delete from $TRINO_TABLE table."
 echo "- INFO: [alter] should succeed but not delete itself because this table is not Hive managed."
 cmd="delete from hive.default.$TRINO_TABLE;"
 failMsg="Cannot delete from non-managed Hive table"
-retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$failMsg" "true"
+retryOperationIfNeeded "$abs_path" "performTrinoCmd trino $cmd" "$failMsg" "true"
 
 echo ""
 echo "- INFO: Rename table $TRINO_TABLE."
@@ -39,7 +45,7 @@ echo "- INFO: Insert into $TABLE_ANIMALS table."
 echo "- INFO: [alter] should succeed."
 cmd="insert into hive.default.$TABLE_ANIMALS values (1, 'cat');"
 successMsg="INSERT: 1 row"
-retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
+retryOperationIfNeeded "$abs_path" "performTrinoCmd trino $cmd" "$successMsg" "false"
 
 # FIXME: This test fails for Hive 4
 # It fails with the following error: "Query 20240402_105548_00016_g47rj failed: Cannot delete from non-managed Hive table".
@@ -50,5 +56,5 @@ if [ "$HIVE_VERSION" != "4" ]; then
   echo "- INFO: [alter] should succeed."
   cmd="delete from hive.default.$TABLE_ANIMALS;"
   successMsg="DELETE"
-  retryOperationIfNeeded "$abs_path" "performTrinoCmd $cmd" "$successMsg" "false"
+  retryOperationIfNeeded "$abs_path" "performTrinoCmd trino $cmd" "$successMsg" "false"
 fi

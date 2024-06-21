@@ -20,7 +20,7 @@ fi
 
 echo ""
 echo "- INFO: Updating Ranger policies. Loading base Hive URL policies. No user will have any access."
-./setup/load_ranger_policies.sh "$abs_path" "$HIVE_URL_BASE_POLICIES"
+./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
 
 # Create external DB directory 'gross_test.db'.
 notExpMsg="Permission denied"
@@ -29,7 +29,7 @@ retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR" "$not
 echo ""
 echo "Updating HDFS policies."
 echo ""
-./ranger_api/create_update/create_update_hdfs_path_policy.sh "/*" "read,write,execute:hadoop,spark,postgres" "put"
+updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
 
 echo ""
 echo "---------------------------------------------------"
@@ -37,7 +37,7 @@ echo "---------------------------------------------------"
 echo ""
 echo "Updating Hive all db, cols, tables."
 echo ""
-./ranger_api/create_update/create_update_hive_all_db_policy.sh "select,update,create,drop,alter,index,lock:spark,postgres/select:games" "put"
+updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 
 echo ""
 echo "---------------------------------------------------"
@@ -45,7 +45,7 @@ echo "---------------------------------------------------"
 echo ""
 echo "Updating Hive default db."
 echo ""
-./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "select,update,create,drop,alter,index,lock:spark,postgres/select:games" "put"
+updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 
 echo ""
 echo "---------------------------------------------------"

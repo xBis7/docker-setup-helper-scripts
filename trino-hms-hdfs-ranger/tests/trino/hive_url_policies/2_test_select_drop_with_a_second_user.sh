@@ -11,7 +11,15 @@ echo "Test2: ############### test select and drop with user 'games' ############
 echo ""
 
 echo ""
-echo "This test can't be performed for trino."
-echo "The trino shell user doesn't matter because all operations are performed through hive with user 'postgres'."
-echo "We need to find a way to change user 'postgres' or make the shell user the caller."
+echo "User 'games' has SELECT access. Show database should succeed."
+
+cmd="show schemas from hive;"
+successMsg="$GROSS_DB_NAME"
+retryOperationIfNeeded "$abs_path" "performTrinoCmd games $cmd" "$successMsg" "false"
+
 echo ""
+echo "Trying to drop schema $GROSS_DB_NAME as user 'games'. User doesn't have permissions and operation should fail."
+
+cmd="drop schema hive.$GROSS_DB_NAME;"
+failureMsg="Permission denied: user [games] does not have [DROP] privilege on [$GROSS_DB_NAME]"
+retryOperationIfNeeded "$abs_path" "performTrinoCmd games $cmd" "$failureMsg" "true"

@@ -140,11 +140,12 @@ runScalaFileInSparkShell() {
 # we are combining the files and executing the combined file.
 combineFileWithCommonUtilsFile() {
   file_name=$1
+  user=$2
 
   cmd="cat $COMMON_UTILS_FILE $file_name > $TMP_COMBINED_FILE"
 
   if [ "$CURRENT_ENV" == "local" ]; then
-    docker exec -it -u spark "$SPARK_MASTER_HOSTNAME" bash -c "$cmd"
+    docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "$cmd"
   else
     # c3 - TODO.
     echo "Implement this."
@@ -165,7 +166,7 @@ base64encode() {
 runSpark() {
   user=$1
   spark_cmd=$2
-  expectSuccess=$3
+  expectedResult=$3
   expectedError=$4
 
   # The cmd and the error, occasionally aren't properly passed to the scala file.
@@ -176,15 +177,60 @@ runSpark() {
   encoded_cmd=$(base64encode "$spark_cmd")
   encoded_error=$(base64encode "$expectedError")
 
-  if [ "$expectSuccess" == "shouldPass" ]; then
-    combineFileWithCommonUtilsFile "$TEST_CMD_SUCCESS_FILE"
+  if [ "$expectedResult" == "shouldPass" ]; then
+    combineFileWithCommonUtilsFile "$TEST_CMD_SUCCESS_FILE" "$user"
 
     runScalaFileInSparkShell "bin/spark-shell --conf spark.encoded.command=\"$encoded_cmd\" -I $TMP_COMBINED_FILE" "$user"
   else
-    combineFileWithCommonUtilsFile "$TEST_CMD_FAILURE_FILE"
+    combineFileWithCommonUtilsFile "$TEST_CMD_FAILURE_FILE" "$user"
 
     runScalaFileInSparkShell "bin/spark-shell --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_error=\"$encoded_error\" -I $TMP_COMBINED_FILE" "$user"
   fi
+}
+
+runTrino() {
+  user=$1
+  trino_cmd=$2
+  expectedResult=$3
+  expectedOutput=$4
+
+  resultMsg=""
+  if [ "$expectedResult" == "shouldPass" ]; then
+    resultMsg="succeeded"
+  else
+    resultMsg="failed"
+  fi
+
+  if [ "$CURRENT_ENV" == "local" ]; then
+    docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
+  else
+    # c3 - TODO.
+    echo "Implement this."
+    # $(cmd) 2>&1 | tee "$tmp_file"
+  fi
+
+  # Test the output.
+  if !(grep -F "$expectedOutput" "$TRINO_TMP_OUTPUT_FILE" > /dev/null); then
+    echo ""
+    echo "--------------------------"
+    echo "The command failed. It didn't have the expected output."
+    echo "Expected output: '$expectedOutput'"
+    echo "Actual output: '$(cat $TRINO_TMP_OUTPUT_FILE)'"
+    echo "--------------------------"
+    echo ""
+    exit 1
+  else
+    echo ""
+    echo "--------------------------"
+    echo "Command '$resultMsg' as expected."
+    echo "The output matched the provided message!"
+    echo "--------------------------"
+    echo ""
+  fi
+
+  # Clean the tmp file only in case of success.
+  # In case of failure, the tmp file will be left around so that it can be examined.
+  rm $TRINO_TMP_OUTPUT_FILE
 }
 
 updateHdfsPathPolicy() {

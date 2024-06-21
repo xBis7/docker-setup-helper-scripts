@@ -7,9 +7,11 @@ POLICIES_UPDATE_INTERVAL=10
 
 # Ranger users.
 HDFS_USER="hadoop"
-HIVE_USER="postgres"
+HIVE_USER="hive"
 SPARK_USER1="spark"
 SPARK_USER2="test1"
+TRINO_USER1="trino"
+TRINO_USER2="games"
 
 # Hostnames.
 NAMENODE_HOSTNAME="docker-namenode-1"
@@ -44,3 +46,7 @@ COMMON_UTILS_FILE="CommonUtils.scala"
 TMP_COMBINED_FILE="tmp_combined.scala"
 TEST_CMD_SUCCESS_FILE="test_cmd_success.scala"
 TEST_CMD_FAILURE_FILE="test_cmd_failure.scala"
+
+# Trino variables.
+TRINO_TMP_OUTPUT_FILE="trino_output_tmp.txt"
+TRINO_HIVE_SCHEMA="hive"

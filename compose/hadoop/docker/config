@@ -11,6 +11,11 @@ CORE-SITE.XML_hadoop.proxyuser.hive.groups=*
 HDFS-SITE.XML_dfs.namenode.rpc-address=namenode:8020
 HDFS-SITE.XML_dfs.replication=1
 
+CORE-SITE.XML_hadoop.proxyuser.trino.hosts=*
+CORE-SITE.XML_hadoop.proxyuser.trino.groups=*
+CORE-SITE.XML_hadoop.proxyuser.hive.hosts=*
+CORE-SITE.XML_hadoop.proxyuser.hive.groups=*
+
 # Security - Ranger
 HDFS-SITE.XML_dfs.permissions.enabled=true
 HDFS-SITE.XML_dfs.namenode.acls.enabled=true

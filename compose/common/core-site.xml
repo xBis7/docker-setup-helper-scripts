@@ -11,9 +11,6 @@
         <value>hdfs://namenode</value>
     </property>
 
-    <!-- After enabling trino impersonation, trino communicates with HDFS -->
-    <!-- either as 'trino' proxy user or 'hive' proxy user. -->
-    <!-- With these properties we are allowing the proxy users to authenticate with HDFS. -->
     <property>
       <name>hadoop.proxyuser.trino.hosts</name>
       <value>*</value>
@@ -31,6 +28,4 @@
       <name>hadoop.proxyuser.hive.groups</name>
       <value>*</value>
     </property>
-
-
 </configuration>

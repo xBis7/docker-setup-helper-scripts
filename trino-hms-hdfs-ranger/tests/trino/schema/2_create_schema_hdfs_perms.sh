@@ -11,7 +11,7 @@ echo "- INFO: Updating Ranger policies. User [trino] now will have [ALL] privile
 echo "- INFO: There will be no Hive permissions."
 
 updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
-updateHiveDbAllPolicy "select,read:spark,trino"
+updateHiveDbAllPolicy "select,read,create:spark,trino"
 updateHiveDefaultDbPolicy "select,read:spark,trino"
 updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 

@@ -13,7 +13,10 @@ echo ""
 echo ""
 echo "Deleting Hive URL policies."
 
-./ranger_api/delete_policy.sh "hive" "url"
+updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
+updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveUrlPolicy ""
 waitForPoliciesUpdate
 
 echo ""
@@ -57,7 +60,10 @@ retryOperationIfNeeded "$abs_path" "performTrinoCmd trino $cmd" "$failMsg" "true
 echo ""
 echo "Creating Hive URL policies again."
 
-createHiveUrlPolicy "read,write:trino"
+updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
+updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveUrlPolicy "read,write:trino"
 waitForPoliciesUpdate
 
 echo ""

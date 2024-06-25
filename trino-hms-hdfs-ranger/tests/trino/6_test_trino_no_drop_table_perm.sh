@@ -6,8 +6,12 @@ set -e
 
 abs_path=$1
 
-echo ""
-echo "- INFO: Reusing policies."
+updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
+updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveDefaultDbPolicy "select,Alter:spark,trino"
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
+waitForPoliciesUpdate
 
 echo ""
 echo "- INFO: [drop] should fail."

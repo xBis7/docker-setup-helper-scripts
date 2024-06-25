@@ -11,12 +11,13 @@ echo "Test3: ############### create table (managed + not-managed) without and wi
 echo ""
 
 echo ""
-echo "Deleting Hive URL policies."
+echo "Removing all Hive URL policies."
 
 updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
 updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveUrlPolicy ""
+
 waitForPoliciesUpdate
 
 echo ""
@@ -64,6 +65,7 @@ updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
 updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveUrlPolicy "read,write:trino"
+
 waitForPoliciesUpdate
 
 echo ""

@@ -6,17 +6,13 @@ set -e
 
 abs_path=$1
 
+# 'setup_for_trino_spark_testing' is setting up '$HIVE_BASE_POLICIES'.
+# We don't need to repeat it here.
 ./setup/setup_for_trino_spark_testing.sh "$abs_path"
-
-echo ""
-echo "- INFO: Updating Ranger policies. Users [spark/postgres] will now have all access to Hive default DB."
-
-./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
-waitForPoliciesUpdate
 
 updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
 updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
-updateHiveDefaultDbPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:trino/select:trino,spark"
+updateHiveDefaultDbPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:trino,spark"
 updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 sleep 15
 

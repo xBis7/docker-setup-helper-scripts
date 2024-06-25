@@ -6,7 +6,13 @@ set -e
 
 abs_path=$1
 
-echo "- INFO: Reusing policies."
+updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
+updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive/select,read,create:spark,trino"
+updateHiveDefaultDbPolicy "select,read:spark,trino"
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
+waitForPoliciesUpdate
+
 echo "- INFO: Drop database."
 echo "- INFO: User [spark] shouldn't be able to drop database."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME

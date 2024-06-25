@@ -18,12 +18,13 @@ notExpMsg="Permission denied"
 retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR_SEC" "$notExpMsg" "false" "true"
 
 echo ""
-echo "Deleting Hive URL policies."
+echo "Removing all Hive URL policies."
 
 updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
 updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveUrlPolicy ""
+
 waitForPoliciesUpdate
 
 echo ""
@@ -47,6 +48,7 @@ updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
 updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveUrlPolicy "read,write:spark"
+
 waitForPoliciesUpdate
 
 echo ""

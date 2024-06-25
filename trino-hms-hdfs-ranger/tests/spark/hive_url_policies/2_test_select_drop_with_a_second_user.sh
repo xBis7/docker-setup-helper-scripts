@@ -10,6 +10,13 @@ echo ""
 echo "Test2: ############### test select and drop with user 'games' ###############"
 echo ""
 
+updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
+updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveUrlPolicy "read,write:spark"
+
+waitForPoliciesUpdate
+
 echo ""
 echo "User 'games' has SELECT access. Show database should succeed."
 

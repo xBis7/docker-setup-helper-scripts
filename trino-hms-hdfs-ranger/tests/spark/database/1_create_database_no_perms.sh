@@ -6,10 +6,9 @@ set -e
 
 abs_path=$1
 
-echo "- INFO: Reusing policies."
 echo "- INFO: To create an external Database and store it in HDFS, using Spark,"
 echo "- INFO: all you need is HDFS perms. No Hive perms are needed."
-echo "- INFO: User [spark] doesn't have HDFS or Hive permissions."
+echo "- INFO: User [spark] doesn't have HDFS permissions. The user will have only 'select' access."
 echo "- INFO: Create database."
 echo "- INFO: User [spark] shouldn't be able to create database."
 

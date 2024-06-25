@@ -41,13 +41,13 @@ if [ "$component" == "spark" ]; then
   # This script contains multiple tests and can be run independently.
   # We already have the correct setup and therefore, 
   # no flags regarding the docker env, will be used.
-  ./tests/spark/database/test_database.sh "$abs_path"
+  ./tests/"$component"/database/test_database.sh "$abs_path"
 else
   echo ""
   echo "### TEST_SCHEMA ###"
   # A database in Trino is considered a schema.
   # Same as 'spark/database/test_database.sh' but for trino.
-  ./tests/trino/schema/test_schema.sh "$abs_path" "true"
+  ./tests/"$component"/schema/test_schema.sh "$abs_path" "true"
 fi
 
 echo ""

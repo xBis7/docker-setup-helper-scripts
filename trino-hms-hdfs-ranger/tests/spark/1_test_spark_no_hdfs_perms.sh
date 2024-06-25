@@ -6,7 +6,13 @@ set -e
 
 abs_path=$1
 
-echo "- INFO: Reusing policies."
+updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
+updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveDefaultDbPolicy "select,read:spark"
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
+waitForPoliciesUpdate
+
 echo "- INFO: Create table."
 echo "- INFO: User [spark] shouldn't be able to create table."
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_EXTERNAL_TABLE_CREATION_FOR_EXCEPTION_FILENAME

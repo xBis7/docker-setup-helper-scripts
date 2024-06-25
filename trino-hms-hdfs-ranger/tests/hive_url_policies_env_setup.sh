@@ -19,7 +19,7 @@ if [ "$prepare_env" == "true" ]; then
 fi
 
 echo ""
-echo "- INFO: Updating Ranger policies. Loading base Hive URL policies. No user will have any access."
+echo "- INFO: Updating Ranger policies. Loading base policies. No user will have any access."
 ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
 
 waitForPoliciesUpdate
@@ -48,6 +48,14 @@ echo ""
 echo "Updating Hive default db."
 echo ""
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+
+echo ""
+echo "---------------------------------------------------"
+
+echo ""
+echo "Updating Hive URL policies."
+echo ""
+updateHiveUrlPolicy ""
 
 echo ""
 echo "---------------------------------------------------"

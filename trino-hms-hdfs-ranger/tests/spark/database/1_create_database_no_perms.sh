@@ -13,7 +13,11 @@ echo "- INFO: User [spark] doesn't have HDFS or Hive permissions."
 echo "- INFO: Create database."
 echo "- INFO: User [spark] shouldn't be able to create database."
 
+updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
+updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 updateHiveDefaultDbPolicy "select,read:spark,trino"
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
 waitForPoliciesUpdate
 
 cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME

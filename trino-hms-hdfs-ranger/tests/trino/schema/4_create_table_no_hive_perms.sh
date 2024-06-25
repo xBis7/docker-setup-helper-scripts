@@ -11,7 +11,11 @@ echo "- INFO: User [trino] has no Hive perms. Creating a table under db '$EXTERN
 echo ""
 
 # Failure due to lack of Hive metastore permissions.
+updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
 updateHiveDbAllPolicy "select,read:spark,trino"
+updateHiveDefaultDbPolicy "select,read:spark,trino"
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
 waitForPoliciesUpdate
 
 failMsg="Permission denied: user [trino] does not have [CREATE] privilege on [$EXTERNAL_DB/$TRINO_TABLE]"

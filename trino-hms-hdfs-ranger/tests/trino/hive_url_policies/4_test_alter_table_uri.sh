@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 
 echo ""
-echo "Test4: ############### rename table location without and with Hive URL policies ###############"
+echo "Test4-trino: ############### rename table location without and with Hive URL policies ###############"
 echo ""
 
 echo ""

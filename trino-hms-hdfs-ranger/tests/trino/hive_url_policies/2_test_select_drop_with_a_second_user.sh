@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 
 echo ""
-echo "Test2: ############### test select and drop with user 'games' ###############"
+echo "Test2-trino: ############### test select and drop with user 'games' ###############"
 echo ""
 
 updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"

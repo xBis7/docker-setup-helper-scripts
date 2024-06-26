@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 
 echo ""
-echo "Test1: ############### create schema without and with Hive URL policies ###############"
+echo "Test1-trino: ############### create schema without and with Hive URL policies ###############"
 echo ""
 
 echo ""

@@ -13,6 +13,7 @@ set -e
 abs_path=$1
 test_num=$2
 iteration_num=$3
+background_run=$4
 
 run_test_file1=1
 run_test_file2=1
@@ -41,20 +42,20 @@ copyTestFilesUnderSpark "$abs_path"
 if [ "$run_test_file1" == 0 ]; then
   db_location="/opt/hive/data/gross_test/gross_test.db"
 
-  runCreateDropDbOnRepeatWithAccess "$SPARK_USER1" "$iteration_num" "$db_location"
+  runCreateDropDbOnRepeatWithAccess "$SPARK_USER1" "$iteration_num" "$db_location" "$background_run"
 fi
 
 if [ "$run_test_file2" == 0 ]; then
 
-  runCreateDropTableOnRepeatWithAccess "$SPARK_USER2" "$iteration_num"
+  runCreateDropTableOnRepeatWithAccess "$SPARK_USER2" "$iteration_num" "$background_run"
 fi
 
 if [ "$run_test_file3" == 0 ]; then
 
-  runInsertSelectTableOnRepeatWithAccess "$SPARK_USER3" "$iteration_num"
+  runInsertSelectTableOnRepeatWithAccess "$SPARK_USER3" "$iteration_num" "$background_run"
 fi
 
 if [ "$run_test_file4" == 0 ]; then
 
-  runInsertSelectTableOnRepeatNoAccess "$SPARK_USER4" "$iteration_num"
+  runInsertSelectTableOnRepeatNoAccess "$SPARK_USER4" "$iteration_num" "$background_run"
 fi

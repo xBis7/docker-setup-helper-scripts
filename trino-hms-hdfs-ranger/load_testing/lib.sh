@@ -34,15 +34,23 @@ copyTestFilesUnderSpark() {
 runScalaFileInSparkShell() {
   spark_shell_cmd=$1
   user=$2
+  background_run=$3
 
   if [ "$CURRENT_ENV" == "local" ]; then
-    docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "$spark_shell_cmd"
+    # If the command is run in the background, then we shouldn't use '-it'.
+    # Otherwise, we will get 'the input device is not a TTY'
+    if [ "$background_run" == "true" ]; then
+      docker exec -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "$spark_shell_cmd"
+    else
+      docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "$spark_shell_cmd"
+    fi
   else
     # c3 - TODO.
     echo "Implement this."
   fi
 }
 
+# This will be run only once during setup. We don't need to run it in the background.
 createSparkTableForTestingDdlOps() {
   user=$1
 
@@ -53,29 +61,33 @@ runCreateDropDbOnRepeatWithAccess() {
   user=$1
   iterations=$2
   location=$3
+  background_run=$4
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" --conf spark.db_location=\"$location\" -I $CREATE_DROP_DB_FILE" "$user"
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" --conf spark.db_location=\"$location\" -I $CREATE_DROP_DB_FILE" "$user" "$background_run"
 }
 
 runCreateDropTableOnRepeatWithAccess() {
   user=$1
   iterations=$2
+  background_run=$3
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $CREATE_DROP_TABLE_FILE" "$user"
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $CREATE_DROP_TABLE_FILE" "$user" "$background_run"
 }
 
 runInsertSelectTableOnRepeatWithAccess() {
   user=$1
   iterations=$2
+  background_run=$3
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_WITH_ACCESS_FILE" "$user"
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_WITH_ACCESS_FILE" "$user" "$background_run"
 }
 
 runInsertSelectTableOnRepeatNoAccess() {
   user=$1
   iterations=$2
+  background_run=$3
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_NO_ACCESS_FILE" "$user"
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_NO_ACCESS_FILE" "$user" "$background_run"
 }
 
 createHdfsDir() {

@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 
 echo ""
-echo "Test4: ############### rename table location without and with Hive URL policies ###############"
+echo "Test4-spark: ############### rename table location without and with Hive URL policies ###############"
 echo ""
 
 echo ""
@@ -18,9 +18,13 @@ notExpMsg="Permission denied"
 retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR_SEC" "$notExpMsg" "false" "true"
 
 echo ""
-echo "Deleting Hive URL policies."
+echo "Removing all Hive URL policies."
 
-./ranger_api/delete_policy.sh "hive" "url"
+updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
+updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveUrlPolicy ""
+
 waitForPoliciesUpdate
 
 echo ""
@@ -40,7 +44,11 @@ retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILEN
 echo ""
 echo "Creating Hive URL policies again."
 
-./ranger_api/create_update/create_update_hive_url_policy.sh "read,write:spark" "create"
+updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
+updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveUrlPolicy "read,write:spark"
+
 waitForPoliciesUpdate
 
 echo ""

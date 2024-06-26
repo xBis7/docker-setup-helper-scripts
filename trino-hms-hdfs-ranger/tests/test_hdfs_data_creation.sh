@@ -7,7 +7,12 @@ set -e
 abs_path=$1
 
 # Load the default Ranger policies.
-./setup/load_ranger_policies.sh "$abs_path" "$DEFAULT_AND_HIVE_ONLY_SELECT"
+updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
+updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveDefaultDbPolicy "select,read:spark"
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
+waitForPoliciesUpdate
 
 echo ""
 echo "- INFO: Ranger policies updated."

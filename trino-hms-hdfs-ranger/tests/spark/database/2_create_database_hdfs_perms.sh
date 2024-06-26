@@ -8,8 +8,13 @@ abs_path=$1
 
 echo ""
 echo "- INFO: Updating Ranger policies. User [spark] now will have [ALL] privileges on all HDFS paths."
-echo "- INFO: There will be no Hive permissions."
-./setup/load_ranger_policies.sh "$abs_path" "$HDFS_ACCESS_WITH_SELECT"
+echo "- INFO: The user will also have 'select','read','create' Hive permissions."
+
+updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
+updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive/select,read,create:spark,trino"
+updateHiveDefaultDbPolicy "select,read:spark,trino"
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
 waitForPoliciesUpdate
 
 echo "- INFO: Create database."

@@ -8,7 +8,12 @@ abs_path=$1
 
 echo ""
 echo "- INFO: Updating Ranger policies. User [spark] will now have all access to Hive $EXTERNAL_DB DB."
-./setup/load_ranger_policies.sh "$abs_path" "$HDFS_AND_HIVE_EXT_DB_ALL"
+
+updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
+updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,spark,trino"
+updateHiveDefaultDbPolicy ""
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
 waitForPoliciesUpdate
 
 echo ""

@@ -33,6 +33,9 @@ setup() {
     ./docker/start_docker_env.sh "$abs_path"
   fi
 
+  ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
+  waitForPoliciesUpdate
+
   notExpMsg="Permission denied"
   retryOperationIfNeeded "$abs_path" "createHdfsDir $full_test_path" "$notExpMsg" "false" "true"
 
@@ -48,12 +51,22 @@ setup() {
   if [ "$use_url_config" == "true" ]; then
     echo ""
     echo "- INFO: Updating Ranger policies. User [spark] will have Write permission for Hive URL policy but no HDFS access."
-    ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_URL_NO_HDFS"
+
+    updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
+    updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,spark"
+    updateHiveDefaultDbPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:trino/select:spark"
+    updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,trino,spark"
+
     waitForPoliciesUpdate
   else
     echo ""
     echo "- INFO: Updating Ranger policies. User [spark] now will have all Hive access to default DB but no HDFS."
-    ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_ALL_NO_HDFS"
+
+    updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
+    updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+    updateHiveDefaultDbPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:trino,spark"
+    updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+
     waitForPoliciesUpdate
   fi
 

@@ -53,22 +53,8 @@ configureHiveVersion() {
 configureHiveVersion
 
 # Dump file names
-DEFAULT_POLICIES="0_defaults"
-DEFAULT_AND_NO_HIVE="1_defaults_no_hive_perm_defaultdb"
-DEFAULT_AND_HIVE_ONLY_SELECT="1_defaults_hive_only_select"
-HDFS_ACCESS="2_hdfs_all"
-HDFS_ACCESS_WITH_SELECT="2_hdfs_all_with_select"
-HDFS_AND_HIVE_ALL="3_hive_defaultdb_all"
-TRINO_HDFS_AND_HIVE_ALL="3_trino_hdfs_hive_defaultdb_all"
-HIVE_ALL_NO_HDFS="3_hive_defaultdb_all_no_hdfs"
-HDFS_AND_HIVE_SELECT="4_hive_defaultdb_select"
-HDFS_AND_HIVE_SELECT_ALTER="5_hive_defaultdb_select_alter"
-HDFS_AND_HIVE_SELECT_ALTER_DROP="6_hive_defaultdb_select_alter_drop"
-HDFS_AND_HIVE_AND_CREATE_HIVE_URL="7_hdfs_hive_create_hive_url"
-HDFS_AND_HIVE_EXT_DB_ALL="hive_external_db_all"
-HDFS_POLICIES_FOR_RANGER_TESTING="hdfs_policies_for_ranger_testing"
-HIVE_URL_NO_HDFS="hive_url_no_hdfs"
-HIVE_URL_BASE_POLICIES="hive_url_base_policies"
+HDFS_POLICIES_FOR_RANGER_TESTING="hdfs_policies_for_ranger_testing" # It has a deny condition.
+HIVE_BASE_POLICIES="hive_base_policies"
 
 # Const shared variables
 TRINO_TABLE="trino_test_table"
@@ -753,13 +739,19 @@ changeHdfsDirPermissions() {
 }
 
 performTrinoCmd() {
-  # Join all args with space
+  # First argument is the user.
+  user=$1
+
+  # This is removing the first argument.
+  shift
+
+  # Join all other args with space.
   trino_cmd="$*"
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "$trino_cmd"
   else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="$trino_cmd"
+    docker exec -it -u $user "$TRINO_HOSTNAME" trino --execute="$trino_cmd"
   fi
 }
 
@@ -969,11 +961,11 @@ retryOperationIfNeeded() {
         # echo "- DEBUG: NotExp-Suc-Output= "
         # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
         # echo "- DEBUG: Exit code NotExp-Suc-Output: $?"
-        echo "- RESULT -> SUCCESS: Operation $result as expected."
+        echo "- RESULT -> SUCCESS: Operation '$result' as expected."
         echo "---------------------------------------------------"
         break
       else
-        echo "- RESULT -> FAILURE: Operation $result not as expected."
+        echo "- RESULT -> FAILURE: Operation '$result'. The operation result or output wasn't expected."
         echo "---------------------------------------------------"
         counter=$(($counter + 1))
         continue
@@ -988,11 +980,11 @@ retryOperationIfNeeded() {
         # echo "- DEBUG: NotExp-Fail-Output= "
         # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
         # echo "- DEBUG: Exit code NotExp-Fail-Output: $?"
-        echo "- RESULT -> SUCCESS: Operation $result as expected."
+        echo "- RESULT -> SUCCESS: Operation '$result' as expected."
         echo "---------------------------------------------------"
         break
       else
-        echo "- RESULT -> FAILURE: Operation $result not as expected."
+        echo "- RESULT -> FAILURE: Operation '$result'. The operation result or output wasn't expected."
         echo "---------------------------------------------------"
         counter=$(($counter + 1))
         continue
@@ -1039,4 +1031,43 @@ base64encode() {
   else
     echo -n "$input" | base64
   fi
+}
+
+updateHdfsPathPolicy() {
+  # access1,access2:user1/access2,access4:user2
+  permissions=$1
+  path_list=$2
+
+  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "$path_list" "$permissions" "put"
+}
+
+updateHiveDbAllPolicy() {
+  # access1,access2:user1/access2,access4:user2
+  permissions=$1
+  db_list=$2
+
+  ./ranger_api/create_update/create_update_hive_all_db_policy.sh "$permissions" "put" "$db_list"
+}
+
+updateHiveDefaultDbPolicy() {
+  # access1,access2:user1/access2,access4:user2
+  permissions=$1
+
+  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "$permissions" "put"
+}
+
+updateHiveUrlPolicy() {
+  # access1,access2:user1/access2,access4:user2
+  permissions=$1
+  url_list=$2
+
+  ./ranger_api/create_update/create_update_hive_url_policy.sh "$permissions" "put" "$url_list"
+}
+
+createHiveUrlPolicy() {
+  # access1,access2:user1/access2,access4:user2
+  permissions=$1
+  url_list=$2
+
+  ./ranger_api/create_update/create_update_hive_url_policy.sh "$permissions" "create" "$url_list"
 }

@@ -12,9 +12,6 @@ if [ "$setup_env" == "true" ]; then
   ./setup/setup_for_trino_spark_testing.sh "$abs_path"
 fi
 
-# Load Ranger policies.
-./setup/load_ranger_policies.sh "$abs_path" "$DEFAULT_AND_HIVE_ONLY_SELECT"
-
 ./tests/spark/database/1_create_database_no_perms.sh "$abs_path"
 
 ./tests/spark/database/2_create_database_hdfs_perms.sh "$abs_path"

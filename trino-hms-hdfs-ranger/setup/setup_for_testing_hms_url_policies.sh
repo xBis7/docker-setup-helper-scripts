@@ -20,6 +20,13 @@ fi
 
 echo ""
 echo "- INFO: Updating Ranger policies. User [spark] will have Write permission for Hive URL policy but no HDFS access."
-./setup/load_ranger_policies.sh "$abs_path" "$HIVE_URL_NO_HDFS"
+
+./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
+waitForPoliciesUpdate
+
+updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
+updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveDefaultDbPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:trino,spark"
+updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 sleep 15
 

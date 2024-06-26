@@ -7,7 +7,7 @@ set -e
 abs_path=$1
 
 echo ""
-echo "Test1: ############### create database without and with Hive URL policies ###############"
+echo "Test1-spark: ############### create database without and with Hive URL policies ###############"
 echo ""
 
 echo ""
@@ -21,7 +21,10 @@ retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILEN
 echo ""
 echo "Updating Hive URL policies."
 echo ""
-./ranger_api/create_update/create_update_hive_url_policy.sh "read,write:spark" "put"
+updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
+updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveUrlPolicy "read,write:spark"
 
 echo ""
 echo "---------------------------------------------------"

@@ -39,5 +39,5 @@ expectedErrorMsg="Permission denied: user [$TRINO_USER1] does not have [CREATE] 
 # 1st parameter: the user to execute the command
 # 2nd parameter: the command to be executed
 # 3rd parameter: 'shouldPass' if the command should succeed and 'shouldFail' if the command should fail
-# 4th parameter: the expected error message if the previous parameter is 'shouldFail'
+# 4th parameter: the expected output message. For Trino all commands (whether successful or not) have an expected output message.
 runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedErrorMsg"

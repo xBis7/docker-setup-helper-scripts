@@ -7,7 +7,7 @@ set -e
 
 echo ""
 echo "## Test 4 ##"
-echo "Create a database wit CREATE (Hive), Read and Write (URL-based) and read, write and execute (HDFS)"
+echo "Create a database with CREATE (Hive), Read and Write (URL-based) and read, write and execute (HDFS)"
 echo ""
 
 updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/data/projects/gross_test"
@@ -30,5 +30,5 @@ successMsg="CREATE SCHEMA"
 # 1st parameter: the user to execute the command
 # 2nd parameter: the command to be executed
 # 3rd parameter: 'shouldPass' if the command should succeed and 'shouldFail' if the command should fail
-# 4th parameter: the expected error message if the previous parameter is 'shouldFail'
+# 4th parameter: the expected output message. For Trino all commands (whether successful or not) have an expected output message.
 runTrino "$TRINO_USER1" "$command" "shouldPass" "$successMsg"

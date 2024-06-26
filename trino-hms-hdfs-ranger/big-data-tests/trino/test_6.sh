@@ -6,25 +6,27 @@ source "./big-data-tests/env_variables.sh"
 set -e
 
 echo ""
-echo "## Test 2 ##"
-echo "Create a database without having read, write, execute HDFS and Read and Write URL-based permissions"
+echo "## Test 6 ##"
+echo "Create a database using the default hive warehouse location"
 echo ""
 
-updateHdfsPathPolicy "read,write,execute:$HDFS_USER" "/*"
+# It's the same as in the previous test.
+updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/data/projects/gross_test"
 
+# It's the same as in the previous test.
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"
 
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy "select:$TRINO_USER1"
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "read:$TRINO_USER1"
+updateHiveUrlPolicy "read,write:$TRINO_USER1" "hdfs://$NAMENODE_NAME/data/projects/gross_test"
 
 waitForPoliciesUpdate
 
-hdfsLocation="hdfs://$NAMENODE_NAME/data/projects/gross_test/test.db"
+command="create schema $TRINO_HIVE_SCHEMA.gross_test"
 
-command="create schema $TRINO_HIVE_SCHEMA.gross_test with (location = '$hdfsLocation')"
+hdfsLocation="hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
 
 expectedErrorMsg="Permission denied: user [$TRINO_USER1] does not have [WRITE] privilege on [[$hdfsLocation, $hdfsLocation/]]"
 

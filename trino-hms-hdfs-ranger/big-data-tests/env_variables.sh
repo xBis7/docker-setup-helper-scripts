@@ -35,6 +35,10 @@ SPARK_WORKER1_HOSTNAME="spark-worker-1"
 NAMENODE_NAME="namenode"
 
 # Env variables.
+# Don't use a leading / in any of the paths, so that the tests can add it where needed.
+# For example we could have something like 'namenode/$HIVE_WAREHOUSE_DIR'.
+# If the HIVE_WAREHOUSE_DIR had a leading /, then the above example would turn out
+# to be 'namenode//opt/hive/data'.
 HIVE_WAREHOUSE_DIR="opt/hive/data"
 HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 EXTERNAL_HIVE_DB_PATH="data/projects"

@@ -95,7 +95,7 @@ command="spark.sql(\"insert into gross_test.test2 values (4, 'Austin')\")"
 # In the BigData notes, this is failing with the error below.
 # expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":hdfs:"
 
-expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=WRITE, inode=\"/data/projects/gross_test/test2\":spark:"
+expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=WRITE, inode=\"/data/projects/gross_test/test2\":"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 

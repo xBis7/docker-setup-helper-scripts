@@ -11,9 +11,11 @@ services:
     ports:
       - "9090:9090"  # Spark master UI
       - "7077:7077"  # Spark master communication port
+      - "6006:6006"  # spark-shell debugger
     environment:
       - SPARK_LOCAL_IP=spark-master
     volumes:
+      - ../conf/spark-class:/opt/spark/bin/spark-class
       - ../conf/hive-jars:/opt/spark/hive-jars
       - ../conf/spark-events:/opt/spark/spark-events
       - ../conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
@@ -41,6 +43,7 @@ services:
       - SPARK_WORKER_WEBUI_PORT=8081
       - SPARK_LOCAL_IP=worker
     volumes:
+      - ../conf/spark-class:/opt/spark/bin/spark-class
       - ../conf/hive-jars:/opt/spark/hive-jars
       - ../conf/spark-events:/opt/spark/spark-events
       - ../conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf

@@ -9,6 +9,7 @@ services:
     hostname: trino-coordinator
     ports:
       - '8080:8080'
+      - '2002:2002'
     volumes:
       - ../etc:/etc/trino
       - ../../common/core-site.xml:/etc/hadoop/conf/core-site.xml:ro

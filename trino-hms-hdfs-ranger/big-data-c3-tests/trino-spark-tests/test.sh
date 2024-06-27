@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source "./big-data-tests/env_variables.sh"
-source "./big-data-tests/lib.sh"
+source "./big-data-c3-tests/lib.sh"
+source "./big-data-c3-tests/env_variables.sh"
 
 set -e
 
@@ -24,4 +24,4 @@ fi
 # createHdfsDir uses the '-p' option. If the directory already exists, there won't be an error.
 createHdfsDir "$HIVE_GROSS_DB_TEST_DIR"
 
-./big-data-tests/spark/test_spark.sh "$abs_path"
+./big-data-c3-tests/trino-spark-tests/spark/test_spark.sh "$abs_path"

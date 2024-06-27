@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source "./load_testing/env_variables.sh"
-source "./load_testing/lib.sh"
+source "./big-data-c3-tests/env_variables.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -17,7 +17,7 @@ background_run=$4
 
 # 'setup.sh' should have already copied the files.
 # Rerun the copy here so that we can apply changes without having to run 'setup.sh' again.
-copyTestFilesUnderSpark "$abs_path"
+copyTestFilesUnderSpark "$abs_path" "true"
 
 if [ "$test_num" == "1" ]; then
   db_location="/opt/hive/data/gross_test/gross_test.db"

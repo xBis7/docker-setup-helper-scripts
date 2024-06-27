@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source "./load_testing/env_variables.sh"
-source "./load_testing/lib.sh"
+source "./big-data-c3-tests/env_variables.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 

@@ -2,26 +2,42 @@
 
 set -e
 
-source "./big-data-tests/env_variables.sh"
+source "./big-data-c3-tests/env_variables.sh"
 
 copyTestFilesUnderSpark() {
   abs_path=$1
+  load_testing=$2
 
   # Initialize an empty array.
   test_files_array=()
 
-  # Populate the array.
-  test_files_array+=("$COMMON_UTILS_FILE")
-  test_files_array+=("$TEST_CMD_SUCCESS_FILE")
-  test_files_array+=("$TEST_CMD_FAILURE_FILE")
+  if [ "$load_testing" == "true" ]; then
+    # Populate the array.
+    test_files_array+=("$SETUP_CREATE_TABLE_FILE")
+    test_files_array+=("$CREATE_DROP_DB_FILE")
+    test_files_array+=("$CREATE_DROP_TABLE_FILE")
+    test_files_array+=("$INSERT_SELECT_TABLE_WITH_ACCESS_FILE")
+    test_files_array+=("$INSERT_SELECT_TABLE_NO_ACCESS_FILE")
+  else
+    # Populate the array.
+    test_files_array+=("$COMMON_UTILS_FILE")
+    test_files_array+=("$TEST_CMD_SUCCESS_FILE")
+    test_files_array+=("$TEST_CMD_FAILURE_FILE")
+  fi
 
   for file in "${test_files_array[@]}"
   do
     # Copy the test file.
     if [ "$CURRENT_ENV" == "local" ]; then
-      project_path="docker-setup-helper-scripts/trino-hms-hdfs-ranger"
+      project_path="docker-setup-helper-scripts/trino-hms-hdfs-ranger/big-data-c3-tests"
 
-      docker cp "$abs_path/$project_path/big-data-tests/spark/scala_test_files/$file" "$SPARK_MASTER_HOSTNAME:/opt/spark"
+      if [ "$load_testing" == "true" ]; then
+        project_path+="/load-testing"
+      else
+        project_path+="/trino-spark-tests/spark"
+      fi
+
+      docker cp "$abs_path/$project_path/scala-test-files/$file" "$SPARK_MASTER_HOSTNAME:/opt/spark"
     else
       # c3 - TODO.
       echo "Implement this."
@@ -29,14 +45,7 @@ copyTestFilesUnderSpark() {
   done
 }
 
-waitForPoliciesUpdate() {
-  echo ""
-  echo "Wait for the policies to get updated."
-  echo ""
-
-  sleep $(($POLICIES_UPDATE_INTERVAL + 5))
-}
-
+# -- HDFS --
 createHdfsDir() {
   dir_name=$1
 
@@ -122,12 +131,20 @@ listContentsOnHdfsPath() {
   echo ""
 }
 
+# -- SPARK TESTS --
 runScalaFileInSparkShell() {
   spark_shell_cmd=$1
   user=$2
+  background_run=$3
 
   if [ "$CURRENT_ENV" == "local" ]; then
-    docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "$spark_shell_cmd"
+    # If the command is run in the background, then we shouldn't use '-it'.
+    # Otherwise, we will get 'the input device is not a TTY'
+    if [ "$background_run" == "true" ]; then
+      docker exec -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "$spark_shell_cmd"
+    else
+      docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "$spark_shell_cmd"
+    fi
   else
     # c3 - TODO.
     echo "Implement this."
@@ -188,6 +205,7 @@ runSpark() {
   fi
 }
 
+# -- TRINO TESTS --
 runTrino() {
   user=$1
   trino_cmd=$2
@@ -231,6 +249,56 @@ runTrino() {
   # Clean the tmp file only in case of success.
   # In case of failure, the tmp file will be left around so that it can be examined.
   rm $TRINO_TMP_OUTPUT_FILE
+}
+
+# -- LOAD TESTING --
+createSparkTableForTestingDdlOps() {
+  user=$1
+
+  # This will be run only once during setup. We don't need to run it in the background.
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.db_name=\"default\" --conf spark.table_name=\"test2\" -I $SETUP_CREATE_TABLE_FILE" "$user"
+}
+
+runCreateDropDbOnRepeatWithAccess() {
+  user=$1
+  iterations=$2
+  location=$3
+  background_run=$4
+
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" --conf spark.db_location=\"$location\" -I $CREATE_DROP_DB_FILE" "$user" "$background_run"
+}
+
+runCreateDropTableOnRepeatWithAccess() {
+  user=$1
+  iterations=$2
+  background_run=$3
+
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $CREATE_DROP_TABLE_FILE" "$user" "$background_run"
+}
+
+runInsertSelectTableOnRepeatWithAccess() {
+  user=$1
+  iterations=$2
+  background_run=$3
+
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_WITH_ACCESS_FILE" "$user" "$background_run"
+}
+
+runInsertSelectTableOnRepeatNoAccess() {
+  user=$1
+  iterations=$2
+  background_run=$3
+
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_NO_ACCESS_FILE" "$user" "$background_run"
+}
+
+# -- RANGER POLICIES --
+waitForPoliciesUpdate() {
+  echo ""
+  echo "Wait for the policies to get updated."
+  echo ""
+
+  sleep $(($POLICIES_UPDATE_INTERVAL + 5))
 }
 
 updateHdfsPathPolicy() {

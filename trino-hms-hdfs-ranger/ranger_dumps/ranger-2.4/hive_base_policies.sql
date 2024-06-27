@@ -7,7 +7,7 @@
 -- hivedev          | default database tables columns               | -            | -                                      | -
 -- hivedev          | Information_schema database tables columns    | public       | -                                      | select
 
--- users: spark, postgres, hadoop, trino, games, root
+-- users: spark, postgres, hadoop, trino, games, root, test1, test2, test3
 
 --
 -- PostgreSQL database dump
@@ -57,6 +57,30 @@ CREATE FUNCTION public.getmodulesidbyname(input_val character varying) RETURNS b
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 WHERE x_modules_master.module = $1; $_$;
 
 
@@ -69,6 +93,30 @@ ALTER FUNCTION public.getmodulesidbyname(input_val character varying) OWNER TO r
 CREATE FUNCTION public.getxportaluidbyloginid(input_val character varying) RETURNS bigint
     LANGUAGE sql
     AS $_$ SELECT x_portal_user.id FROM x_portal_user
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3378,6 +3426,7 @@ COPY public.x_auth_sess (id, create_time, update_time, added_by_id, upd_by_id, l
 7	2024-05-30 14:33:44.466	2024-05-30 14:33:44.466	\N	\N	admin	1	C13A2F732E813D8A0DF7FB4998A99EA1	2024-05-30 14:33:44.466	1	1	0	1	172.20.0.1	Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
 8	2024-05-30 14:46:08.918	2024-05-30 14:46:08.918	\N	\N	admin	1	9A42141A0E1DE14DC1FB864E4D4B4B40	2024-05-30 14:46:08.918	1	1	0	1	172.22.0.1	Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
 9	2024-05-30 14:49:32.546	2024-05-30 14:49:32.546	\N	\N	admin	1	5E75985FBDF89665B6952D10CD2CDB13	2024-05-30 14:49:32.546	1	1	0	1	172.23.0.1	Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+10	2024-06-12 13:24:49.705	2024-06-12 13:24:49.706	\N	\N	admin	1	CAD1685096187FCA8582A92C7B56F842	2024-06-12 13:24:49.705	1	1	0	1	172.24.0.1	Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
 \.
 
 
@@ -3833,8 +3882,8 @@ COPY public.x_perm_map (id, create_time, update_time, added_by_id, upd_by_id, pe
 --
 
 COPY public.x_plugin_info (id, create_time, update_time, service_name, app_type, host_name, ip_address, info) FROM stdin;
-1	2024-04-12 11:28:59.304	2024-05-30 14:51:38.873	hadoopdev	hdfs	namenode	172.23.0.10	{"roleActiveVersion":"-1","roleDownloadedVersion":"1","roleActivationTime":"1717080568995","pluginCapabilities":"7ffff","roleDownloadTime":"1712921339303","adminCapabilities":"7ffff","policyDownloadedVersion":"14","policyDownloadTime":"1717080569037","policyActiveVersion":"14","policyActivationTime":"1717080569108","tagDownloadedVersion":null,"tagDownloadTime":null,"tagActiveVersion":null,"tagActivationTime":null}
-2	2024-05-16 16:27:57.833	2024-05-30 14:51:41.396	hivedev	hiveMetastore	hive-metastore	172.23.0.8	{"roleActiveVersion":"1","roleDownloadedVersion":"1","roleActivationTime":"1717080601295","pluginCapabilities":"7ffff","roleDownloadTime":"1715876877826","adminCapabilities":"7ffff","policyDownloadedVersion":"34","policyDownloadTime":"1717080691395","policyActiveVersion":"34","policyActivationTime":"1717080691418","tagDownloadedVersion":null,"tagDownloadTime":null,"tagActiveVersion":null,"tagActivationTime":null}
+2	2024-05-16 16:27:57.833	2024-06-12 13:26:12.369	hivedev	hiveMetastore	hive-metastore	172.24.0.9	{"roleActiveVersion":"1","roleDownloadedVersion":"1","roleActivationTime":"1718196052231","pluginCapabilities":"7ffff","roleDownloadTime":"1715876877826","adminCapabilities":"7ffff","policyDownloadedVersion":"35","policyDownloadTime":"1718198672382","policyActiveVersion":"35","policyActivationTime":"1718198672389","tagDownloadedVersion":null,"tagDownloadTime":null,"tagActiveVersion":null,"tagActivationTime":null}
+1	2024-04-12 11:28:59.304	2024-06-12 13:26:19.746	hadoopdev	hdfs	namenode	172.24.0.8	{"roleActiveVersion":"-1","roleDownloadedVersion":"1","roleActivationTime":"1718195864026","pluginCapabilities":"7ffff","roleDownloadTime":"1712921339303","adminCapabilities":"7ffff","policyDownloadedVersion":"15","policyDownloadTime":"1718198671465","policyActiveVersion":"15","policyActivationTime":"1718198671493","tagDownloadedVersion":null,"tagDownloadTime":null,"tagActiveVersion":null,"tagActivationTime":null}
 \.
 
 
@@ -3877,36 +3926,16 @@ COPY public.x_policy (id, guid, create_time, update_time, added_by_id, upd_by_id
 --
 
 COPY public.x_policy_change_log (id, create_time, service_id, change_type, policy_version, service_type, policy_type, zone_name, policy_id, policy_guid) FROM stdin;
-21	2024-05-30 14:25:54.436	2	5	5	\N	\N	\N	\N	\N
-22	2024-05-30 14:25:54.439	1	5	8	\N	\N	\N	\N	\N
-23	2024-05-30 14:25:54.441	3	5	5	\N	\N	\N	\N	\N
-24	2024-05-30 14:25:54.443	4	5	12	\N	\N	\N	\N	\N
-25	2024-05-30 14:25:54.446	5	5	5	\N	\N	\N	\N	\N
-26	2024-05-30 14:25:54.447	6	5	9	\N	\N	\N	\N	\N
-27	2024-05-30 14:25:54.449	7	5	5	\N	\N	\N	\N	\N
-28	2024-05-30 14:25:54.451	8	5	5	\N	\N	\N	\N	\N
-29	2024-05-30 14:25:54.452	9	5	10	\N	\N	\N	\N	\N
-30	2024-05-30 14:25:54.454	11	5	23	\N	\N	\N	\N	\N
-31	2024-05-30 14:44:05.831	2	5	6	\N	\N	\N	\N	\N
-32	2024-05-30 14:44:05.834	1	5	9	\N	\N	\N	\N	\N
-33	2024-05-30 14:44:05.836	3	5	6	\N	\N	\N	\N	\N
-34	2024-05-30 14:44:05.838	4	5	13	\N	\N	\N	\N	\N
-35	2024-05-30 14:44:05.84	5	5	6	\N	\N	\N	\N	\N
-36	2024-05-30 14:44:05.842	6	5	10	\N	\N	\N	\N	\N
-37	2024-05-30 14:44:05.844	7	5	6	\N	\N	\N	\N	\N
-38	2024-05-30 14:44:05.846	8	5	6	\N	\N	\N	\N	\N
-39	2024-05-30 14:44:05.847	9	5	13	\N	\N	\N	\N	\N
-40	2024-05-30 14:44:05.849	11	5	28	\N	\N	\N	\N	\N
-41	2024-05-30 14:49:26.947	2	5	7	\N	\N	\N	\N	\N
-42	2024-05-30 14:49:26.951	1	5	10	\N	\N	\N	\N	\N
-43	2024-05-30 14:49:26.953	3	5	7	\N	\N	\N	\N	\N
-44	2024-05-30 14:49:26.954	4	5	14	\N	\N	\N	\N	\N
-45	2024-05-30 14:49:26.957	5	5	7	\N	\N	\N	\N	\N
-46	2024-05-30 14:49:26.958	6	5	11	\N	\N	\N	\N	\N
-47	2024-05-30 14:49:26.96	7	5	7	\N	\N	\N	\N	\N
-48	2024-05-30 14:49:26.962	8	5	7	\N	\N	\N	\N	\N
-49	2024-05-30 14:49:26.963	9	5	14	\N	\N	\N	\N	\N
-50	2024-05-30 14:49:26.964	11	5	31	\N	\N	\N	\N	\N
+51	2024-06-12 13:24:30.751	2	5	8	\N	\N	\N	\N	\N
+52	2024-06-12 13:24:30.754	1	5	11	\N	\N	\N	\N	\N
+53	2024-06-12 13:24:30.756	3	5	8	\N	\N	\N	\N	\N
+54	2024-06-12 13:24:30.758	4	5	15	\N	\N	\N	\N	\N
+55	2024-06-12 13:24:30.76	5	5	8	\N	\N	\N	\N	\N
+56	2024-06-12 13:24:30.762	6	5	12	\N	\N	\N	\N	\N
+57	2024-06-12 13:24:30.763	7	5	8	\N	\N	\N	\N	\N
+58	2024-06-12 13:24:30.765	8	5	8	\N	\N	\N	\N	\N
+59	2024-06-12 13:24:30.767	9	5	15	\N	\N	\N	\N	\N
+60	2024-06-12 13:24:30.768	11	5	35	\N	\N	\N	\N	\N
 \.
 
 
@@ -3948,6 +3977,8 @@ COPY public.x_policy_export_audit (id, create_time, update_time, added_by_id, up
 16	2024-05-30 14:51:01.394	2024-05-30 14:51:01.395	\N	\N	172.23.0.8	hiveMetastore@hive-metastore-hivedev	31	\N	hivedev	\N	200			\N
 17	2024-05-30 14:51:11.39	2024-05-30 14:51:11.391	\N	\N	172.23.0.8	hiveMetastore@hive-metastore-hivedev	32	\N	hivedev	\N	200			\N
 18	2024-05-30 14:51:31.393	2024-05-30 14:51:31.394	\N	\N	172.23.0.8	hiveMetastore@hive-metastore-hivedev	33	\N	hivedev	\N	200			\N
+19	2024-06-12 13:24:31.464	2024-06-12 13:24:31.465	\N	\N	172.24.0.8	hdfs@namenode-hadoopdev	16	\N	hadoopdev	\N	200			\N
+20	2024-06-12 13:24:32.381	2024-06-12 13:24:32.382	\N	\N	172.24.0.9	hiveMetastore@hive-metastore-hivedev	38	\N	hivedev	\N	200			\N
 \.
 
 
@@ -4525,6 +4556,9 @@ COPY public.x_portal_user (id, create_time, update_time, added_by_id, upd_by_id,
 19	2024-05-16 16:31:13.506	2024-05-16 16:31:13.506	2	2	rangerkms	\N	rangerkms	rangerkms	3332533c6e3fe1feb370caf9aeb156de90e85696fe5853f23608105ef847d306	\N	1	1	\N	\N	\N	\N	2024-05-16 16:31:13.506
 20	2024-05-30 14:34:19.095	2024-05-30 14:34:19.097	1	1	games		games	games	11f7ca4f9ba98959f93acb6ae7cd64cff1baa533ca6fd59d44cb118eaaa841ba	\N	1	0	\N	\N	\N	\N	2024-05-30 14:34:19.096
 21	2024-05-30 14:34:43.425	2024-05-30 14:34:43.426	1	1	root		root	root	34b9ff9474e8199fc8aa83d17e09c86c2c1a05ec430c7039480655390a7f10de	\N	1	0	\N	\N	\N	\N	2024-05-30 14:34:43.425
+22	2024-06-12 13:25:11.28	2024-06-12 13:25:11.281	1	1	test1		test1	test1	105a280c54e754c5b135acd6bcea428a713c86396faceb19c1f7593fb76ec41d	\N	1	0	\N	\N	\N	\N	2024-06-12 13:25:11.28
+23	2024-06-12 13:25:36.415	2024-06-12 13:25:36.415	1	1	test2		test2	test2	dbc260eda8e54098a831ad9919c8ea0a5e6e47ff6ae2e2016411c75fbcf16362	\N	1	0	\N	\N	\N	\N	2024-06-12 13:25:36.415
+24	2024-06-12 13:25:55.366	2024-06-12 13:25:55.366	1	1	test3		test3	test3	b1f269103bbefa90ae33b6231d391469350891838cb6bcb7699b299bc465c5e4	\N	1	0	\N	\N	\N	\N	2024-06-12 13:25:55.366
 \.
 
 
@@ -4554,6 +4588,9 @@ COPY public.x_portal_user_role (id, create_time, update_time, added_by_id, upd_b
 19	2024-05-16 16:31:13.506	2024-05-16 16:31:13.506	2	2	19	ROLE_USER	1
 20	2024-05-30 14:34:19.1	2024-05-30 14:34:19.1	1	1	20	ROLE_USER	1
 21	2024-05-30 14:34:43.427	2024-05-30 14:34:43.427	1	1	21	ROLE_USER	1
+22	2024-06-12 13:25:11.284	2024-06-12 13:25:11.285	1	1	22	ROLE_USER	1
+23	2024-06-12 13:25:36.415	2024-06-12 13:25:36.415	1	1	23	ROLE_USER	1
+24	2024-06-12 13:25:55.367	2024-06-12 13:25:55.367	1	1	24	ROLE_USER	1
 \.
 
 
@@ -4564,7 +4601,7 @@ COPY public.x_portal_user_role (id, create_time, update_time, added_by_id, upd_b
 COPY public.x_ranger_global_state (id, create_time, update_time, added_by_id, upd_by_id, version, state_name, app_data) FROM stdin;
 1	2024-04-12 11:19:10.392092	2024-04-12 11:19:10.392092	1	1	1	RangerRole	{"Version":"1"}
 3	2024-04-12 11:19:10.394343	2024-04-12 11:19:10.394343	1	1	1	RangerSecurityZone	{"Version":"1"}
-2	2024-04-12 11:19:10.393392	2024-05-30 14:34:43.444	1	1	12	RangerUserStore	{"Version":"12"}
+2	2024-04-12 11:19:10.393392	2024-06-12 13:25:55.384	1	1	15	RangerUserStore	{"Version":"15"}
 \.
 
 
@@ -5010,16 +5047,16 @@ COPY public.x_service_resource (id, guid, create_time, update_time, added_by_id,
 --
 
 COPY public.x_service_version_info (id, service_id, policy_version, policy_update_time, tag_version, tag_update_time, role_version, role_update_time, version) FROM stdin;
-2	2	7	2024-05-30 14:49:26.943	6	2024-05-30 14:49:26.967	1	2024-04-12 11:19:55.775	12
-1	1	10	2024-05-30 14:49:26.95	6	2024-05-30 14:49:26.969	1	2024-04-12 11:19:55.645	15
-3	3	7	2024-05-30 14:49:26.952	6	2024-05-30 14:49:26.97	1	2024-04-12 11:19:55.907	12
-4	4	14	2024-05-30 14:49:26.954	6	2024-05-30 14:49:26.972	1	2024-04-12 11:19:55.957	19
-5	5	7	2024-05-30 14:49:26.956	6	2024-05-30 14:49:26.973	1	2024-04-12 11:19:56.116	12
-6	6	11	2024-05-30 14:49:26.958	6	2024-05-30 14:49:26.974	1	2024-04-12 11:19:56.152	16
-7	7	7	2024-05-30 14:49:26.959	6	2024-05-30 14:49:26.976	1	2024-04-12 11:19:56.22	12
-8	8	7	2024-05-30 14:49:26.961	6	2024-05-30 14:49:26.977	1	2024-04-12 11:19:56.266	12
-9	9	14	2024-05-30 14:49:26.963	6	2024-05-30 14:49:26.978	1	2024-04-12 11:28:53.833	19
-11	11	34	2024-05-30 14:51:30.712	6	2024-05-30 14:49:26.979	1	2024-04-12 11:36:16.655	39
+2	2	8	2024-06-12 13:24:30.747	7	2024-06-12 13:24:30.771	1	2024-04-12 11:19:55.775	14
+1	1	11	2024-06-12 13:24:30.753	7	2024-06-12 13:24:30.773	1	2024-04-12 11:19:55.645	17
+3	3	8	2024-06-12 13:24:30.755	7	2024-06-12 13:24:30.774	1	2024-04-12 11:19:55.907	14
+4	4	15	2024-06-12 13:24:30.757	7	2024-06-12 13:24:30.776	1	2024-04-12 11:19:55.957	21
+5	5	8	2024-06-12 13:24:30.759	7	2024-06-12 13:24:30.778	1	2024-04-12 11:19:56.116	14
+6	6	12	2024-06-12 13:24:30.761	7	2024-06-12 13:24:30.779	1	2024-04-12 11:19:56.152	18
+7	7	8	2024-06-12 13:24:30.763	7	2024-06-12 13:24:30.781	1	2024-04-12 11:19:56.22	14
+8	8	8	2024-06-12 13:24:30.764	7	2024-06-12 13:24:30.783	1	2024-04-12 11:19:56.266	14
+9	9	15	2024-06-12 13:24:30.766	7	2024-06-12 13:24:30.784	1	2024-04-12 11:28:53.833	21
+11	11	35	2024-06-12 13:24:30.768	7	2024-06-12 13:24:30.786	1	2024-04-12 11:36:16.655	41
 \.
 
 
@@ -5036,36 +5073,16 @@ COPY public.x_tag (id, guid, create_time, update_time, added_by_id, upd_by_id, v
 --
 
 COPY public.x_tag_change_log (id, create_time, service_id, change_type, service_tags_version, service_resource_id, tag_id) FROM stdin;
-21	2024-05-30 14:25:54.457	2	4	4	\N	\N
-22	2024-05-30 14:25:54.459	1	4	4	\N	\N
-23	2024-05-30 14:25:54.46	3	4	4	\N	\N
-24	2024-05-30 14:25:54.462	4	4	4	\N	\N
-25	2024-05-30 14:25:54.463	5	4	4	\N	\N
-26	2024-05-30 14:25:54.465	6	4	4	\N	\N
-27	2024-05-30 14:25:54.467	7	4	4	\N	\N
-28	2024-05-30 14:25:54.468	8	4	4	\N	\N
-29	2024-05-30 14:25:54.47	9	4	4	\N	\N
-30	2024-05-30 14:25:54.471	11	4	4	\N	\N
-31	2024-05-30 14:44:05.852	2	4	5	\N	\N
-32	2024-05-30 14:44:05.854	1	4	5	\N	\N
-33	2024-05-30 14:44:05.856	3	4	5	\N	\N
-34	2024-05-30 14:44:05.857	4	4	5	\N	\N
-35	2024-05-30 14:44:05.859	5	4	5	\N	\N
-36	2024-05-30 14:44:05.86	6	4	5	\N	\N
-37	2024-05-30 14:44:05.861	7	4	5	\N	\N
-38	2024-05-30 14:44:05.862	8	4	5	\N	\N
-39	2024-05-30 14:44:05.864	9	4	5	\N	\N
-40	2024-05-30 14:44:05.865	11	4	5	\N	\N
-41	2024-05-30 14:49:26.968	2	4	6	\N	\N
-42	2024-05-30 14:49:26.969	1	4	6	\N	\N
-43	2024-05-30 14:49:26.971	3	4	6	\N	\N
-44	2024-05-30 14:49:26.972	4	4	6	\N	\N
-45	2024-05-30 14:49:26.974	5	4	6	\N	\N
-46	2024-05-30 14:49:26.975	6	4	6	\N	\N
-47	2024-05-30 14:49:26.976	7	4	6	\N	\N
-48	2024-05-30 14:49:26.977	8	4	6	\N	\N
-49	2024-05-30 14:49:26.979	9	4	6	\N	\N
-50	2024-05-30 14:49:26.98	11	4	6	\N	\N
+51	2024-06-12 13:24:30.771	2	4	7	\N	\N
+52	2024-06-12 13:24:30.773	1	4	7	\N	\N
+53	2024-06-12 13:24:30.775	3	4	7	\N	\N
+54	2024-06-12 13:24:30.777	4	4	7	\N	\N
+55	2024-06-12 13:24:30.778	5	4	7	\N	\N
+56	2024-06-12 13:24:30.78	6	4	7	\N	\N
+57	2024-06-12 13:24:30.782	7	4	7	\N	\N
+58	2024-06-12 13:24:30.783	8	4	7	\N	\N
+59	2024-06-12 13:24:30.785	9	4	7	\N	\N
+60	2024-06-12 13:24:30.786	11	4	7	\N	\N
 \.
 
 
@@ -5906,6 +5923,18 @@ COPY public.x_trx_log (id, create_time, update_time, added_by_id, upd_by_id, cla
 814	2024-05-30 14:51:04.185	2024-05-30 14:51:04.2	1	1	1020	38	11	1030	hivedev	all - url	Policy Items	[{"accesses":[{"type":"select","isAllowed":true},{"type":"update","isAllowed":true},{"type":"create","isAllowed":true},{"type":"drop","isAllowed":true},{"type":"alter","isAllowed":true},{"type":"index","isAllowed":true},{"type":"lock","isAllowed":true},{"type":"all","isAllowed":true},{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"repladmin","isAllowed":true},{"type":"serviceadmin","isAllowed":true},{"type":"tempudfadmin","isAllowed":true},{"type":"refresh","isAllowed":true}],"users":["hive","postgres","spark"],"delegateAdmin":true}]	[{"accesses":[{"type":"select","isAllowed":true},{"type":"update","isAllowed":true},{"type":"create","isAllowed":true},{"type":"drop","isAllowed":true},{"type":"alter","isAllowed":true},{"type":"index","isAllowed":true},{"type":"lock","isAllowed":true},{"type":"all","isAllowed":true},{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"repladmin","isAllowed":true},{"type":"serviceadmin","isAllowed":true},{"type":"tempudfadmin","isAllowed":true},{"type":"refresh","isAllowed":true}],"users":["hive"],"delegateAdmin":true}]	8508027730290364125	update	9	8508027730290364125	Spring Authenticated Session
 815	2024-05-30 14:51:30.692	2024-05-30 14:51:30.708	1	1	1020	39	11	1030	hivedev	default database tables columns	Policy Additional Resources	\N	[]	-3179123374369061628	update	9	-3179123374369061628	Spring Authenticated Session
 816	2024-05-30 14:51:30.692	2024-05-30 14:51:30.709	1	1	1020	39	11	1030	hivedev	default database tables columns	Policy Items	[{"accesses":[{"type":"select","isAllowed":true},{"type":"update","isAllowed":true},{"type":"create","isAllowed":true},{"type":"drop","isAllowed":true},{"type":"alter","isAllowed":true},{"type":"index","isAllowed":true},{"type":"lock","isAllowed":true},{"type":"all","isAllowed":true},{"type":"read","isAllowed":true},{"type":"write","isAllowed":true},{"type":"repladmin","isAllowed":true},{"type":"serviceadmin","isAllowed":true},{"type":"tempudfadmin","isAllowed":true},{"type":"refresh","isAllowed":true}],"users":["postgres"],"delegateAdmin":false},{"accesses":[{"type":"select","isAllowed":true}],"users":["spark"],"delegateAdmin":false}]		-3179123374369061628	update	9	-3179123374369061628	Spring Authenticated Session
+817	2024-06-12 13:25:11.291	2024-06-12 13:25:11.292	1	1	1003	24	\N	0	\N	test1	Login ID	\N	test1	5993832457884487629	create	10	5993832457884487629	Spring Authenticated Session
+818	2024-06-12 13:25:11.291	2024-06-12 13:25:11.293	1	1	1003	24	\N	0	\N	test1	First Name	\N	test1	5993832457884487629	create	10	5993832457884487629	Spring Authenticated Session
+819	2024-06-12 13:25:11.291	2024-06-12 13:25:11.294	1	1	1003	24	\N	0	\N	test1	Password	\N	*****	5993832457884487629	create	10	5993832457884487629	Spring Authenticated Session
+820	2024-06-12 13:25:11.291	2024-06-12 13:25:11.294	1	1	1003	24	\N	0	\N	test1	User Role	\N	[ROLE_USER]	5993832457884487629	create	10	5993832457884487629	Spring Authenticated Session
+821	2024-06-12 13:25:36.417	2024-06-12 13:25:36.418	1	1	1003	25	\N	0	\N	test2	Login ID	\N	test2	2537756830873110206	create	10	2537756830873110206	Spring Authenticated Session
+822	2024-06-12 13:25:36.417	2024-06-12 13:25:36.42	1	1	1003	25	\N	0	\N	test2	First Name	\N	test2	2537756830873110206	create	10	2537756830873110206	Spring Authenticated Session
+823	2024-06-12 13:25:36.417	2024-06-12 13:25:36.421	1	1	1003	25	\N	0	\N	test2	Password	\N	*****	2537756830873110206	create	10	2537756830873110206	Spring Authenticated Session
+824	2024-06-12 13:25:36.417	2024-06-12 13:25:36.422	1	1	1003	25	\N	0	\N	test2	User Role	\N	[ROLE_USER]	2537756830873110206	create	10	2537756830873110206	Spring Authenticated Session
+825	2024-06-12 13:25:55.368	2024-06-12 13:25:55.368	1	1	1003	26	\N	0	\N	test3	Login ID	\N	test3	7263704381258680241	create	10	7263704381258680241	Spring Authenticated Session
+826	2024-06-12 13:25:55.368	2024-06-12 13:25:55.37	1	1	1003	26	\N	0	\N	test3	First Name	\N	test3	7263704381258680241	create	10	7263704381258680241	Spring Authenticated Session
+827	2024-06-12 13:25:55.368	2024-06-12 13:25:55.371	1	1	1003	26	\N	0	\N	test3	Password	\N	*****	7263704381258680241	create	10	7263704381258680241	Spring Authenticated Session
+828	2024-06-12 13:25:55.368	2024-06-12 13:25:55.372	1	1	1003	26	\N	0	\N	test3	User Role	\N	[ROLE_USER]	7263704381258680241	create	10	7263704381258680241	Spring Authenticated Session
 \.
 
 
@@ -5948,6 +5977,9 @@ COPY public.x_user (id, create_time, update_time, added_by_id, upd_by_id, user_n
 21	2024-05-16 16:31:13.507	2024-05-16 16:31:13.507	2	2	rangerkms	rangerkms - add from Unix box	0	\N	1	{"sync_source":"Unix","full_name":"rangerkms","original_name":"rangerkms"}	Unix
 22	2024-05-30 14:34:19.105	2024-05-30 14:34:19.106	1	1	games	games	0	\N	1	\N	\N
 23	2024-05-30 14:34:43.43	2024-05-30 14:34:43.43	1	1	root	root	0	\N	1	\N	\N
+24	2024-06-12 13:25:11.288	2024-06-12 13:25:11.289	1	1	test1	test1	0	\N	1	\N	\N
+25	2024-06-12 13:25:36.416	2024-06-12 13:25:36.416	1	1	test2	test2	0	\N	1	\N	\N
+26	2024-06-12 13:25:55.368	2024-06-12 13:25:55.368	1	1	test3	test3	0	\N	1	\N	\N
 \.
 
 
@@ -6030,6 +6062,15 @@ COPY public.x_user_module_perm (id, user_id, module_id, create_time, update_time
 72	21	1	2024-05-30 14:34:43.437	2024-05-30 14:34:43.439	1	1	1
 73	21	3	2024-05-30 14:34:43.441	2024-05-30 14:34:43.442	1	1	1
 74	21	7	2024-05-30 14:34:43.443	2024-05-30 14:34:43.443	1	1	1
+75	22	1	2024-06-12 13:25:11.298	2024-06-12 13:25:11.299	1	1	1
+76	22	3	2024-06-12 13:25:11.301	2024-06-12 13:25:11.302	1	1	1
+77	22	7	2024-06-12 13:25:11.302	2024-06-12 13:25:11.303	1	1	1
+78	23	1	2024-06-12 13:25:36.424	2024-06-12 13:25:36.426	1	1	1
+79	23	3	2024-06-12 13:25:36.428	2024-06-12 13:25:36.429	1	1	1
+80	23	7	2024-06-12 13:25:36.431	2024-06-12 13:25:36.432	1	1	1
+81	24	1	2024-06-12 13:25:55.374	2024-06-12 13:25:55.376	1	1	1
+82	24	3	2024-06-12 13:25:55.378	2024-06-12 13:25:55.379	1	1	1
+83	24	7	2024-06-12 13:25:55.381	2024-06-12 13:25:55.382	1	1	1
 \.
 
 
@@ -6073,7 +6114,7 @@ SELECT pg_catalog.setval('public.x_audit_map_seq', 1, false);
 -- Name: x_auth_sess_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_auth_sess_seq', 9, true);
+SELECT pg_catalog.setval('public.x_auth_sess_seq', 10, true);
 
 
 --
@@ -6185,7 +6226,7 @@ SELECT pg_catalog.setval('public.x_plugin_info_seq', 2, true);
 -- Name: x_policy_change_log_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_policy_change_log_seq', 50, true);
+SELECT pg_catalog.setval('public.x_policy_change_log_seq', 60, true);
 
 
 --
@@ -6199,7 +6240,7 @@ SELECT pg_catalog.setval('public.x_policy_condition_def_seq', 7, true);
 -- Name: x_policy_export_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_policy_export_seq', 18, true);
+SELECT pg_catalog.setval('public.x_policy_export_seq', 20, true);
 
 
 --
@@ -6339,14 +6380,14 @@ SELECT pg_catalog.setval('public.x_policy_seq', 40, true);
 -- Name: x_portal_user_role_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_portal_user_role_seq', 21, true);
+SELECT pg_catalog.setval('public.x_portal_user_role_seq', 24, true);
 
 
 --
 -- Name: x_portal_user_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_portal_user_seq', 21, true);
+SELECT pg_catalog.setval('public.x_portal_user_seq', 24, true);
 
 
 --
@@ -6514,7 +6555,7 @@ SELECT pg_catalog.setval('public.x_service_version_info_seq', 11, true);
 -- Name: x_tag_change_log_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_tag_change_log_seq', 50, true);
+SELECT pg_catalog.setval('public.x_tag_change_log_seq', 60, true);
 
 
 --
@@ -6542,7 +6583,7 @@ SELECT pg_catalog.setval('public.x_tag_seq', 1, false);
 -- Name: x_trx_log_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_trx_log_seq', 816, true);
+SELECT pg_catalog.setval('public.x_trx_log_seq', 828, true);
 
 
 --
@@ -6556,14 +6597,14 @@ SELECT pg_catalog.setval('public.x_ugsync_audit_info_seq', 3, true);
 -- Name: x_user_module_perm_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_user_module_perm_seq', 74, true);
+SELECT pg_catalog.setval('public.x_user_module_perm_seq', 83, true);
 
 
 --
 -- Name: x_user_seq; Type: SEQUENCE SET; Schema: public; Owner: rangeradmin
 --
 
-SELECT pg_catalog.setval('public.x_user_seq', 23, true);
+SELECT pg_catalog.setval('public.x_user_seq', 26, true);
 
 
 --

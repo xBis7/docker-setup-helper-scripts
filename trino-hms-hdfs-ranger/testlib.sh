@@ -511,6 +511,7 @@ handleTrinoEnv() {
 handleSparkEnv() {
   abs_path=$1
   op=$2
+  workers_num=$3
 
   spark_path="$abs_path/$CURRENT_REPO/compose/spark"
   docker_compose_path="$spark_path/docker/docker-compose.yml"
@@ -533,10 +534,11 @@ handleSparkEnv() {
     mkdir -p $spark_path/conf/$SPARK_EVENTS_DIR
     chmod 777 $spark_path/conf/$SPARK_EVENTS_DIR
 
-    # Use '--scale worker=3' to create more workers.
-    # Resources per worker have been increased and
-    # due to that the env is starting with only 1 worker.
-    docker compose -p spark -f $docker_compose_path up -d
+    if [ "$workers_num" == "" ]; then
+      docker compose -p spark -f $docker_compose_path up -d
+    else
+      docker compose -p spark -f $docker_compose_path up -d --scale worker="$workers_num"
+    fi
 
     echo ""
     echo "'$PROJECT_SPARK' env started."

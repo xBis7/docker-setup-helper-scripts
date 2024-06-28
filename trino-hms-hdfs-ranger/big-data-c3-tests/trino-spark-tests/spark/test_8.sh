@@ -51,12 +51,16 @@ command="spark.sql(\"describe gross_test.test\").show(false)"
 
 runSpark "$SPARK_USER2" "$command" "shouldPass"
 
+# User1 created the directory and the default permissions are 755.
+# Change permissions here to get an HDFS ACLs error and
+# check that creating a Ranger policy fixes it.
+changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR/gross_test.db" 750
+
 command="spark.sql(\"select * from gross_test.test\")"
 
-# In the BigData notes, this is failing with the error below.
-# expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":hdfs:"
+expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 
-runSpark "$SPARK_USER2" "$command" "shouldPass"
+runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
 # Update the HDFS policies.
 updateHdfsPathPolicy "read,write,execute:$HDFS_USER,$SPARK_USER1/read,execute:$SPARK_USER2" "/$HIVE_WAREHOUSE_DIR/gross_test.db"
@@ -69,9 +73,7 @@ runSpark "$SPARK_USER2" "$command" "shouldPass"
 
 command="spark.sql(\"insert into gross_test.test values (4, 'Austin')\")"
 
-# In the BigData notes, this is failing with the error below.
-# expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":hdfs:"
-
-expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=WRITE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db/test\":"
+# Because we changed the directory ACLs.
+expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"

@@ -18,7 +18,8 @@ updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$SPARK_USER1/s
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy "select:$SPARK_USER1,$SPARK_USER2"
 
-# In the BigData notes, this isn't part of the policies 'hdfs://$NAMENODE_NAME/data/projects/gross_test'
+# There is no note about Hive URL policies but as long as we update HDFS policies and add '/data/projects/gross_test'
+# and we are expecting the command to succeed, then we also need to add 'hdfs://$NAMENODE_NAME/data/projects/gross_test' here.
 updateHiveUrlPolicy "read,write:$SPARK_USER1" "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db,hdfs://$NAMENODE_NAME/data/projects/gross_test"
 
 waitForPoliciesUpdate
@@ -52,13 +53,10 @@ runSpark "$SPARK_USER1" "$command" "shouldPass"
 # The 'Type' of the table shoud be 'EXTERNAL' and
 # the location should be 'hdfs://$NAMENODE_NAME/data/projects/gross_test/test2'
 
-# Run commands as user2.
+# Change directory permissions so that another user won't be able to execute on HDFS paths without a Ranger policy. 
+changeHdfsDirPermissions "data/projects/gross_test" 750
 
-# BigData notes: Here there is a Note: 
-# "The other user can see the database and tables, but the SELECT fails with: "
-# "Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":hdfs:"
-#
-# The user has Read permissions on 'gross_test' and therefore all 3 operations should succeed.
+# Run commands as user2.
 
 # Show databases.
 command="spark.sql(\"show databases\").show"
@@ -72,8 +70,9 @@ runSpark "$SPARK_USER2" "$command" "shouldPass"
 
 # Select.
 command="spark.sql(\"select * from gross_test.test2\").show"
+expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
 
-runSpark "$SPARK_USER2" "$command" "shouldPass"
+runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
 # Update policies.
 
@@ -81,21 +80,14 @@ updateHdfsPathPolicy "read,write,execute:$HDFS_USER,$SPARK_USER1/read,execute:$S
 
 waitForPoliciesUpdate
 
-# BigData notes: we repeat select to show that it fails with the same unexpected EXECUTE error.
-# In our case it doesn't fail. So, there is no reason to repeat it.
+# Select. Now it should succeed.
+command="spark.sql(\"select * from gross_test.test2\").show"
 
-# Select.
-# command="spark.sql(\"select * from gross_test.test2\").show"
-
-# runSpark "$SPARK_USER2" "$command" "shouldPass"
+runSpark "$SPARK_USER2" "$command" "shouldPass"
 
 # Insert into.
 command="spark.sql(\"insert into gross_test.test2 values (4, 'Austin')\")"
-
-# In the BigData notes, this is failing with the error below.
-# expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":hdfs:"
-
-expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=WRITE, inode=\"/data/projects/gross_test/test2\":"
+expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 

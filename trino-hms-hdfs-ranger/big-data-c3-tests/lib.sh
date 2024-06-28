@@ -20,9 +20,7 @@ copyTestFilesUnderSpark() {
     test_files_array+=("$INSERT_SELECT_TABLE_NO_ACCESS_FILE")
   else
     # Populate the array.
-    test_files_array+=("$COMMON_UTILS_FILE")
-    test_files_array+=("$TEST_CMD_SUCCESS_FILE")
-    test_files_array+=("$TEST_CMD_FAILURE_FILE")
+    test_files_array+=("$TEST_CMD_FILE")
   fi
 
   for file in "${test_files_array[@]}"
@@ -151,24 +149,6 @@ runScalaFileInSparkShell() {
   fi
 }
 
-# To properly import the common utils file, we would need to load the file and then execute
-# the scala file that imports it, in the same spark-shell.
-# Because we need to run both of them remotely in an interactive shell,
-# we are combining the files and executing the combined file.
-combineFileWithCommonUtilsFile() {
-  file_name=$1
-  user=$2
-
-  cmd="cat $COMMON_UTILS_FILE $file_name > $TMP_COMBINED_FILE"
-
-  if [ "$CURRENT_ENV" == "local" ]; then
-    docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "$cmd"
-  else
-    # c3 - TODO.
-    echo "Implement this."
-  fi
-}
-
 base64encode() {
   input=$1
 
@@ -195,13 +175,11 @@ runSpark() {
   encoded_error=$(base64encode "$expectedError")
 
   if [ "$expectedResult" == "shouldPass" ]; then
-    combineFileWithCommonUtilsFile "$TEST_CMD_SUCCESS_FILE" "$user"
 
-    runScalaFileInSparkShell "bin/spark-shell --conf spark.encoded.command=\"$encoded_cmd\" -I $TMP_COMBINED_FILE" "$user"
+    runScalaFileInSparkShell "bin/spark-shell --conf spark.expect_exception=\"false\" --conf spark.encoded.command=\"$encoded_cmd\" -I $TEST_CMD_FILE" "$user"
   else
-    combineFileWithCommonUtilsFile "$TEST_CMD_FAILURE_FILE" "$user"
 
-    runScalaFileInSparkShell "bin/spark-shell --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_error=\"$encoded_error\" -I $TMP_COMBINED_FILE" "$user"
+    runScalaFileInSparkShell "bin/spark-shell --conf spark.expect_exception=\"true\" --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_error=\"$encoded_error\" -I $TEST_CMD_FILE" "$user"
   fi
 }
 

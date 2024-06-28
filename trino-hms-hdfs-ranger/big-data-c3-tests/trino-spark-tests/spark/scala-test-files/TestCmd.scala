@@ -163,3 +163,21 @@ object CommonUtils {
 
 }
 
+val command = spark.conf.get("spark.encoded.command", "default.spark.sql")
+val expectException = spark.conf.get("spark.expect_exception", "false")
+val expectedErrorMsg = spark.conf.get("spark.encoded.expected_error", "Permission denied")
+
+var result = false
+
+if (expectException.toBoolean) {
+  result = CommonUtils.runCommandWithException(encodedCommandStr = command, encodedExpectedErrorMsg = expectedErrorMsg)
+} else {
+  result = CommonUtils.runCommandNoException(encodedCommandStr = command)
+}
+
+if (result) {
+  sys.exit(0)
+} else {
+  sys.exit(1)
+}
+

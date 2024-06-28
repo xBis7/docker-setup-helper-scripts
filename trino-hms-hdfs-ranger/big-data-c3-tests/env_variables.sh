@@ -35,10 +35,7 @@ HIVE_GROSS_TEST_DIR="$EXTERNAL_HIVE_DB_PATH/gross_test"
 HIVE_GROSS_DB_TEST_DIR="$HIVE_GROSS_TEST_DIR/gross_test.db"
 
 # Test file names for Spark-testing.
-COMMON_UTILS_FILE="CommonUtils.scala"
-TMP_COMBINED_FILE="tmp_combined.scala"
-TEST_CMD_SUCCESS_FILE="test_cmd_success.scala"
-TEST_CMD_FAILURE_FILE="test_cmd_failure.scala"
+TEST_CMD_FILE="TestCmd.scala"
 
 # Test file names for load-testing.
 SETUP_CREATE_TABLE_FILE="setup_create_table.scala"

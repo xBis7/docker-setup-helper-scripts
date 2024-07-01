@@ -12,13 +12,10 @@ SPARK_USER1="spark"
 SPARK_USER2="test1"
 SPARK_USER3="test2"
 SPARK_USER4="test3"
-TRINO_USER1="trino"
-TRINO_USER2="games"
 
 # Hostnames.
 DN1_HOSTNAME="docker-datanode-1"
 SPARK_MASTER_HOSTNAME="spark-master-1"
-TRINO_HOSTNAME="trino-coordinator-1"
 
 # Service Names.
 NAMENODE_NAME="namenode"
@@ -43,7 +40,3 @@ CREATE_DROP_DB_FILE="create_drop_db.scala"
 CREATE_DROP_TABLE_FILE="create_drop_table.scala"
 INSERT_SELECT_TABLE_WITH_ACCESS_FILE="insert_select_table_with_access.scala"
 INSERT_SELECT_TABLE_NO_ACCESS_FILE="insert_select_table_no_access.scala"
-
-# Trino variables.
-TRINO_TMP_OUTPUT_FILE="trino_output_tmp.txt"
-TRINO_HIVE_SCHEMA="hive"

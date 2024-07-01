@@ -183,52 +183,6 @@ runSpark() {
   fi
 }
 
-# -- TRINO TESTS --
-runTrino() {
-  user=$1
-  trino_cmd=$2
-  expectedResult=$3
-  expectedOutput=$4
-
-  resultMsg=""
-  if [ "$expectedResult" == "shouldPass" ]; then
-    resultMsg="succeeded"
-  else
-    resultMsg="failed"
-  fi
-
-  if [ "$CURRENT_ENV" == "local" ]; then
-    docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
-  else
-    # c3 - TODO.
-    echo "Implement this."
-    # $(cmd) 2>&1 | tee "$tmp_file"
-  fi
-
-  # Test the output.
-  if !(grep -F "$expectedOutput" "$TRINO_TMP_OUTPUT_FILE" > /dev/null); then
-    echo ""
-    echo "--------------------------"
-    echo "The command failed. It didn't have the expected output."
-    echo "Expected output: '$expectedOutput'"
-    echo "Actual output: '$(cat $TRINO_TMP_OUTPUT_FILE)'"
-    echo "--------------------------"
-    echo ""
-    exit 1
-  else
-    echo ""
-    echo "--------------------------"
-    echo "Command '$resultMsg' as expected."
-    echo "The output matched the provided message!"
-    echo "--------------------------"
-    echo ""
-  fi
-
-  # Clean the tmp file only in case of success.
-  # In case of failure, the tmp file will be left around so that it can be examined.
-  rm $TRINO_TMP_OUTPUT_FILE
-}
-
 # -- LOAD TESTING --
 createSparkTableForTestingDdlOps() {
   user=$1

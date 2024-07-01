@@ -107,6 +107,9 @@ listContentsOnHdfsPath() {
   fi
 
   if [ "$expectedEmptyResult" == "shouldBeEmpty" ]; then
+    echo ""
+    echo "Result is expected to be empty."
+    echo ""
     # Check that the result is empty as expected.
     if [ "$result" != "" ]; then
       echo "Result is expected to be empty but it isn't. Exiting..."
@@ -201,6 +204,12 @@ runTrino() {
     resultMsg="failed"
   fi
 
+  echo ""
+  echo "=========================="
+  echo "Running trino command: '$trino_cmd'"
+  echo "--------------------------"
+  echo ""
+
   if [ "$CURRENT_ENV" == "local" ]; then
     docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
   else
@@ -216,7 +225,7 @@ runTrino() {
     echo "The command failed. It didn't have the expected output."
     echo "Expected output: '$expectedOutput'"
     echo "Actual output: '$(cat $TRINO_TMP_OUTPUT_FILE)'"
-    echo "--------------------------"
+    echo "=========================="
     echo ""
     exit 1
   else
@@ -224,7 +233,7 @@ runTrino() {
     echo "--------------------------"
     echo "Command '$resultMsg' as expected."
     echo "The output matched the provided message!"
-    echo "--------------------------"
+    echo "=========================="
     echo ""
   fi
 

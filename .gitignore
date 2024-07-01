@@ -3,6 +3,7 @@
 
 tmp_output.txt
 pg_tmp_output.txt
+trino_output_tmp.txt
 
 compose/spark/conf/spark-events
 compose/spark/conf/hive-jars

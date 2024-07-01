@@ -42,7 +42,14 @@ runSpark "$SPARK_USER1" "$command" "shouldPass"
 
 command="spark.sql(\"describe extended gross_test.test\").show(false)"
 
-runSpark "$SPARK_USER1" "$command" "shouldPass"
+# The 'Type' of the table shoud be 'MANAGED' and
+# the location should be 'hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db/test'
+# Run the command twice, so that we can check each time for a different part of the output.
+expectedOutput="|Type                        |MANAGED"
+runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
+
+expectedOutput="|Location                    |hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db/test"
+runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
 
 command="spark.sql(\"drop table gross_test.test\")"
 

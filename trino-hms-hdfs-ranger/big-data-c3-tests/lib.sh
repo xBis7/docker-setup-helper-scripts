@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -e
-
 source "./big-data-c3-tests/env_variables.sh"
+
+set -e
 
 copyTestFilesUnderSpark() {
   abs_path=$1

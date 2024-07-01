@@ -98,7 +98,7 @@ object CommonUtils {
             println(s"\nRoot cause of thrown exception: \n${cause.getMessage}")
             return CommonUtils.hasFailedWithTheExceptionAndMsg(expectedErrorMsg = decodedErrorStr, e = cause)
           case _ =>
-            println("No root cause found on the thrown exception.")
+            println("\nNo root cause found on the thrown exception.")
             e.printStackTrace()
             return false
         }
@@ -169,7 +169,7 @@ object CommonUtils {
             println(s"\nRoot cause of thrown exception: \n${cause.getMessage}")
             return CommonUtils.printUnexpectedExceptionMsg(e = cause)
           case _ =>
-            println("No root cause found on the thrown exception.")
+            println("\nNo root cause found on the thrown exception.")
             e.printStackTrace()
             return false
         }
@@ -195,10 +195,10 @@ object CommonUtils {
       val decodedOutputStr = new String(decodedOutputBytes)
 
       if (!outputString.contains(decodedOutputStr)) {
-        println(s"FAILURE: Expected output '$decodedOutputStr' was NOT found in the command output.")
+        println(s"\nFAILURE: Expected output '$decodedOutputStr' was NOT found in the command output.")
         return false
       } else {
-        println(s"The command output contains the expected output '$decodedOutputStr'.")
+        println(s"\nThe command output contains the expected output '$decodedOutputStr'.")
       }
     }
 

@@ -25,7 +25,6 @@ waitForPoliciesUpdate
 
 # Drop.
 command="spark.sql(\"drop table gross_test.test\")"
-
 expectedErrorMsg="Permission denied: user [$SPARK_USER2] does not have [DROP] privilege on [gross_test/test]"
 
 # 1st parameter: the user to execute the command
@@ -36,14 +35,12 @@ runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
 # Alter.
 command="spark.sql(\"alter table gross_test.test rename to gross_test.test2\")"
-
 expectedErrorMsg="Permission denied: user [$SPARK_USER2] does not have [ALTER] privilege on [gross_test/test]"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
 # Create.
 command="spark.sql(\"create table gross_test.test2 (id int, greeting string)\")"
-
 expectedErrorMsg="Permission denied: user [$SPARK_USER2] does not have [CREATE] privilege on [gross_test/test2]"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"

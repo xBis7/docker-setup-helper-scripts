@@ -57,14 +57,12 @@ runSpark "$SPARK_USER2" "$command" "shouldPass"
 changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR/gross_test.db" 750
 
 command="spark.sql(\"select * from gross_test.test\")"
-
 expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
 # Update the HDFS policies.
 updateHdfsPathPolicy "read,write,execute:$HDFS_USER,$SPARK_USER1/read,execute:$SPARK_USER2" "/$HIVE_WAREHOUSE_DIR/gross_test.db"
-
 waitForPoliciesUpdate
 
 command="spark.sql(\"select * from gross_test.test\")"

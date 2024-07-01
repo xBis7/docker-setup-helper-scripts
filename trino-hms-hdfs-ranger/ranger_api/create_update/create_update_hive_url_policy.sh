@@ -10,6 +10,7 @@ set -e
 policy_items=$1
 request_type=$2
 resources_url=${3:-"*"}
+deny_policy_items=$4
 
 json_payload+="{"
 
@@ -35,6 +36,11 @@ url_values_array=$(getJsonArrayFromCommaSeparatedList "$resources_url")
 
 policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
 
+deny_policy_items_array="[]"
+if [ "$deny_policy_items" != "" ]; then
+  deny_policy_items_array=$(getPolicyItemsJsonArray "$deny_policy_items")
+fi
+
 json_payload+=$(cat <<EOF
   "isEnabled":true,
   "service":"$HIVE_RANGER_SERVICE",
@@ -50,9 +56,7 @@ json_payload+=$(cat <<EOF
   "policyItems":$policy_items_array,
   "serviceType":"hive",
   "isDenyAllElse":false,
-  "denyPolicyItems":[
-    
-  ],
+  "denyPolicyItems":$deny_policy_items_array,
   "allowExceptions":[
     
   ],

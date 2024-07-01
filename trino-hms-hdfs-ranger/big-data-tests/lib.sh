@@ -245,26 +245,43 @@ runTrino() {
 updateHdfsPathPolicy() {
   permissions=$1
   path_list=$2
+  deny_permissions=$3
 
-  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "$path_list" "$permissions" "put"
+  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "$path_list" "$permissions" "put" "$deny_permissions"
 }
 
 updateHiveDbAllPolicy() {
   permissions=$1
   db_list=$2
+  deny_permissions=$3
 
-  ./ranger_api/create_update/create_update_hive_all_db_policy.sh "$permissions" "put" "$db_list"
+  # If 'deny_permissions' isn't empty, then 'db_list' won't be empty.
+  # Therefore, it's ok to provide values for the in between parameters.
+  if [ "$deny_permissions" != "" ]; then
+    ./ranger_api/create_update/create_update_hive_all_db_policy.sh "$permissions" "put" "$db_list" "*" "*" "$deny_permissions"
+  else
+    ./ranger_api/create_update/create_update_hive_all_db_policy.sh "$permissions" "put" "$db_list"
+  fi
 }
 
 updateHiveDefaultDbPolicy() {
   permissions=$1
+  deny_permissions=$2
 
-  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "$permissions" "put"
+  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "$permissions" "put" "*" "$deny_permissions"
 }
 
 updateHiveUrlPolicy() {
   permissions=$1
   url_list=$2
+  deny_permissions=$3
 
-  ./ranger_api/create_update/create_update_hive_url_policy.sh "$permissions" "put" "$url_list"
+  # If 'deny_permissions' isn't empty, then 'db_list' won't be empty.
+  # If we specify 'deny_permissions' and 'db_list' is empty, then the 'deny_permissions'
+  # value will be stored in the place of the 'url_list' value.
+  if [ "$deny_permissions" != "" ]; then
+    ./ranger_api/create_update/create_update_hive_url_policy.sh "$permissions" "put" "$url_list" "$deny_permissions"
+  else
+    ./ranger_api/create_update/create_update_hive_url_policy.sh "$permissions" "put" "$url_list"
+  fi
 }

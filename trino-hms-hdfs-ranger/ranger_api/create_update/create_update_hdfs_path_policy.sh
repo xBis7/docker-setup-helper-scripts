@@ -11,6 +11,7 @@ resources_path=$1
 # If there is only 1 allow condition, then it will be just: accesses1:users1
 policy_items=$2
 request_type=$3
+deny_policy_items=$4
 
 json_payload+="{"
 
@@ -36,6 +37,11 @@ resource_values_array=$(getJsonArrayFromCommaSeparatedList "$resources_path")
 
 policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
 
+deny_policy_items_array="[]"
+if [ "$deny_policy_items" != "" ]; then
+  deny_policy_items_array=$(getPolicyItemsJsonArray "$deny_policy_items")
+fi
+
 json_payload+=$(cat <<EOF
   "isEnabled": true,
   "service": "$HADOOP_RANGER_SERVICE",
@@ -50,9 +56,7 @@ json_payload+=$(cat <<EOF
   "policyItems":$policy_items_array,
   "serviceType": "hdfs",
   "isDenyAllElse": false,
-  "denyPolicyItems":[
-    
-  ],
+  "denyPolicyItems":$deny_policy_items_array,
   "allowExceptions":[
     
   ],

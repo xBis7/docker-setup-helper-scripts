@@ -1,3 +1,4 @@
+import java.io.{ByteArrayOutputStream, PrintStream}
 import scala.reflect.runtime.currentMirror
 import scala.tools.reflect.ToolBox
 import java.util.Base64
@@ -108,7 +109,7 @@ object CommonUtils {
     false
   }
 
-  def runCommandNoException(encodedCommandStr: String): Boolean = {
+  def runCommandNoException(encodedCommandStr: String, encodedExpectedOutput: Option[String] = None): Boolean = {
     // Decode the base64 encoded command.
     val decodedCmdBytes = Base64.getDecoder.decode(encodedCommandStr)
     val decodedCommandStr = new String(decodedCmdBytes)
@@ -119,6 +120,17 @@ object CommonUtils {
     println("\nExpecting it to succeed.")
     println("--------------------------")
     printf("\n\n")
+
+    // Get the original streams, so that we can later restore 'System.out' and 'System.err'.
+    // Setup new streams to capture the output.
+    val originalOut = System.out
+    val originalErr = System.err
+    val outStream = new ByteArrayOutputStream()
+    val errStream = new ByteArrayOutputStream()
+    val printOutStream = new PrintStream(outStream)
+    val printErrStream = new PrintStream(errStream)
+    System.setOut(printOutStream)
+    System.setErr(printErrStream)
 
     try {
       // Using Scala reflection, we can execute the String as scala code.
@@ -139,7 +151,14 @@ object CommonUtils {
         |     throw e
         |}
       """.stripMargin
-      mkToolBox.eval(mkToolBox.parse(wrappedCommand))
+      // The command and it's output are both run within the mkToolBox context.
+      // Use 'Console.withOut' to redirect the output from within the context to the stream.
+      // 'Console.withOut' is generally used to redirect output and it can also be used to redirect the output to a file.
+      Console.withOut(printOutStream) {
+        Console.withErr(printErrStream) {
+          mkToolBox.eval(mkToolBox.parse(wrappedCommand))
+        }
+      }
     } catch {
       case e: Exception =>
         // Because the command is run using Scala reflection,
@@ -154,6 +173,33 @@ object CommonUtils {
             e.printStackTrace()
             return false
         }
+    } finally {
+      // Restore 'System.out' and 'System.err' to the original streams.
+      printOutStream.flush()
+      printErrStream.flush()
+      System.setOut(originalOut)
+      System.setErr(originalErr)
+    }
+
+    // Check the captured output.
+    val outputString = outStream.toString
+    // We can get standard error with 'errStream.toString'.
+    // Checking for error here is redundant due to the above try-catch.
+    // But regardless of that, we need to set the err stream.
+
+    // Check if an expected output string has been provided.
+    val encodedExpectedStr = encodedExpectedOutput.getOrElse("")
+    if (encodedExpectedStr.nonEmpty) {
+      // Decode the base64 encoded expected output.
+      val decodedOutputBytes = Base64.getDecoder.decode(encodedExpectedStr)
+      val decodedOutputStr = new String(decodedOutputBytes)
+
+      if (!outputString.contains(decodedOutputStr)) {
+        println(s"FAILURE: Expected output '$decodedOutputStr' was NOT found in the command output.")
+        return false
+      } else {
+        println(s"The command output contains the expected output '$decodedOutputStr'.")
+      }
     }
 
     CommonUtils.printSuccessMsg
@@ -165,14 +211,26 @@ object CommonUtils {
 
 val command = spark.conf.get("spark.encoded.command", "default.spark.sql")
 val expectException = spark.conf.get("spark.expect_exception", "false")
-val expectedErrorMsg = spark.conf.get("spark.encoded.expected_error", "Permission denied")
+
+var expectedOutput: String = ""
+try {
+  // It throws an exception if there is no value.
+  // If it's empty and throws the exception, then initialize the string to empty.
+  expectedOutput = spark.conf.get("spark.encoded.expected_output")
+} catch {
+  case e: NoSuchElementException => expectedOutput = ""
+}
 
 var result = false
 
 if (expectException.toBoolean) {
-  result = CommonUtils.runCommandWithException(encodedCommandStr = command, encodedExpectedErrorMsg = expectedErrorMsg)
+  result = CommonUtils.runCommandWithException(encodedCommandStr = command, encodedExpectedErrorMsg = expectedOutput)
 } else {
-  result = CommonUtils.runCommandNoException(encodedCommandStr = command)
+  if (expectedOutput.nonEmpty) {
+    result = CommonUtils.runCommandNoException(encodedCommandStr = command, encodedExpectedOutput = Some(expectedOutput))
+  } else {
+    result = CommonUtils.runCommandNoException(encodedCommandStr = command)
+  }
 }
 
 if (result) {

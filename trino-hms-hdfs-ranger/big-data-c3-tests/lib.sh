@@ -163,8 +163,8 @@ base64encode() {
 runSpark() {
   user=$1
   spark_cmd=$2
-  expectedResult=$3
-  expectedError=$4
+  expected_result=$3
+  expected_output=$4
 
   # The cmd and the error, occasionally aren't properly passed to the scala file.
   # Some times, everything after the first space is truncated.
@@ -172,15 +172,13 @@ runSpark() {
   # - encode the string here
   # - decode the string on the scala file
   encoded_cmd=$(base64encode "$spark_cmd")
-  encoded_error=$(base64encode "$expectedError")
+  encoded_output=$(base64encode "$expected_output")
 
-  if [ "$expectedResult" == "shouldPass" ]; then
-
-    runScalaFileInSparkShell "bin/spark-shell --conf spark.expect_exception=\"false\" --conf spark.encoded.command=\"$encoded_cmd\" -I $TEST_CMD_FILE" "$user"
-  else
-
-    runScalaFileInSparkShell "bin/spark-shell --conf spark.expect_exception=\"true\" --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_error=\"$encoded_error\" -I $TEST_CMD_FILE" "$user"
+  expect_exception=true
+  if [ "$expected_result" == "shouldPass" ]; then
+    expect_exception=false
   fi
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.expect_exception=\"$expect_exception\" --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_output=\"$encoded_output\" -I $TEST_CMD_FILE" "$user"
 }
 
 # -- LOAD TESTING --

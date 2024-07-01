@@ -47,11 +47,14 @@ runSpark "$SPARK_USER1" "$command" "shouldPass"
 # Describe table.
 command="spark.sql(\"describe extended gross_test.test2\").show(false)"
 
-runSpark "$SPARK_USER1" "$command" "shouldPass"
-
-# TODO: check the command output.
 # The 'Type' of the table shoud be 'EXTERNAL' and
 # the location should be 'hdfs://$NAMENODE_NAME/data/projects/gross_test/test2'
+# Run the command twice, so that we can check each time for a different part of the output.
+expectedOutput="|Type                        |EXTERNAL"
+runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
+
+expectedOutput="|Location                    |hdfs://$NAMENODE_NAME/data/projects/gross_test/test2"
+runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
 
 # Change directory permissions so that another user won't be able to execute on HDFS paths without a Ranger policy. 
 changeHdfsDirPermissions "data/projects/gross_test" 750

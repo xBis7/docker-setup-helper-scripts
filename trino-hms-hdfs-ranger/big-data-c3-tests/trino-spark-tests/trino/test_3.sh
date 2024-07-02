@@ -23,6 +23,9 @@ updateHiveUrlPolicy "read,write:$TRINO_USER1" "hdfs://$NAMENODE_NAME/data/projec
 
 waitForPoliciesUpdate
 
+# Change directory permissions so that there won't be permissions to execute on HDFS paths without a Ranger policy.
+changeHdfsDirPermissions "data/projects/gross_test" 750
+
 command="create schema $TRINO_HIVE_SCHEMA.gross_test with (location = 'hdfs://$NAMENODE_NAME/data/projects/gross_test/test.db')"
 
 # After the : is the HDFS directory owner and the group.

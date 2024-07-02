@@ -35,3 +35,6 @@ runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
 
 # drop schema will also delete "$HIVE_WAREHOUSE_DIR/gross_test.db"
 deleteHdfsDir "data/projects/gross_test"
+
+# Create the directory again as empty.
+createHdfsDir "data/projects/gross_test"

@@ -27,4 +27,4 @@ set -e
 
 ./big-data-tests/trino/test_11.sh
 
-# ./big-data-tests/trino/test_12.sh
+./big-data-tests/trino/test_12.sh

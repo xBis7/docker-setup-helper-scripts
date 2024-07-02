@@ -62,10 +62,12 @@ runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
 
 # Change permissions here to get an HDFS ACLs error and
 # check that creating a Ranger policy fixes it.
-changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR/gross_test.db/test" 754
+changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR/gross_test.db" 700
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test"
-expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
+# This is the expected error according to the BigData notes for ACL access drwx------.
+# expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
+expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db/test"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 

@@ -25,7 +25,11 @@ waitForPoliciesUpdate
 
 # Run the commands as user2.
 command="drop table $TRINO_HIVE_SCHEMA.gross_test.test"
-expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test]"
+# In the BigData notes, this command is expected to fail with this error. But this is a Spark error.
+# The Trino error for lack of DROP privileges, is different.
+
+# expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test]"
+expectedMsg="The following metastore delete operations failed: drop table gross_test.test"
 
 # 1st parameter: the user to execute the command
 # 2nd parameter: the command to be executed
@@ -39,6 +43,8 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privil
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
 command="create table $TRINO_HIVE_SCHEMA.gross_test.test2 (id int, greeting varchar)"
-expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"$HIVE_WAREHOUSE_DIR/gross_test.db\":"
+# In the BigData notes, this command is expected to fail with this error.
+# expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"$HIVE_WAREHOUSE_DIR/gross_test.db\":"
+expectedMsg="Permission denied: user [$TRINO_USER2] does not have [CREATE] privilege on [gross_test/test2]"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"

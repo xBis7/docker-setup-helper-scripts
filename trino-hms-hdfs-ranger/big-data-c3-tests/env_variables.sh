@@ -6,8 +6,6 @@ CURRENT_ENV="local"
 POLICIES_UPDATE_INTERVAL=10
 
 # Ranger users.
-HDFS_USER="hadoop"
-HIVE_USER="hive"
 SPARK_USER1="spark"
 SPARK_USER2="test1"
 SPARK_USER3="test2"

@@ -11,7 +11,7 @@ echo "Attempt various DDL operations against the managed table as a different us
 echo ""
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "read,write,execute:$HDFS_USER,$SPARK_USER1/read,execute:$SPARK_USER2" "/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "read,write,execute:$SPARK_USER1/read,execute:$SPARK_USER2" "/$HIVE_WAREHOUSE_DIR/gross_test.db"
 
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$SPARK_USER1/select:$SPARK_USER2" "gross_test"
 

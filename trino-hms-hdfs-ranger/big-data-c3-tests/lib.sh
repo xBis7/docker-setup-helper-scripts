@@ -235,25 +235,25 @@ updateHdfsPathPolicy() {
   permissions=$1
   path_list=$2
 
-  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "$path_list" "$permissions" "put"
+  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "put" "$permissions" "$path_list"
 }
 
 updateHiveDbAllPolicy() {
   permissions=$1
   db_list=$2
 
-  ./ranger_api/create_update/create_update_hive_all_db_policy.sh "$permissions" "put" "$db_list"
+  ./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "$permissions" "$db_list"
 }
 
 updateHiveDefaultDbPolicy() {
   permissions=$1
 
-  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "$permissions" "put"
+  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "put" "$permissions"
 }
 
 updateHiveUrlPolicy() {
   permissions=$1
   url_list=$2
 
-  ./ranger_api/create_update/create_update_hive_url_policy.sh "$permissions" "put" "$url_list"
+  ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list"
 }

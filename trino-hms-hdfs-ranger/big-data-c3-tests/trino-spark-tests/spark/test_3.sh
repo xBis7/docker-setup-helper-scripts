@@ -10,7 +10,7 @@ echo "## Test 3 ##"
 echo "Create a database having Create (Hive), read,write,execute (HDFS) and Read and Write (Hive)"
 echo ""
 
-updateHdfsPathPolicy "read,write,execute:$HDFS_USER,$SPARK_USER1" "/*"
+updateHdfsPathPolicy "read,write,execute:$SPARK_USER1" "/*"
 
 # It's the same as in the previous test.
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$SPARK_USER1" "gross_test"

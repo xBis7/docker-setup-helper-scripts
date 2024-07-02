@@ -11,7 +11,7 @@ echo "Drop the database and recreate using the default Hive warehouse location"
 echo ""
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "read,write,execute:$HDFS_USER,$SPARK_USER1" "/*"
+updateHdfsPathPolicy "read,write,execute:$SPARK_USER1" "/*"
 
 # It's the same as in the previous test.
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$SPARK_USER1/select:$SPARK_USER2" "gross_test"

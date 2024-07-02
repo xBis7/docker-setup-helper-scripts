@@ -26,27 +26,27 @@ checkIfPolicyExists "hive" "defaultdb"
 checkIfPolicyExists "hive" "url"
 
 # Create the policies again with new values and validate the values in the Ranger Admin service.
-./ranger_api/create_update/create_update_hdfs_path_policy.sh "/*" "read,write:hadoop" "create"
+./ranger_api/create_update/create_update_hdfs_path_policy.sh "create" "read,write:hadoop" "/*"
 validateRangerData "hdfs" "all" "read,write:hadoop" "path" "/*"
 
-./ranger_api/create_update/create_update_hive_all_db_policy.sh "select,drop:hadoop/alter,read:spark" "create"
+./ranger_api/create_update/create_update_hive_all_db_policy.sh "create" "select,drop:hadoop/alter,read:spark"
 validateRangerData "hive" "all_db" "select,drop:hadoop/alter,read:spark"
 
-./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "select,drop:hadoop/alter,read:spark" "create"
+./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "create" "select,drop:hadoop/alter,read:spark"
 validateRangerData "hive" "defaultdb" "select,drop:hadoop/alter,read:spark"
 
-./ranger_api/create_update/create_update_hive_url_policy.sh "read:spark" "create"
+./ranger_api/create_update/create_update_hive_url_policy.sh "create" "read:spark"
 validateRangerData "hive" "url" "read:spark"
 
 # Update all policies with more or less allow conditions and validate the values in the Ranger Admin service.
-./ranger_api/create_update/create_update_hdfs_path_policy.sh "/dir1,/test/*" "read,write:hadoop/execute:spark" "put"
+./ranger_api/create_update/create_update_hdfs_path_policy.sh "put" "read,write:hadoop/execute:spark" "/dir1,/test/*"
 validateRangerData "hdfs" "all" "read,write:hadoop/execute:spark" "path" "/dir1,/test/*"
 
-./ranger_api/create_update/create_update_hive_all_db_policy.sh "select,alter:trino" "put"
+./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "select,alter:trino"
 validateRangerData "hive" "all_db" "select,alter:trino"
 
-./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "select,index,lock:spark" "put" "test_col"
+./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "put" "select,index,lock:spark" "test_col"
 validateRangerData "hive" "defaultdb" "select,index,lock:spark" "column" "test_col"
 
-./ranger_api/create_update/create_update_hive_url_policy.sh "read:spark/write:hadoop" "put"
+./ranger_api/create_update/create_update_hive_url_policy.sh "put" "read:spark/write:hadoop"
 validateRangerData "hive" "url" "read:spark/write:hadoop"

@@ -10,7 +10,7 @@ echo "## Test 2 ##"
 echo "Create a database without having read,write,execute HDFS permissions"
 echo ""
 
-updateHdfsPathPolicy "read,write,execute:$HDFS_USER" "/*"
+updateHdfsPathPolicy ""
 
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$SPARK_USER1" "gross_test"
 
@@ -18,7 +18,7 @@ updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$SPARK_USER1" 
 updateHiveDefaultDbPolicy "select:$SPARK_USER1"
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "read:$SPARK_USER1"
+updateHiveUrlPolicy ""
 
 waitForPoliciesUpdate
 

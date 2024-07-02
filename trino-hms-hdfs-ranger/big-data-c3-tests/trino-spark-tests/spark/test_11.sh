@@ -10,7 +10,7 @@ echo "## Test 11 ##"
 echo "Repeat using an external table"
 echo ""
 
-updateHdfsPathPolicy "read,write,execute:$HDFS_USER,$SPARK_USER1" "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test"
+updateHdfsPathPolicy "read,write,execute:$SPARK_USER1" "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test"
 
 # It's the same as in the previous test.
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$SPARK_USER1/select:$SPARK_USER2" "gross_test"
@@ -85,7 +85,7 @@ runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
 # Update policies.
 
-updateHdfsPathPolicy "read,write,execute:$HDFS_USER,$SPARK_USER1/read,execute:$SPARK_USER2" "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test"
+updateHdfsPathPolicy "read,write,execute:$SPARK_USER1/read,execute:$SPARK_USER2" "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test"
 
 waitForPoliciesUpdate
 

@@ -18,3 +18,13 @@ set -e
 ./big-data-tests/trino/test_6.sh
 
 ./big-data-tests/trino/test_7.sh
+
+./big-data-tests/trino/test_8.sh
+
+./big-data-tests/trino/test_9.sh
+
+./big-data-tests/trino/test_10.sh
+
+./big-data-tests/trino/test_11.sh
+
+# ./big-data-tests/trino/test_12.sh

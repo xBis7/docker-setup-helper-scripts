@@ -36,7 +36,10 @@ fi
 column_values_array=$(getJsonArrayFromCommaSeparatedList "$resources_column")
 table_values_array=$(getJsonArrayFromCommaSeparatedList "$resources_table")
 
-policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
+policy_items_array="[]"
+if [ "$policy_items" != "" ] && [ "$policy_items" != "-" ]; then
+  policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
+fi
 
 deny_policy_items_array="[]"
 if [ "$deny_policy_items" != "" ]; then

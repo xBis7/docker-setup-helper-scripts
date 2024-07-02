@@ -25,11 +25,8 @@ waitForPoliciesUpdate
 
 command="create schema $TRINO_HIVE_SCHEMA.gross_test with (location = 'hdfs://$NAMENODE_NAME/data/projects/gross_test/test.db')"
 
-# In the BigData notes, this is failing with the error below.
-# expectedErrorMsg="Permission denied: user=$TRINO_USER1, access=EXECUTE, inode=\"/data/projects/gross_test\":"
-
 # After the : is the HDFS directory owner and the group.
-expectedErrorMsg="Permission denied: user=$TRINO_USER1, access=WRITE, inode=\"/data/projects/gross_test\":"
+expectedErrorMsg="Permission denied: user=$TRINO_USER1, access=EXECUTE, inode=\"/data/projects/gross_test\":"
 
 # 1st parameter: the user to execute the command
 # 2nd parameter: the command to be executed

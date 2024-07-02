@@ -89,6 +89,28 @@ changeHdfsDirPermissions() {
   echo ""
 }
 
+deleteHdfsDir() {
+  path=$1
+
+  hdfs_cmd="hdfs dfs -rm -r /$path"
+
+  echo ""
+  echo "Running command:"
+  echo "$hdfs_cmd"
+  echo ""
+
+  if [ "$CURRENT_ENV" == "local" ]; then
+    docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
+  else
+    # c3 - TODO.
+    echo "Implement this."
+  fi
+
+  echo ""
+  echo "Command succeeded."
+  echo ""
+}
+
 listContentsOnHdfsPath() {
   path=$1
   expectedEmptyResult=$2

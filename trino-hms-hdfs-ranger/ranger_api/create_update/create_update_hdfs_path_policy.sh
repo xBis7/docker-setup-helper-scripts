@@ -5,7 +5,6 @@ source "./ranger_api/lib.sh"
 set -e
 
 request_type=$1
-request_type=$1
 
 # 'policy_items' can be like this for multiple conditions:
 # accesses1:users1/accesses2:users2/accesses3:users3

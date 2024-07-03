@@ -10,7 +10,7 @@ request_type=$1
 # accesses1:users1/accesses2:users2/accesses3:users3
 # If there is only 1 allow condition, then it will be just: accesses1:users1
 policy_items=$2
-resources_path=${3:-"*"}
+resources_path=${3:-"/*"}
 deny_policy_items=$4
 
 json_payload+="{"

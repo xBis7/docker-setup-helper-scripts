@@ -86,5 +86,4 @@ RUN chmod a+x /opt/entrypoint.sh
 
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
 
-# This is the only difference between this and the original Dockerfile.
 USER ${spark_uid}

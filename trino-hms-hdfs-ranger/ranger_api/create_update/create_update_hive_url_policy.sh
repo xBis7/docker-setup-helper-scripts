@@ -4,11 +4,12 @@ source "./ranger_api/lib.sh"
 
 set -e
 
+request_type=$1
+
 # It can be like this for multiple conditions:
 # accesses1:users1/accesses2:users2/accesses3:users3
 # If there is only 1 allow condition, then it will be just: accesses1:users1
-policy_items=$1
-request_type=$2
+policy_items=$2
 resources_url=${3:-"*"}
 
 json_payload+="{"

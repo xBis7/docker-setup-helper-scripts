@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source "./load_testing/env_variables.sh"
-source "./load_testing/lib.sh"
+source "./big-data-c3-tests/env_variables.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -10,7 +10,7 @@ set -e
 echo ""
 echo "Updating HDFS policies."
 echo ""
-updateHdfsPathPolicy "read,write,execute:$HDFS_USER,$HIVE_USER,$SPARK_USER1,$SPARK_USER2,$SPARK_USER3" "/*"
+updateHdfsPathPolicy "read,write,execute:$SPARK_USER1,$SPARK_USER2,$SPARK_USER3" "/*"
 
 echo ""
 echo "---------------------------------------------------"
@@ -18,7 +18,7 @@ echo "---------------------------------------------------"
 echo ""
 echo "Updating Hive all db, cols, tables."
 echo ""
-updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:$HIVE_USER,$SPARK_USER1,$SPARK_USER2,$SPARK_USER3/select:$SPARK_USER4"
+updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:$SPARK_USER1,$SPARK_USER2,$SPARK_USER3/select:$SPARK_USER4"
 
 echo ""
 echo "---------------------------------------------------"
@@ -26,7 +26,7 @@ echo "---------------------------------------------------"
 echo ""
 echo "Updating Hive default db."
 echo ""
-updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:$HIVE_USER,$SPARK_USER1,$SPARK_USER2,$SPARK_USER3/select:$SPARK_USER4"
+updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:$SPARK_USER1,$SPARK_USER2,$SPARK_USER3/select:$SPARK_USER4"
 
 echo ""
 echo "---------------------------------------------------"

@@ -6,8 +6,6 @@ CURRENT_ENV="local"
 POLICIES_UPDATE_INTERVAL=10
 
 # Ranger users.
-HDFS_USER="hadoop"
-HIVE_USER="hive"
 SPARK_USER1="spark"
 SPARK_USER2="test1"
 SPARK_USER3="test2"
@@ -21,13 +19,20 @@ SPARK_MASTER_HOSTNAME="spark-master-1"
 NAMENODE_NAME="namenode"
 
 # Env variables.
+# Don't use a leading / in any of the paths, so that the tests can add it where needed.
+# For example we could have something like 'namenode/$HIVE_WAREHOUSE_DIR'.
+# If the HIVE_WAREHOUSE_DIR had a leading /, then the above example would turn out
+# to be 'namenode//opt/hive/data'.
 HIVE_WAREHOUSE_DIR="opt/hive/data"
 HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
 EXTERNAL_HIVE_DB_PATH="data/projects"
 HIVE_GROSS_TEST_DIR="$EXTERNAL_HIVE_DB_PATH/gross_test"
 HIVE_GROSS_DB_TEST_DIR="$HIVE_GROSS_TEST_DIR/gross_test.db"
 
-# Test file names.
+# Test file names for Spark-testing.
+TEST_CMD_FILE="TestCmd.scala"
+
+# Test file names for load-testing.
 SETUP_CREATE_TABLE_FILE="setup_create_table.scala"
 CREATE_DROP_DB_FILE="create_drop_db.scala"
 CREATE_DROP_TABLE_FILE="create_drop_table.scala"

@@ -15,7 +15,7 @@ updateHdfsPathPolicy "-" "/*"
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"
 
 # It's the same as in the previous test.
-updateHiveDefaultDbPolicy "select:$TRINO_USER1"
+updateHiveDefaultDbPolicy ""
 
 # It's the same as in the previous test.
 updateHiveUrlPolicy "read:$TRINO_USER1"

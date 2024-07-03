@@ -20,10 +20,10 @@ updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/*"
 
 # 1st parameter: permissions
 # 2nd parameter: comma-separated list of DBs
-updateHiveDbAllPolicy "select:$TRINO_USER1"
+updateHiveDbAllPolicy ""
 
 # 1st parameter: permissions
-updateHiveDefaultDbPolicy "select:$TRINO_USER1"
+updateHiveDefaultDbPolicy ""
 
 # 1st parameter: permissions
 # 2nd parameter: comma-separated list of URLs

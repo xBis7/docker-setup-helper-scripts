@@ -22,7 +22,7 @@ echo ""
 #
 # Hive db all     ->  we need select access in order to drop the db, we can remove it later
 #                     but it won't make a difference for 'create schema' error.
-# Hive default db ->  remove all access
+# Hive default db ->  no access, same as the previous test
 #
 # Hive URL        ->  provide a write deny condition
 

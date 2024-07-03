@@ -9,6 +9,9 @@ x-common-config:
     - ../conf/ranger-policymgr-ssl.xml:/opt/hadoop/etc/hadoop/ranger-policymgr-ssl.xml
     - ../conf/ranger-jars:/opt/hadoop/share/hadoop/hdfs/lib
     - ./test.csv:/opt/hadoop/test.csv
+    - ./load_test_data/electronic_shop_sales_10.csv:/opt/hadoop/electronic_shop_sales_10.csv
+    - ./load_test_data/restaurant_orders_10.csv:/opt/hadoop/restaurant_orders_10.csv
+    - ./load_test_data/stock_trades_10.csv:/opt/hadoop/stock_trades_10.csv
   env_file:
     - ./config
   networks:

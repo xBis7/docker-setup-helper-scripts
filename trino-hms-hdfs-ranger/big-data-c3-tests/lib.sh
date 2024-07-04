@@ -252,10 +252,6 @@ runTrino() {
     echo "=========================="
     echo ""
   fi
-
-  # Clean the tmp file only in case of success.
-  # In case of failure, the tmp file will be left around so that it can be examined.
-  rm $TRINO_TMP_OUTPUT_FILE
 }
 
 # -- LOAD TESTING --

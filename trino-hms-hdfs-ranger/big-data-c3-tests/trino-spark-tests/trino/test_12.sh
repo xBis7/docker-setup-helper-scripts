@@ -12,6 +12,7 @@ echo ""
 
 updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
 
+# It's the same as in the previous test.
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2" "gross_test"
 
 # It's the same as in the previous test.

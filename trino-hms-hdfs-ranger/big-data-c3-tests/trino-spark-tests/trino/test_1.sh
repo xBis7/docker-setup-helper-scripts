@@ -27,7 +27,7 @@ updateHiveDefaultDbPolicy ""
 
 # 1st parameter: permissions
 # 2nd parameter: comma-separated list of URLs
-updateHiveUrlPolicy "read:$TRINO_USER1"
+updateHiveUrlPolicy ""
 
 waitForPoliciesUpdate
 

@@ -11,7 +11,7 @@ echo "Create a database without having read, write, execute HDFS permissions"
 echo ""
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "-" "/*"
+updateHdfsPathPolicy ""
 
 # It's the same as in the previous test.
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"

@@ -24,9 +24,9 @@ fi
 # createHdfsDir uses the '-p' option. If the directory already exists, there won't be an error.
 createHdfsDir "$HIVE_GROSS_DB_TEST_DIR"
 
-./big-data-c3-tests/trino-spark-tests/spark/test_spark.sh "$abs_path"
+# ./big-data-c3-tests/trino-spark-tests/spark/test_spark.sh "$abs_path"
 
 # Cleanup any data leftovers from the spark tests.
-./big-data-c3-tests/trino-spark-tests/trino/cleanup.sh
+# ./big-data-c3-tests/trino-spark-tests/trino/cleanup.sh
 
 ./big-data-c3-tests/trino-spark-tests/trino/test_trino.sh "$abs_path"

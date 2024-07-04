@@ -10,7 +10,7 @@ echo "## Test 2 ##"
 echo "Create a database without having read, write, execute HDFS and Read and Write URL-based permissions"
 echo ""
 
-updateHdfsPathPolicy "-" "/*"
+updateHdfsPathPolicy ""
 
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"
 
@@ -18,7 +18,7 @@ updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" 
 updateHiveDefaultDbPolicy ""
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "read:$TRINO_USER1"
+updateHiveUrlPolicy ""
 
 waitForPoliciesUpdate
 

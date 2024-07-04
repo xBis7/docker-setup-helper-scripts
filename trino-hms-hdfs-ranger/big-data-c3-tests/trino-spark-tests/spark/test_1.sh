@@ -16,17 +16,21 @@ echo ""
 
 # 1st parameter: permissions
 # 2nd parameter: comma-separated list of paths
+# 3rd parameter: deny permissions if necessary
 updateHdfsPathPolicy "read,write,execute:$SPARK_USER1" "/*"
 
 # 1st parameter: permissions
 # 2nd parameter: comma-separated list of DBs
+# 3rd parameter: deny permissions if necessary
 updateHiveDbAllPolicy ""
 
 # 1st parameter: permissions
+# 2nd parameter: deny permissions if necessary
 updateHiveDefaultDbPolicy "select:$SPARK_USER1"
 
 # 1st parameter: permissions
 # 2nd parameter: comma-separated list of URLs
+# 3rd parameter: deny permissions if necessary
 updateHiveUrlPolicy ""
 
 waitForPoliciesUpdate

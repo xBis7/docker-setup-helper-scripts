@@ -45,7 +45,7 @@ if [ "$policy_items" != "" ] && [ "$policy_items" != "-" ]; then
 fi
 
 deny_policy_items_array="[]"
-if [ "$deny_policy_items" != "" ]; then
+if [ "$deny_policy_items" != "" ] && [ "$deny_policy_items" != "-" ]; then
   deny_policy_items_array=$(getPolicyItemsJsonArray "$deny_policy_items")
 fi
 

@@ -89,6 +89,28 @@ changeHdfsDirPermissions() {
   echo ""
 }
 
+deleteHdfsDir() {
+  path=$1
+
+  hdfs_cmd="hdfs dfs -rm -r /$path"
+
+  echo ""
+  echo "Running command:"
+  echo "$hdfs_cmd"
+  echo ""
+
+  if [ "$CURRENT_ENV" == "local" ]; then
+    docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
+  else
+    # c3 - TODO.
+    echo "Implement this."
+  fi
+
+  echo ""
+  echo "Command succeeded."
+  echo ""
+}
+
 listContentsOnHdfsPath() {
   path=$1
   expectedEmptyResult=$2
@@ -114,6 +136,9 @@ listContentsOnHdfsPath() {
   fi
 
   if [ "$expectedEmptyResult" == "shouldBeEmpty" ]; then
+    echo ""
+    echo "Result is expected to be empty."
+    echo ""
     # Check that the result is empty as expected.
     if [ "$result" != "" ]; then
       echo "Result is expected to be empty but it isn't. Exiting..."
@@ -181,6 +206,54 @@ runSpark() {
   runScalaFileInSparkShell "bin/spark-shell --conf spark.expect_exception=\"$expect_exception\" --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_output=\"$encoded_output\" -I $TEST_CMD_FILE" "$user"
 }
 
+# -- TRINO TESTS --
+runTrino() {
+  user=$1
+  trino_cmd=$2
+  expectedResult=$3
+  expectedOutput=$4
+
+  resultMsg=""
+  if [ "$expectedResult" == "shouldPass" ]; then
+    resultMsg="succeeded"
+  else
+    resultMsg="failed"
+  fi
+
+  echo ""
+  echo "=========================="
+  echo "Running trino command: '$trino_cmd'"
+  echo "--------------------------"
+  echo ""
+
+  if [ "$CURRENT_ENV" == "local" ]; then
+    docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
+  else
+    # c3 - TODO.
+    echo "Implement this."
+    # $(cmd) 2>&1 | tee "$tmp_file"
+  fi
+
+  # Test the output.
+  if !(grep -F "$expectedOutput" "$TRINO_TMP_OUTPUT_FILE" > /dev/null); then
+    echo ""
+    echo "--------------------------"
+    echo "The command failed. It didn't have the expected output."
+    echo "Expected output: '$expectedOutput'"
+    echo "Actual output: '$(cat $TRINO_TMP_OUTPUT_FILE)'"
+    echo "=========================="
+    echo ""
+    exit 1
+  else
+    echo ""
+    echo "--------------------------"
+    echo "Command '$resultMsg' as expected."
+    echo "The output matched the provided message!"
+    echo "=========================="
+    echo ""
+  fi
+}
+
 # -- LOAD TESTING --
 createSparkTableForTestingDdlOps() {
   user=$1
@@ -234,26 +307,43 @@ waitForPoliciesUpdate() {
 updateHdfsPathPolicy() {
   permissions=$1
   path_list=$2
+  deny_permissions=$3
 
-  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "put" "$permissions" "$path_list"
+  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "put" "$permissions" "$path_list" "$deny_permissions"
 }
 
 updateHiveDbAllPolicy() {
   permissions=$1
   db_list=$2
+  deny_permissions=$3
 
-  ./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "$permissions" "$db_list"
+  # If 'deny_permissions' isn't empty, then 'db_list' won't be empty.
+  # Therefore, it's ok to provide values for the in between parameters.
+  if [ "$deny_permissions" != "" ]; then
+    ./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "$permissions" "$db_list" "*" "*" "$deny_permissions"
+  else
+    ./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "$permissions" "$db_list"
+  fi
 }
 
 updateHiveDefaultDbPolicy() {
   permissions=$1
+  deny_permissions=$2
 
-  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "put" "$permissions"
+  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "put" "$permissions" "*" "$deny_permissions"
 }
 
 updateHiveUrlPolicy() {
   permissions=$1
   url_list=$2
+  deny_permissions=$3
 
-  ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list"
+  # If 'deny_permissions' isn't empty, then 'db_list' won't be empty.
+  # If we specify 'deny_permissions' and 'db_list' is empty, then the 'deny_permissions'
+  # value will be stored in the place of the 'url_list' value.
+  if [ "$deny_permissions" != "" ]; then
+    ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list" "$deny_permissions"
+  else
+    ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list"
+  fi
 }

@@ -10,7 +10,8 @@ request_type=$1
 # accesses1:users1/accesses2:users2/accesses3:users3
 # If there is only 1 allow condition, then it will be just: accesses1:users1
 policy_items=$2
-resources_path=${3:-"*"}
+resources_path=${3:-"/*"}
+deny_policy_items=$4
 
 json_payload+="{"
 
@@ -34,7 +35,15 @@ fi
 
 resource_values_array=$(getJsonArrayFromCommaSeparatedList "$resources_path")
 
-policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
+policy_items_array="[]"
+if [ "$policy_items" != "" ] && [ "$policy_items" != "-" ]; then
+  policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
+fi
+
+deny_policy_items_array="[]"
+if [ "$deny_policy_items" != "" ] && [ "$deny_policy_items" != "-" ]; then
+  deny_policy_items_array=$(getPolicyItemsJsonArray "$deny_policy_items")
+fi
 
 json_payload+=$(cat <<EOF
   "isEnabled": true,
@@ -50,9 +59,7 @@ json_payload+=$(cat <<EOF
   "policyItems":$policy_items_array,
   "serviceType": "hdfs",
   "isDenyAllElse": false,
-  "denyPolicyItems":[
-    
-  ],
+  "denyPolicyItems":$deny_policy_items_array,
   "allowExceptions":[
     
   ],

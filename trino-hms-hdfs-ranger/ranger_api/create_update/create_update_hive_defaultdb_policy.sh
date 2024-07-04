@@ -12,6 +12,7 @@ request_type=$1
 policy_items=$2
 resources_column=${3:-"*"}
 resources_table=${4:-"*"}
+deny_policy_items=$5
 
 json_payload+="{"
 
@@ -36,7 +37,15 @@ fi
 column_values_array=$(getJsonArrayFromCommaSeparatedList "$resources_column")
 table_values_array=$(getJsonArrayFromCommaSeparatedList "$resources_table")
 
-policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
+policy_items_array="[]"
+if [ "$policy_items" != "" ] && [ "$policy_items" != "-" ]; then
+  policy_items_array=$(getPolicyItemsJsonArray "$policy_items")
+fi
+
+deny_policy_items_array="[]"
+if [ "$deny_policy_items" != "" ] && [ "$deny_policy_items" != "-" ]; then
+  deny_policy_items_array=$(getPolicyItemsJsonArray "$deny_policy_items")
+fi
 
 json_payload+=$(cat <<EOF
   "isEnabled":true,
@@ -65,9 +74,7 @@ json_payload+=$(cat <<EOF
   "policyItems":$policy_items_array,
   "serviceType":"hive",
   "isDenyAllElse":false,
-  "denyPolicyItems":[
-    
-  ],
+  "denyPolicyItems":$deny_policy_items_array,
   "allowExceptions":[
     
   ],

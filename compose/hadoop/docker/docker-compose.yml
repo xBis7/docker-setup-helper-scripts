@@ -9,9 +9,15 @@ x-common-config:
     - ../conf/ranger-policymgr-ssl.xml:/opt/hadoop/etc/hadoop/ranger-policymgr-ssl.xml
     - ../conf/ranger-jars:/opt/hadoop/share/hadoop/hdfs/lib
     - ./test.csv:/opt/hadoop/test.csv
-    - ./load_test_data/electronic_shop_sales_10.csv:/opt/hadoop/electronic_shop_sales_10.csv
-    - ./load_test_data/restaurant_orders_10.csv:/opt/hadoop/restaurant_orders_10.csv
-    - ./load_test_data/stock_trades_10.csv:/opt/hadoop/stock_trades_10.csv
+    - ./load_test_data/10/eshop_sales_10.csv:/opt/hadoop/eshop_sales_10.csv
+    - ./load_test_data/10/restaurant_orders_10.csv:/opt/hadoop/restaurant_orders_10.csv
+    - ./load_test_data/10/stock_trades_10.csv:/opt/hadoop/stock_trades_10.csv
+    - ./load_test_data/50/eshop_sales_50.csv:/opt/hadoop/eshop_sales_50.csv
+    - ./load_test_data/50/restaurant_orders_50.csv:/opt/hadoop/restaurant_orders_50.csv
+    - ./load_test_data/50/stock_trades_50.csv:/opt/hadoop/stock_trades_50.csv
+    - ./load_test_data/500/eshop_sales_500.csv:/opt/hadoop/eshop_sales_500.csv
+    - ./load_test_data/500/restaurant_orders_500.csv:/opt/hadoop/restaurant_orders_500.csv
+    - ./load_test_data/500/stock_trades_500.csv:/opt/hadoop/stock_trades_500.csv
   env_file:
     - ./config
   networks:

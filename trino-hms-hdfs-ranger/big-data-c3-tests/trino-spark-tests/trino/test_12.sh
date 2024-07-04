@@ -92,8 +92,8 @@ runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
 # The BigData notes repeat the previous error
 # expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privilege on [gross_test/test2]"
-# Assumming that this is a table creation and we expect a metadata error, the it will be a CREATE error.
-# Update the HDFS policies to provide access on the path.
+# Assumming that this is a table creation and we expect a metadata error, then it will be a CREATE error.
+# user2 also requires HDFS "write" access so we are adding that here.
 # There won't be metadata access.
 updateHdfsPathPolicy "read,write,execute:$TRINO_USER1/read,write,execute:$TRINO_USER2" "/*,/data/projects,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
 waitForPoliciesUpdate

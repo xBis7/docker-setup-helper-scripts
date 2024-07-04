@@ -13,6 +13,8 @@ echo ""
 # It's the same as in the previous test.
 updateHdfsPathPolicy "read,write,execute:$TRINO_USER1,$TRINO_USER2" "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
 
+# In order to get the expected errors then user2 must have select access.
+# The select that has been added here, isn't part of the BigData notes.
 updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2" "gross_test"
 
 # It's the same as in the previous test.

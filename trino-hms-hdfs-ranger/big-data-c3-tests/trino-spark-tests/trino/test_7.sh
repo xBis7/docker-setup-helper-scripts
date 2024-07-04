@@ -10,7 +10,7 @@ echo "## Test 7 ##"
 echo "Create a database using the default hive warehouse location with an HDFS Ranger Hive, URL-based policy present"
 echo ""
 
-# In order to get the expected output, we need to provide access for the trino user
+# BigData note: In order to get the expected output, we need to provide access for the trino user
 # to the Hive Warehouse directory as well. This isn't part of the BigData notes but it must be present.
 # Either there is another HDFS policy that grants access or there is world ACL access.
 

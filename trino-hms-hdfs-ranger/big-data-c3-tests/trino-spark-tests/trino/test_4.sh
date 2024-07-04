@@ -10,16 +10,16 @@ echo "## Test 4 ##"
 echo "Create a database with CREATE (Hive), Read and Write (URL-based) and read, write and execute (HDFS)"
 echo ""
 
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/data/projects/gross_test"
+updateHdfsPathPolicy "/data/projects/gross_test" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy ""
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "read,write:$TRINO_USER1" "hdfs://$NAMENODE_NAME/data/projects/gross_test"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 

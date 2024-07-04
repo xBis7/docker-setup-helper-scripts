@@ -11,16 +11,16 @@ echo "Attempt to access a managed table as another user when select has been rev
 echo ""
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "read,write,execute:$SPARK_USER1/read,execute:$SPARK_USER2" "/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$SPARK_USER1/read,execute:$SPARK_USER2"
 
 # Revoke select for user2.
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$SPARK_USER1" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$SPARK_USER1"
 
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy "select:$SPARK_USER1,$SPARK_USER2"
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "read,write:$SPARK_USER1" "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$SPARK_USER1"
 
 waitForPoliciesUpdate
 

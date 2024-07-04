@@ -18,16 +18,16 @@ echo ""
 # --------------------------
 #
 # Query 20240704_105000_00008_b6t3t failed: Create temporary directory for hdfs://namenode/opt/hive/data/gross_test.db/test failed: Permission denied: user=trino, access=WRITE, inode="/":hadoop:supergroup:drwxr-xr-x
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy ""
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "read,write:$TRINO_USER1" "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 

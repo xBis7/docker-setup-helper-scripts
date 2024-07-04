@@ -10,10 +10,10 @@ echo "## Test 11 ##"
 echo "Repeat using an external table"
 echo ""
 
-updateHdfsPathPolicy "read,write,execute:$SPARK_USER1" "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test"
+updateHdfsPathPolicy "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
 
 # It's the same as in the previous test.
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$SPARK_USER1/select:$SPARK_USER2" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$SPARK_USER1/select:$SPARK_USER2"
 
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy "select:$SPARK_USER1,$SPARK_USER2"
@@ -21,12 +21,12 @@ updateHiveDefaultDbPolicy "select:$SPARK_USER1,$SPARK_USER2"
 # There is no note about Hive URL policies but as long as we update HDFS policies and add '/data/projects/gross_test'
 # and we are expecting the command to succeed, then we also need to add 'hdfs://$NAMENODE_NAME/data/projects/gross_test' here.
 
-# If we replace 'updateHiveUrlPolicy "read,write:$SPARK_USER1" "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db,hdfs://$NAMENODE_NAME/data/projects/gross_test"'
-# with          'updateHiveUrlPolicy "read,write:$SPARK_USER1" "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"'
+# If we replace 'updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db,hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write:$SPARK_USER1"'
+# with          'updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$SPARK_USER1"'
 # Then during the table creation, we will get this error
 # 'org.apache.hadoop.hive.ql.metadata.HiveException: MetaException(message:Permission denied: user [$SPARK_USER1] does not have [WRITE] privilege on [[hdfs://$NAMENODE_NAME/data/projects/gross_test/test2, hdfs://$NAMENODE_NAME/data/projects/gross_test/test2/]])'
 # but the table creation will actually succeed and the data will be there.
-updateHiveUrlPolicy "read,write:$SPARK_USER1" "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db,hdfs://$NAMENODE_NAME/data/projects/gross_test"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db,hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write:$SPARK_USER1"
 
 waitForPoliciesUpdate
 
@@ -85,8 +85,7 @@ runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
 # Update policies.
 
-updateHdfsPathPolicy "read,write,execute:$SPARK_USER1/read,execute:$SPARK_USER2" "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test"
-
+updateHdfsPathPolicy "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test" "read,write,execute:$SPARK_USER1/read,execute:$SPARK_USER2"
 waitForPoliciesUpdate
 
 # Select. Now it should succeed.

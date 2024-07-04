@@ -11,17 +11,17 @@ echo "Attempt various DDL operations against the managed table as a different us
 echo ""
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1,$TRINO_USER2" "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1,$TRINO_USER2"
 
 # In order to get the expected errors then user2 must have select access.
 # The select that has been added here, isn't part of the BigData notes.
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2"
 
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy ""
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "read,write:$TRINO_USER1" "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 

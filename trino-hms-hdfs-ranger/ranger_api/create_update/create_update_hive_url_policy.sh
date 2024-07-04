@@ -10,6 +10,8 @@ request_type=$1
 # accesses1:users1/accesses2:users2/accesses3:users3
 # If there is only 1 allow condition, then it will be just: accesses1:users1
 policy_items=$2
+# In most tests we don't set any resources or deny_policies.
+# Leave them as the last parameters so that they can easily be left empty.
 resources_url=${3:-"*"}
 deny_policy_items=$4
 

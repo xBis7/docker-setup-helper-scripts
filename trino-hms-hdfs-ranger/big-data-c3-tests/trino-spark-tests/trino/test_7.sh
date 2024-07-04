@@ -25,15 +25,15 @@ createHdfsDir "$HIVE_WAREHOUSE_DIR/gross_test.db"
 # This is the error that we get without updating the Hive warehouse ACLs and creating the 'gross_test.db' directory.
 # Query 20240701_134717_00010_39diz failed: Got exception: org.apache.hadoop.security.AccessControlException Permission denied: user=trino, access=WRITE, inode="/opt/hive/data":hadoop:supergroup:drwxr-xr-x
 
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy ""
 
-updateHiveUrlPolicy "read,write:$TRINO_USER1" "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 

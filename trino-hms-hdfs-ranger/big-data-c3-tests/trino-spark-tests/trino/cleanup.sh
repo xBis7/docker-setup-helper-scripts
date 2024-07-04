@@ -10,13 +10,13 @@ echo "## Cleanup data ##"
 echo "Delete schema created by Spark tests"
 echo ""
 
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/*"
+updateHdfsPathPolicy "/*" "read,write,execute:$TRINO_USER1"
 
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
 
 updateHiveDefaultDbPolicy "select:$TRINO_USER1"
 
-updateHiveUrlPolicy "read,write:$TRINO_USER1" "/*"
+updateHiveUrlPolicy "/*" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 

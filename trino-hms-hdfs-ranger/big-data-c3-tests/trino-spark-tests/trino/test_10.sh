@@ -11,16 +11,16 @@ echo "Create a managed table and attempt to access it as a different user"
 echo ""
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy ""
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "read,write:$TRINO_USER1" "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 
@@ -52,7 +52,7 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [SELECT] privi
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
 # Provide select access for user2.
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2"
 waitForPoliciesUpdate
 
 command="describe $TRINO_HIVE_SCHEMA.gross_test.test"
@@ -74,13 +74,13 @@ runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 # In the BigData notes there is a screenshot updating the policies for the 2nd user,
 # but the user isn't part of the policy update. Based on the screenshot, the policies should look like this
 #
-# updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
+# updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 #
 # But after the update, select is expected to work.
 # If we don't include user 2, then nothing will change.
 
 # Update the HDFS permissions to resolve the ACL execute error.
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1,$TRINO_USER2" "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1,$TRINO_USER2"
 waitForPoliciesUpdate
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test"

@@ -14,12 +14,12 @@ echo ""
 updateHdfsPathPolicy ""
 
 # It's the same as in the previous test.
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy ""
 
-updateHiveUrlPolicy "read,write:$TRINO_USER1" "hdfs://$NAMENODE_NAME/data/projects/gross_test"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 

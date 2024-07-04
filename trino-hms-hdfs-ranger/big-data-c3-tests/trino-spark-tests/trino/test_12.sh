@@ -10,16 +10,16 @@ echo "## Test 12 ##"
 echo "Repeat using an external table"
 echo ""
 
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2"
 
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy ""
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "read,write:$TRINO_USER1" "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 
@@ -60,7 +60,7 @@ expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/data/projects/gross
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1/read,execute:$TRINO_USER2" "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1/read,execute:$TRINO_USER2"
 waitForPoliciesUpdate
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test2"
@@ -95,7 +95,7 @@ runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 # Assumming that this is a table creation and we expect a metadata error, then it will be a CREATE error.
 # user2 also requires HDFS "write" access so we are adding that here.
 # There won't be metadata access.
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1/read,write,execute:$TRINO_USER2" "/*,/data/projects,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "/*,/data/projects,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1/read,write,execute:$TRINO_USER2"
 waitForPoliciesUpdate
 
 command="create table $TRINO_HIVE_SCHEMA.gross_test.test3 (id int, name varchar) with (external_location = 'hdfs://$NAMENODE_NAME/data/projects/squirrel/test3')"

@@ -10,17 +10,16 @@ echo "## Test 1 ##"
 echo "Create a database without having Create permissions"
 echo ""
 
-# 1st parameter in all policy methods is 'permissions'.
-# 'permissions' have this format -> 'operation1,operation2:user1,user2/operation4,operation5,operation6:user3'
-# e.g. 'read,write:hadoop,trino/read,execute:hive'
+# The 'permissions' parameters have this format -> 'operation1,operation2:user1,user2/operation4,operation5,operation6:user3'
+# e.g. 'read,write:hadoop,spark/read,execute:hive'
 
-# 1st parameter: permissions
-# 2nd parameter: comma-separated list of paths
+# 1st parameter: comma-separated list of paths
+# 2nd parameter: permissions
 # 3rd parameter: deny permissions if necessary
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/*"
+updateHdfsPathPolicy "/*" "read,write,execute:$TRINO_USER1"
 
-# 1st parameter: permissions
-# 2nd parameter: comma-separated list of DBs
+# 1st parameter: comma-separated list of DBs
+# 2nd parameter: permissions
 # 3rd parameter: deny permissions if necessary
 updateHiveDbAllPolicy ""
 
@@ -28,8 +27,8 @@ updateHiveDbAllPolicy ""
 # 2nd parameter: deny permissions if necessary
 updateHiveDefaultDbPolicy ""
 
-# 1st parameter: permissions
-# 2nd parameter: comma-separated list of URLs
+# 1st parameter: comma-separated list of URLs
+# 2nd parameter: permissions
 # 3rd parameter: deny permissions if necessary
 updateHiveUrlPolicy ""
 

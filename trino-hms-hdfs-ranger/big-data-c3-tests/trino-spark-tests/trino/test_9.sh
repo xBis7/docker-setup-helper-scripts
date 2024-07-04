@@ -27,14 +27,15 @@ echo ""
 # Hive URL        ->  provide a write deny condition
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "read,write,execute:$TRINO_USER1" "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
-updateHiveDbAllPolicy "alter,create,drop,index,lock,select,update:$TRINO_USER1" "gross_test"
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
 
 updateHiveDefaultDbPolicy ""
 
 # Provide a deny policy.
-updateHiveUrlPolicy "-" "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "write:$TRINO_USER1"
+# 2nd parameter: allow policies -> empty "-"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "-" "write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 
@@ -54,7 +55,7 @@ expectedMsg="Permission denied: user [$TRINO_USER1] does not have [WRITE] privil
 runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedMsg"
 
 # Remove the deny condition and restore the Hive URL policy.
-updateHiveUrlPolicy "read,write:$TRINO_USER1" "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 waitForPoliciesUpdate
 
 command="create schema $TRINO_HIVE_SCHEMA.gross_test"

@@ -305,16 +305,16 @@ waitForPoliciesUpdate() {
 }
 
 updateHdfsPathPolicy() {
-  permissions=$1
-  path_list=$2
+  path_list=$1
+  permissions=$2
   deny_permissions=$3
 
   ./ranger_api/create_update/create_update_hdfs_path_policy.sh "put" "$permissions" "$path_list" "$deny_permissions"
 }
 
 updateHiveDbAllPolicy() {
-  permissions=$1
-  db_list=$2
+  db_list=$1
+  permissions=$2
   deny_permissions=$3
 
   # If 'deny_permissions' isn't empty, then 'db_list' won't be empty.
@@ -334,8 +334,8 @@ updateHiveDefaultDbPolicy() {
 }
 
 updateHiveUrlPolicy() {
-  permissions=$1
-  url_list=$2
+  url_list=$1
+  permissions=$2
   deny_permissions=$3
 
   # If 'deny_permissions' isn't empty, then 'db_list' won't be empty.

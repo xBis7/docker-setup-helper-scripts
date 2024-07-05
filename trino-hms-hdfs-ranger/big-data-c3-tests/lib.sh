@@ -4,6 +4,7 @@ source "./big-data-c3-tests/env_variables.sh"
 
 set -e
 
+INITIAL_SELECT_SIGNAL_FILE="initial_select.txt"
 UPDATE_SELECT_SIGNAL_FILE="update_select.txt"
 UPDATE_DONE_SIGNAL_FILE="update_done.txt"
 
@@ -255,6 +256,9 @@ updateSelectPermissionOnSignal() {
   # and therefore it won't block.
   updateHiveDefaultDbPolicy "select:$user"
 
+  # Create the initial signal file, so that the scala file will start executing.
+  runCmdInSparkShell "touch /tmp/$INITIAL_SELECT_SIGNAL_FILE" "$user" "$background_run"
+
   while : # Infinite loop.
   do
     listTmpDirResult=$(runCmdInSparkShell "ls -lah /tmp" "$user" "$background_run")
@@ -326,7 +330,7 @@ runSpark() {
 
   prepare_params=""
   if [ "$prepare" == "catalogObjectInit" ]; then
-    prepare_params="--conf spark.signal.file_name.update_select=\"$UPDATE_SELECT_SIGNAL_FILE\" --conf spark.signal.file_name.update_done=\"$UPDATE_DONE_SIGNAL_FILE\" --conf spark.policies_update_interval=\"$POLICIES_UPDATE_INTERVAL\""
+    prepare_params="--conf spark.signal.file_name.initial_select=\"$INITIAL_SELECT_SIGNAL_FILE\" --conf spark.signal.file_name.update_select=\"$UPDATE_SELECT_SIGNAL_FILE\" --conf spark.signal.file_name.update_done=\"$UPDATE_DONE_SIGNAL_FILE\" --conf spark.policies_update_interval=\"$POLICIES_UPDATE_INTERVAL\""
   fi
   runCmdInSparkShell "bin/spark-shell $prepare_params --conf spark.expect_exception=\"$expect_exception\" --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_output=\"$encoded_output\" -I $TEST_CMD_FILE" "$user"
 }

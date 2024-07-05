@@ -208,10 +208,16 @@ object CommonUtils {
     true
   }
 
-  def initExternalCatalogObjAndSendSignal(signalFileNameToUpdateSelect: String, signalFileNameThatUpdateIsDone: String, updateInterval: Int): Any = {
+  def initExternalCatalogObjAndSendSignal(signalFileNameInitialSelect: String, signalFileNameToUpdateSelect: String, signalFileNameThatUpdateIsDone: String, updateInterval: Int): Any = {
     // Signal Files.
+    val initialSelectSignalFile = new File(s"/tmp/$signalFileNameInitialSelect")
     val updateSelectSignalFile = new File(s"/tmp/$signalFileNameToUpdateSelect")
     val updateDoneSignalFile = new File(s"/tmp/$signalFileNameThatUpdateIsDone")
+
+    // Once the initial select update is made, then the execution will start.
+    while (!initialSelectSignalFile.exists()) {
+      Thread.sleep(1000)
+    }
 
     // Increment 'updateInterval' by 5 secs just to be sure that enough time has passed.
     // Method parameters are immutable.
@@ -252,17 +258,20 @@ object CommonUtils {
 val command = spark.conf.get("spark.encoded.command", "default.spark.sql")
 val expectException = spark.conf.get("spark.expect_exception", "false")
 
+var initialSelectSignalFile: String = ""
 var updateSelectSignalFile: String = ""
 var updateDoneSignalFile: String = ""
 var policiesUpdateInterval: Option[Int] = None
 
 // If there are values, then we should perform some actions to initialize the 'externalCatalog' object.
 try {
+  initialSelectSignalFile = spark.conf.get("spark.signal.file_name.initial_select")
   updateSelectSignalFile = spark.conf.get("spark.signal.file_name.update_select")
   updateDoneSignalFile = spark.conf.get("spark.signal.file_name.update_done")
   policiesUpdateInterval = Some(spark.conf.get("spark.policies_update_interval").toInt)
 } catch {
   case e: NoSuchElementException => {
+    initialSelectSignalFile = ""
     updateSelectSignalFile = ""
     updateDoneSignalFile = ""
     policiesUpdateInterval = None
@@ -270,9 +279,10 @@ try {
 }
 
 // If one of them has a value, then all of them will.
-if (updateSelectSignalFile.nonEmpty) {
+if (initialSelectSignalFile.nonEmpty) {
   // This method will block until it finds the signal file.
   CommonUtils.initExternalCatalogObjAndSendSignal(
+    signalFileNameInitialSelect = initialSelectSignalFile,
     signalFileNameToUpdateSelect = updateSelectSignalFile, 
     signalFileNameThatUpdateIsDone = updateDoneSignalFile, 
     updateInterval = policiesUpdateInterval.getOrElse(0))

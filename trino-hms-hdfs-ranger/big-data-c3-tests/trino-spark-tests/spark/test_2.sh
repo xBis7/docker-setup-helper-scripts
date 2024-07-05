@@ -15,7 +15,7 @@ updateHdfsPathPolicy ""
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$SPARK_USER1"
 
 # It's the same as in the previous test.
-updateHiveDefaultDbPolicy "select:$SPARK_USER1"
+updateHiveDefaultDbPolicy ""
 
 # It's the same as in the previous test.
 updateHiveUrlPolicy ""
@@ -32,4 +32,4 @@ expectedErrorMsg="Permission denied: user [$SPARK_USER1] does not have [WRITE] p
 # 2nd parameter: the command to be executed
 # 3rd parameter: 'shouldPass' if the command should succeed and 'shouldFail' if the command should fail
 # 4th parameter: the expected error message if the previous parameter is 'shouldFail'
-runSpark "$SPARK_USER1" "$command" "shouldFail" "$expectedErrorMsg"
+runSpark "$SPARK_USER1" "$command" "shouldFail" "$expectedErrorMsg" "catalogObjectInit"

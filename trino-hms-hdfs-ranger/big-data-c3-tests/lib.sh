@@ -4,6 +4,9 @@ source "./big-data-c3-tests/env_variables.sh"
 
 set -e
 
+UPDATE_SELECT_SIGNAL_FILE="update_select.txt"
+UPDATE_DONE_SIGNAL_FILE="update_done.txt"
+
 copyTestFilesUnderSpark() {
   abs_path=$1
   load_testing=$2
@@ -41,6 +44,59 @@ copyTestFilesUnderSpark() {
       echo "Implement this."
     fi
   done
+}
+
+# -- RANGER POLICIES --
+waitForPoliciesUpdate() {
+  echo ""
+  echo "Wait for the policies to get updated."
+  echo ""
+
+  sleep $(($POLICIES_UPDATE_INTERVAL + 5))
+}
+
+updateHdfsPathPolicy() {
+  path_list=$1
+  permissions=$2
+  deny_permissions=$3
+
+  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "put" "$permissions" "$path_list" "$deny_permissions"
+}
+
+updateHiveDbAllPolicy() {
+  db_list=$1
+  permissions=$2
+  deny_permissions=$3
+
+  # If 'deny_permissions' isn't empty, then 'db_list' won't be empty.
+  # Therefore, it's ok to provide values for the in between parameters.
+  if [ "$deny_permissions" != "" ]; then
+    ./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "$permissions" "$db_list" "*" "*" "$deny_permissions"
+  else
+    ./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "$permissions" "$db_list"
+  fi
+}
+
+updateHiveDefaultDbPolicy() {
+  permissions=$1
+  deny_permissions=$2
+
+  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "put" "$permissions" "*" "$deny_permissions"
+}
+
+updateHiveUrlPolicy() {
+  url_list=$1
+  permissions=$2
+  deny_permissions=$3
+
+  # If 'deny_permissions' isn't empty, then 'db_list' won't be empty.
+  # If we specify 'deny_permissions' and 'db_list' is empty, then the 'deny_permissions'
+  # value will be stored in the place of the 'url_list' value.
+  if [ "$deny_permissions" != "" ]; then
+    ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list" "$deny_permissions"
+  else
+    ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list"
+  fi
 }
 
 # -- HDFS --
@@ -155,7 +211,7 @@ listContentsOnHdfsPath() {
 }
 
 # -- SPARK TESTS --
-runScalaFileInSparkShell() {
+runCmdInSparkShell() {
   spark_shell_cmd=$1
   user=$2
   background_run=$3
@@ -185,11 +241,75 @@ base64encode() {
   fi
 }
 
+updateSelectPermissionOnSignal() {
+  user=$1
+  background_run=$2
+
+  echo ""
+  echo "shell - Adding defaultdb select access for user '$user'."
+  echo ""
+
+  # Provide select access. Because this is running in the background,
+  # it doesn't make sense to wait for the policies to get updated.
+  # It won't make a difference, it's running in parallel with the scala file
+  # and therefore it won't block.
+  updateHiveDefaultDbPolicy "select:$user"
+
+  while : # Infinite loop.
+  do
+    listTmpDirResult=$(runCmdInSparkShell "ls -lah /tmp" "$user" "$background_run")
+
+    # If the signal file exists in the tmp dir,
+    # then we need to break the loop and update select access.
+    if echo "$listTmpDirResult" | grep -q "$UPDATE_SELECT_SIGNAL_FILE"; then
+      echo ""
+      echo "shell - Signal file for updating select access, was found. Breaking the loop."
+      echo ""
+      break
+    fi
+
+    wait_time=5
+    echo ""
+    echo "shell - Signal file for updating select access, wasn't found. Checking again in "$wait_time" secs."
+    echo ""
+    
+    sleep $wait_time
+  done
+  
+  echo ""
+  echo "shell - Removing defaultdb select access for user '$user'."
+  echo ""
+
+  # Same as above, the scala file will have to wait for the policy update.
+  # If we add a wait here, it won't make a difference.
+  # The scala file will wait after it finds the signal file.
+  updateHiveDefaultDbPolicy ""
+
+  # Create signal file to let the scala file running in the spark-shell,
+  # know that a select update has been made.
+  runCmdInSparkShell "touch /tmp/$UPDATE_DONE_SIGNAL_FILE" "$user" "$background_run"
+}
+
 runSpark() {
   user=$1
   spark_cmd=$2
   expected_result=$3
   expected_output=$4
+  prepare=$5
+
+  # If the test is expected to pass AND we don't check for any particular output, BUT we have to set 'prepare',
+  # then we need to set a reserved work for 'expected_output' so that we know to reinitialize it.
+  # Otherwise, it will get the value from the next param, 'prepare'.
+  if [ "$expected_output" == "noOutputCheck" ]; then
+    expected_output=""
+  fi
+
+  if [ "$prepare" == "catalogObjectInit" ]; then
+    # Cleanup the signal files if they exist.
+    runCmdInSparkShell "rm -f /tmp/$UPDATE_SELECT_SIGNAL_FILE /tmp/$UPDATE_DONE_SIGNAL_FILE" "$user"
+
+    updateSelectPermissionOnSignal "$user" "true" &
+  fi
 
   # The cmd and the error, occasionally aren't properly passed to the scala file.
   # Some times, everything after the first space is truncated.
@@ -203,7 +323,12 @@ runSpark() {
   if [ "$expected_result" == "shouldPass" ]; then
     expect_exception=false
   fi
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.expect_exception=\"$expect_exception\" --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_output=\"$encoded_output\" -I $TEST_CMD_FILE" "$user"
+
+  prepare_params=""
+  if [ "$prepare" == "catalogObjectInit" ]; then
+    prepare_params="--conf spark.signal.file_name.update_select=\"$UPDATE_SELECT_SIGNAL_FILE\" --conf spark.signal.file_name.update_done=\"$UPDATE_DONE_SIGNAL_FILE\" --conf spark.policies_update_interval=\"$POLICIES_UPDATE_INTERVAL\""
+  fi
+  runCmdInSparkShell "bin/spark-shell $prepare_params --conf spark.expect_exception=\"$expect_exception\" --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_output=\"$encoded_output\" -I $TEST_CMD_FILE" "$user"
 }
 
 # -- TRINO TESTS --
@@ -259,7 +384,7 @@ createSparkTableForTestingDdlOps() {
   user=$1
 
   # This will be run only once during setup. We don't need to run it in the background.
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.db_name=\"default\" --conf spark.table_name=\"test2\" -I $SETUP_CREATE_TABLE_FILE" "$user"
+  runCmdInSparkShell "bin/spark-shell --conf spark.db_name=\"default\" --conf spark.table_name=\"test2\" -I $SETUP_CREATE_TABLE_FILE" "$user"
 }
 
 runCreateDropDbOnRepeatWithAccess() {
@@ -268,7 +393,7 @@ runCreateDropDbOnRepeatWithAccess() {
   location=$3
   background_run=$4
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" --conf spark.db_location=\"$location\" -I $CREATE_DROP_DB_FILE" "$user" "$background_run"
+  runCmdInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" --conf spark.db_location=\"$location\" -I $CREATE_DROP_DB_FILE" "$user" "$background_run"
 }
 
 runCreateDropTableOnRepeatWithAccess() {
@@ -276,7 +401,7 @@ runCreateDropTableOnRepeatWithAccess() {
   iterations=$2
   background_run=$3
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $CREATE_DROP_TABLE_FILE" "$user" "$background_run"
+  runCmdInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $CREATE_DROP_TABLE_FILE" "$user" "$background_run"
 }
 
 runInsertSelectTableOnRepeatWithAccess() {
@@ -284,7 +409,7 @@ runInsertSelectTableOnRepeatWithAccess() {
   iterations=$2
   background_run=$3
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_WITH_ACCESS_FILE" "$user" "$background_run"
+  runCmdInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_WITH_ACCESS_FILE" "$user" "$background_run"
 }
 
 runInsertSelectTableOnRepeatNoAccess() {
@@ -292,58 +417,5 @@ runInsertSelectTableOnRepeatNoAccess() {
   iterations=$2
   background_run=$3
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_NO_ACCESS_FILE" "$user" "$background_run"
-}
-
-# -- RANGER POLICIES --
-waitForPoliciesUpdate() {
-  echo ""
-  echo "Wait for the policies to get updated."
-  echo ""
-
-  sleep $(($POLICIES_UPDATE_INTERVAL + 5))
-}
-
-updateHdfsPathPolicy() {
-  path_list=$1
-  permissions=$2
-  deny_permissions=$3
-
-  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "put" "$permissions" "$path_list" "$deny_permissions"
-}
-
-updateHiveDbAllPolicy() {
-  db_list=$1
-  permissions=$2
-  deny_permissions=$3
-
-  # If 'deny_permissions' isn't empty, then 'db_list' won't be empty.
-  # Therefore, it's ok to provide values for the in between parameters.
-  if [ "$deny_permissions" != "" ]; then
-    ./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "$permissions" "$db_list" "*" "*" "$deny_permissions"
-  else
-    ./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "$permissions" "$db_list"
-  fi
-}
-
-updateHiveDefaultDbPolicy() {
-  permissions=$1
-  deny_permissions=$2
-
-  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "put" "$permissions" "*" "$deny_permissions"
-}
-
-updateHiveUrlPolicy() {
-  url_list=$1
-  permissions=$2
-  deny_permissions=$3
-
-  # If 'deny_permissions' isn't empty, then 'db_list' won't be empty.
-  # If we specify 'deny_permissions' and 'db_list' is empty, then the 'deny_permissions'
-  # value will be stored in the place of the 'url_list' value.
-  if [ "$deny_permissions" != "" ]; then
-    ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list" "$deny_permissions"
-  else
-    ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list"
-  fi
+  runCmdInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_NO_ACCESS_FILE" "$user" "$background_run"
 }

@@ -2,6 +2,7 @@ import java.io.{ByteArrayOutputStream, PrintStream}
 import scala.reflect.runtime.currentMirror
 import scala.tools.reflect.ToolBox
 import java.util.Base64
+import java.io.File
 
 object CommonUtils {
 
@@ -207,10 +208,75 @@ object CommonUtils {
     true
   }
 
+  def initExternalCatalogObjAndSendSignal(signalFileNameToUpdateSelect: String, signalFileNameThatUpdateIsDone: String, updateInterval: Int): Any = {
+    // Signal Files.
+    val updateSelectSignalFile = new File(s"/tmp/$signalFileNameToUpdateSelect")
+    val updateDoneSignalFile = new File(s"/tmp/$signalFileNameThatUpdateIsDone")
+
+    // Increment 'updateInterval' by 5 secs just to be sure that enough time has passed.
+    // Method parameters are immutable.
+    val sleepTime = updateInterval + 5
+
+    // Assuming that the shell script has provided select access, we need to wait here
+    // to make sure that the policy update has taken place.
+    // 'sleepTime' is in seconds and we need to change it to milliseconds.
+    println("\nscala - Waiting to get a policy update from Ranger.")
+    Thread.sleep(sleepTime * 1000)
+
+    println("\nscala - Running command: 'spark.sql(\"show databases\")'")
+    println("\nscala - To initialize the 'externalCatalog' object.")
+    println("--------------------------")
+    printf("\n\n")
+
+    // Run the command.
+    spark.sql("show databases")
+
+    println("scala - Creating the update select signal file.")
+
+    // The command finished, create the signal file so that the shell script will remove the select access.
+    updateSelectSignalFile.createNewFile()
+
+    println("scala - Waiting for the signal file that the select update has been made.")
+
+    while (!updateDoneSignalFile.exists()) {
+      Thread.sleep(1000)
+    }
+    
+    println("scala - The signal file has been found.")
+
+    println("\nscala - Waiting to get a policy update from Ranger.")
+    Thread.sleep(sleepTime * 1000)
+  } 
 }
 
 val command = spark.conf.get("spark.encoded.command", "default.spark.sql")
 val expectException = spark.conf.get("spark.expect_exception", "false")
+
+var updateSelectSignalFile: String = ""
+var updateDoneSignalFile: String = ""
+var policiesUpdateInterval: Option[Int] = None
+
+// If there are values, then we should perform some actions to initialize the 'externalCatalog' object.
+try {
+  updateSelectSignalFile = spark.conf.get("spark.signal.file_name.update_select")
+  updateDoneSignalFile = spark.conf.get("spark.signal.file_name.update_done")
+  policiesUpdateInterval = Some(spark.conf.get("spark.policies_update_interval").toInt)
+} catch {
+  case e: NoSuchElementException => {
+    updateSelectSignalFile = ""
+    updateDoneSignalFile = ""
+    policiesUpdateInterval = None
+  }
+}
+
+// If one of them has a value, then all of them will.
+if (updateSelectSignalFile.nonEmpty) {
+  // This method will block until it finds the signal file.
+  CommonUtils.initExternalCatalogObjAndSendSignal(
+    signalFileNameToUpdateSelect = updateSelectSignalFile, 
+    signalFileNameThatUpdateIsDone = updateDoneSignalFile, 
+    updateInterval = policiesUpdateInterval.getOrElse(0))
+}
 
 var expectedOutput: String = ""
 try {

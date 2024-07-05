@@ -25,7 +25,6 @@ updateHiveDbAllPolicy ""
 
 # 1st parameter: permissions
 # 2nd parameter: deny permissions if necessary
-# updateHiveDefaultDbPolicy "select:$SPARK_USER1"
 updateHiveDefaultDbPolicy ""
 
 # 1st parameter: comma-separated list of URLs
@@ -33,7 +32,7 @@ updateHiveDefaultDbPolicy ""
 # 3rd parameter: deny permissions if necessary
 updateHiveUrlPolicy ""
 
-# waitForPoliciesUpdate
+waitForPoliciesUpdate
 
 # 'data/projects' can be replaced by '$EXTERNAL_HIVE_DB_PATH'
 command="spark.sql(\"create database gross_test location '/data/projects/gross_test/gross_test.db'\")"

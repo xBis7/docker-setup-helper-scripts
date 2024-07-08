@@ -22,4 +22,8 @@ java_8_home=$5
 # Run the test scripts. Handling the docker env is configurable
 # so that the user can run the tests in an already running env.
 ./tests/test_all.sh "$abs_path" "spark" "true"
-./tests/test_all.sh "$abs_path" "trino" "true" "true"
+./tests/test_all.sh "$abs_path" "trino" "true"
+
+./big-data-c3-tests/trino-spark-tests/test.sh "$abs_path" "true"
+
+./big-data-c3-tests/load-testing/run_all.sh "$abs_path" "true" 50

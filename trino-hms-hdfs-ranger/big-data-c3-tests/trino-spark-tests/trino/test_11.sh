@@ -10,7 +10,7 @@ echo "## Test 11 ##"
 echo "Attempt various DDL operations against the managed table as a different user"
 echo ""
 
-# There are no notes about making any policy changes. But if we leave them the same, then user2 will have all HDFS access.
+# There are no notes about making policy changes. But if we leave them as they are in the previous test, then user2 will have all HDFS access.
 # We are expecting that 'create table' will fail with an HDFS error which won't happen. Instead, it will fail with a metadata error.
 # "Permission denied: user [$TRINO_USER2] does not have [CREATE] privilege on [gross_test/test2]"
 

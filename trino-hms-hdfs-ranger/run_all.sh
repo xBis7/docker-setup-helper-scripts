@@ -25,3 +25,5 @@ java_8_home=$5
 ./tests/test_all.sh "$abs_path" "trino" "true"
 
 ./big-data-c3-tests/trino-spark-tests/test.sh "$abs_path" "true"
+
+./big-data-c3-tests/load-testing/run_all.sh "$abs_path" "true" 50

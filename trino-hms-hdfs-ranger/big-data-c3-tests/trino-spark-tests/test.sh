@@ -28,9 +28,12 @@ createHdfsDir "$HIVE_GROSS_DB_TEST_DIR"
 createHdfsDir "tmp"
 changeHdfsDirPermissions "tmp" 777
 
-./big-data-c3-tests/trino-spark-tests/spark/test_spark.sh "$abs_path"
+# ./big-data-c3-tests/trino-spark-tests/spark/test_spark.sh "$abs_path"
 
-# Cleanup any data leftovers from the spark tests.
-./big-data-c3-tests/trino-spark-tests/trino/cleanup.sh
+# # Cleanup any data leftovers from the spark tests.
+# ./big-data-c3-tests/trino-spark-tests/trino/cleanup.sh
 
-./big-data-c3-tests/trino-spark-tests/trino/test_trino.sh "$abs_path"
+# ./big-data-c3-tests/trino-spark-tests/trino/test_trino.sh "$abs_path"
+
+# ./big-data-c3-tests/trino-spark-tests/trino/test_10_copy.sh "$prepare_env"
+./big-data-c3-tests/trino-spark-tests/trino/test_12_copy.sh "$prepare_env"

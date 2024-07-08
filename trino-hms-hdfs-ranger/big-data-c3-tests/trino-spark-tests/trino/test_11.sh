@@ -10,8 +10,12 @@ echo "## Test 11 ##"
 echo "Attempt various DDL operations against the managed table as a different user"
 echo ""
 
-# It's the same as in the previous test.
-updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1,$TRINO_USER2"
+# There are no notes about making any policy changes. But if we leave them the same, then user2 will have all HDFS access.
+# We are expecting that 'create table' will fail with an HDFS error which won't happen. Instead, it will fail with a metadata error.
+# "Permission denied: user [$TRINO_USER2] does not have [CREATE] privilege on [gross_test/test2]"
+
+# Remove user2.
+updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # In order to get the expected errors then user2 must have select access.
 # The select that has been added here, isn't part of the BigData notes.
@@ -45,8 +49,6 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privil
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
 command="create table $TRINO_HIVE_SCHEMA.gross_test.test2 (id int, greeting varchar)"
-# In the BigData notes, this command is expected to fail with this error.
-# expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"$HIVE_WAREHOUSE_DIR/gross_test.db\":"
-expectedMsg="Permission denied: user [$TRINO_USER2] does not have [CREATE] privilege on [gross_test/test2]"
+expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"

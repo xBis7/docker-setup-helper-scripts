@@ -13,23 +13,22 @@ echo ""
 # In the BigData notes, this test has no policy screenshots or any commands.
 # Just the title, an expected metadata SELECT error and a note 'Remove the Deny Condition and save your changes'.
 
-# 'create schema' doesn't need read access. You should get a WRITE error and not a SELECT error.
-# Also, the next test assumes that the database exists.
-# So, at the end we will restore the Hive URL policies and create the database.
+# The schema already exists. If we remove the SELECT access and run 'create schema',
+# we will get the expected error but it won't test the deny policy.
 
-# HDFS            ->  it doesn't make a difference whether we add a deny condition or not
-#                     because we have already provided ACL access from a previous test.
-#
-# Hive db all     ->  we need select access in order to drop the db, we can remove it later
-#                     but it won't make a difference for 'create schema' error.
-# Hive default db ->  no access, same as the previous test
-#
-# Hive URL        ->  provide a write deny condition
+# To test the deny policy, we should
+#   - have select access
+#   - drop the schema
+#   - try to create it
+#   - get a WRITE error
+#   - remove the deny policy
+#   - create the schema again.
 
 # It's the same as in the previous test.
 updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
-updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
+# Remove select access.
+updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,update:$TRINO_USER1"
 
 updateHiveDefaultDbPolicy ""
 
@@ -39,8 +38,8 @@ updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAME
 
 waitForPoliciesUpdate
 
-command="drop schema $TRINO_HIVE_SCHEMA.gross_test"
-expectedMsg="DROP SCHEMA"
+command="create schema $TRINO_HIVE_SCHEMA.gross_test"
+expectedMsg="Permission denied: user [$TRINO_USER1] does not have [SELECT] privilege on [gross_test]"
 
 # 1st parameter: the user to execute the command
 # 2nd parameter: the command to be executed
@@ -48,17 +47,6 @@ expectedMsg="DROP SCHEMA"
 # 4th parameter: the expected output message. For Trino all commands (whether successful or not) have an expected output message.
 runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
 
-command="create schema $TRINO_HIVE_SCHEMA.gross_test"
-hdfsLocation="hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
-expectedMsg="Permission denied: user [$TRINO_USER1] does not have [WRITE] privilege on [[$hdfsLocation, $hdfsLocation/]]"
-
-runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedMsg"
-
 # Remove the deny condition and restore the Hive URL policy.
 updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 waitForPoliciesUpdate
-
-command="create schema $TRINO_HIVE_SCHEMA.gross_test"
-expectedMsg="CREATE SCHEMA"
-
-runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"

@@ -11,7 +11,7 @@ echo "Create a managed table and attempt to access it as a different user"
 echo ""
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
+updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
@@ -80,7 +80,7 @@ runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 # If we don't include user 2, then nothing will change.
 
 # Update the HDFS permissions to resolve the ACL execute error.
-updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1,$TRINO_USER2"
+updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1,$TRINO_USER2"
 waitForPoliciesUpdate
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test"

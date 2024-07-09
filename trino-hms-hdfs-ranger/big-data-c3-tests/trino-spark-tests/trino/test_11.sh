@@ -15,7 +15,7 @@ echo ""
 # "Permission denied: user [$TRINO_USER2] does not have [CREATE] privilege on [gross_test/test2]"
 
 # Remove user2.
-updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
+updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # In order to get the expected errors then user2 must have select access.
 # The select that has been added here, isn't part of the BigData notes.

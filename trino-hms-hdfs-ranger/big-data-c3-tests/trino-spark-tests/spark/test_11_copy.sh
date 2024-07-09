@@ -11,13 +11,20 @@ echo "Repeat using an external table"
 echo ""
 
 policy_setup=$1
-wait_for_debugger=$2
-
-# Create the tmp directory and provide world access to it so that Trino can use it.
-createHdfsDir "tmp"
-changeHdfsDirPermissions "tmp" 777
+rerun=$2
+wait_for_debugger=$3
 
 if [ "$policy_setup" == "true" ]; then
+  changeHdfsDirPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 755
+  changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR" 755
+  # The notes are creating 'testdb.db' but the ranger policies are providing access for 'gross_test.db'
+  # also the db is named 'gross_test'. Let's assume that 'testdb.db' is a typo.
+  createHdfsDir "$HIVE_WAREHOUSE_DIR/gross_test.db"
+
+  # Create the tmp directory and provide world access to it so that Trino can use it.
+  createHdfsDir "tmp"
+  changeHdfsDirPermissions "tmp" 777
+
   updateHdfsPathPolicy "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
 
   # It's the same as in the previous test.
@@ -44,12 +51,13 @@ command="spark.sql(\"create database if not exists gross_test\")"
 
 runSpark "$SPARK_USER1" "$command" "shouldPass"
 
-
 command="spark.sql(\"drop table if exists gross_test.test2\")"
 
 runSpark "$SPARK_USER1" "$command" "shouldPass"
 
-deleteHdfsDir "data/projects/gross_test/test2"
+if [ "$rerun" == "true" ]; then
+  deleteHdfsDir "data/projects/gross_test/test2"
+fi
 
 if [ "$wait_for_debugger" == "true" ]; then
   echo ""

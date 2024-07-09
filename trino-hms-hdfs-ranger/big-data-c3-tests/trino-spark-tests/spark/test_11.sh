@@ -18,7 +18,7 @@ updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy "select:$SPARK_USER1,$SPARK_USER2"
 
-# There is no note about Hive URL policies but as long as we update HDFS policies and add '/data/projects/gross_test'
+# BigData note: There is no note about Hive URL policies but as long as we update HDFS policies and add '/data/projects/gross_test'
 # and we are expecting the command to succeed, then we also need to add 'hdfs://$NAMENODE_NAME/data/projects/gross_test' here.
 
 # If we replace 'updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db,hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write:$SPARK_USER1"'
@@ -62,7 +62,7 @@ runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
 expectedOutput="|Location                    |hdfs://$NAMENODE_NAME/data/projects/gross_test/test2"
 runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
 
-# Change directory permissions so that another user won't be able to execute on HDFS paths without a Ranger policy. 
+# BigData note: Change directory permissions so that another user won't be able to execute on HDFS paths without a Ranger policy. 
 changeHdfsDirPermissions "data/projects/gross_test" 750
 
 # Run commands as user2.

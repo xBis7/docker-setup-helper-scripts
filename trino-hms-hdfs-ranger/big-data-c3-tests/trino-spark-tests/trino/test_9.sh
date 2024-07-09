@@ -10,7 +10,7 @@ echo "## Test 9 ##"
 echo "Create a database in a location where the user is denied write access via a Ranger policy"
 echo ""
 
-# In the BigData notes, this test has no policy screenshots or any commands.
+# BigData note: In the notes, this test has no policy screenshots or any commands.
 # Just the title, an expected metadata SELECT error and a note 'Remove the Deny Condition and save your changes'.
 
 # The schema already exists. If we remove the SELECT access and run 'create schema',

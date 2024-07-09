@@ -60,18 +60,18 @@ expectedMsg=""
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
 
-# Change permissions here to get an HDFS POSIX permissions error and
+# BigData note: Change permissions here to get an HDFS POSIX permissions error and
 # check that creating a Ranger policy fixes it.
 changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR/gross_test.db" 700
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test"
-# This is the expected error according to the BigData notes for POSIX permission access drwx------.
+# BigData note: This is the expected error according to the notes for POSIX permission access drwx------.
 # expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db/test"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
-# In the BigData notes there is a screenshot updating the policies for the 2nd user,
+# BigData note: In the notes there is a screenshot updating the policies for the 2nd user,
 # but the user isn't part of the policy update. Based on the screenshot, the policies should look like this
 #
 # updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"

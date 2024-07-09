@@ -48,7 +48,7 @@ waitForPoliciesUpdate
 
 command="create schema $TRINO_HIVE_SCHEMA.gross_test"
 
-# In the BigData notes, this is expected to fail with metadata WRITE error. But this was the expected error for the previous test.
+# BigData note: In the notes, this is expected to fail with metadata WRITE error. But this was the expected error for the previous test.
 # This test is updating both HDFS and Hive URL policies and with the updates, we shouldn't be getting any errors.
 # In addition, the next test is creating a table under this schema. It must have been a typo error on the notes.
 

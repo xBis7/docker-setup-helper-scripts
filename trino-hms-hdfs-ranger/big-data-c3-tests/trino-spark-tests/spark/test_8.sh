@@ -51,7 +51,7 @@ command="spark.sql(\"describe gross_test.test\").show(false)"
 
 runSpark "$SPARK_USER2" "$command" "shouldPass"
 
-# User1 created the directory and the default permissions are 755.
+# BigData note: User1 created the directory and the default permissions are 755.
 # Change permissions here to get an HDFS POSIX permissions error and
 # check that creating a Ranger policy fixes it.
 changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR/gross_test.db" 750
@@ -71,7 +71,7 @@ runSpark "$SPARK_USER2" "$command" "shouldPass"
 
 command="spark.sql(\"insert into gross_test.test values (4, 'Austin')\")"
 
-# Because we changed the directory POSIX permissions.
+# BigData note: Because we changed the directory POSIX permissions.
 expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"

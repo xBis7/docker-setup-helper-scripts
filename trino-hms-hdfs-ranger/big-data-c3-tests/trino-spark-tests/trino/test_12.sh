@@ -49,12 +49,12 @@ expectedMsg="test2"
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
 
-# Change permissions here to get an HDFS POSIX permissions error and
+# BigData note: Change permissions here to get an HDFS POSIX permissions error and
 # check that creating a Ranger policy fixes it.
 changeHdfsDirPermissions "data/projects/gross_test" 700
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test2"
-# In the BigData notes this is failing with an EXECUTE error.
+# BigData note: In the notes this is failing with an EXECUTE error.
 # expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
 expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/data/projects/gross_test/test2"
 
@@ -68,13 +68,13 @@ expectedMsg="\"1\",\"Austin\""
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
 
-# We have updated the HDFS policies. We shouldn't still get an EXECUTE error.
+# BigData note: We have updated the HDFS policies. We shouldn't still get an EXECUTE error.
 command="insert into $TRINO_HIVE_SCHEMA.gross_test.test2 values (2, 'Fred')"
-# In the BigData notes we are getting this error.
+# BigData note: In the notes we are getting this error.
 # expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
 expectedMsg="Error moving data files from hdfs://$NAMENODE_NAME/tmp/"
 
-# We can see the EXECUTE error on the namenode logs but Trino swallows the original exception and throws a new one with a new message.
+# BigData note: We can see the EXECUTE error on the namenode logs but Trino swallows the original exception and throws a new one with a new message.
 #
 # 2024-07-09 12:11:56 INFO  Server:3102 - IPC Server handler 8 on default port 8020, call Call#128 Retry#0
 # org.apache.hadoop.hdfs.protocol.ClientProtocol.rename from trino-coordinator-1.rangernw:34720 / 172.19.0.14:34720:
@@ -83,7 +83,7 @@ expectedMsg="Error moving data files from hdfs://$NAMENODE_NAME/tmp/"
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
 command="drop table $TRINO_HIVE_SCHEMA.gross_test.test2"
-# In the BigData notes, this command is expected to fail with this error. But this is a Spark error.
+# BigData note: In the notes, this command is expected to fail with this error. But this is a Spark error.
 # The Trino error for lack of DROP privileges, is different.
 
 # expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test]"
@@ -96,7 +96,7 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privil
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
-# The BigData notes repeat the previous error
+# BigData note: The notes repeat the previous error
 # expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privilege on [gross_test/test2]"
 #
 # This is a 'create table' command where user2 has to create a new directory under '/data/projects'.

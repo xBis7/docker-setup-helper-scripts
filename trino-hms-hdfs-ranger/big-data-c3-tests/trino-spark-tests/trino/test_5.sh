@@ -24,7 +24,7 @@ updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write
 
 waitForPoliciesUpdate
 
-# On the BigData notes, this test fails with a 'NullPointerException'.
+# BigData note: On the notes, this test fails with a 'NullPointerException'.
 
 command="drop schema $TRINO_HIVE_SCHEMA.gross_test"
 

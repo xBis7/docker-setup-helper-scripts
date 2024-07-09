@@ -10,14 +10,14 @@ echo "## Test 11 ##"
 echo "Attempt various DDL operations against the managed table as a different user"
 echo ""
 
-# There are no notes about making policy changes. But if we leave them as they are in the previous test, then user2 will have all HDFS access.
+# BigData note: There are no notes about making policy changes. But if we leave them as they are in the previous test, then user2 will have all HDFS access.
 # We are expecting that 'create table' will fail with an HDFS error which won't happen. Instead, it will fail with a metadata error.
 # "Permission denied: user [$TRINO_USER2] does not have [CREATE] privilege on [gross_test/test2]"
 
 # Remove user2.
 updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
-# In order to get the expected errors then user2 must have select access.
+# BigData note: In order to get the expected errors then user2 must have select access.
 # The select that has been added here, isn't part of the BigData notes.
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2"
 
@@ -31,7 +31,7 @@ waitForPoliciesUpdate
 
 # Run the commands as user2.
 command="drop table $TRINO_HIVE_SCHEMA.gross_test.test"
-# In the BigData notes, this command is expected to fail with this error. But this is a Spark error.
+# BigData note: In the notes, this command is expected to fail with this error. But this is a Spark error.
 # The Trino error for lack of DROP privileges, is different.
 
 # expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test]"

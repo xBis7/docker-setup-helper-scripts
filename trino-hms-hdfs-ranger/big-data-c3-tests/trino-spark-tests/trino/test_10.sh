@@ -74,10 +74,10 @@ runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 # In the BigData notes there is a screenshot updating the policies for the 2nd user,
 # but the user isn't part of the policy update. Based on the screenshot, the policies should look like this
 #
-# updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
+# updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 #
 # But after the update, select is expected to work.
-# If we don't include user 2, then nothing will change.
+# If we don't include user2, then nothing will change.
 
 # Update the HDFS permissions to resolve the ACL execute error.
 updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1,$TRINO_USER2"

@@ -60,12 +60,12 @@ expectedMsg=""
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
 
-# Change permissions here to get an HDFS ACLs error and
+# Change permissions here to get an HDFS POSIX permissions error and
 # check that creating a Ranger policy fixes it.
 changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR/gross_test.db" 700
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test"
-# This is the expected error according to the BigData notes for ACL access drwx------.
+# This is the expected error according to the BigData notes for POSIX permission access drwx------.
 # expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db/test"
 
@@ -79,7 +79,7 @@ runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 # But after the update, select is expected to work.
 # If we don't include user2, then nothing will change.
 
-# Update the HDFS permissions to resolve the ACL execute error.
+# Update the HDFS permissions to resolve the POSIX permission execute error.
 updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1,$TRINO_USER2"
 waitForPoliciesUpdate
 

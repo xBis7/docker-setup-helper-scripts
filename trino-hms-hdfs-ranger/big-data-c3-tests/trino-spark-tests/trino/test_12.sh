@@ -49,7 +49,7 @@ expectedMsg="test2"
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
 
-# Change permissions here to get an HDFS ACLs error and
+# Change permissions here to get an HDFS POSIX permissions error and
 # check that creating a Ranger policy fixes it.
 changeHdfsDirPermissions "data/projects/gross_test" 700
 

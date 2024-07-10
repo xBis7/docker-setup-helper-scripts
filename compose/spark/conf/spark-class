@@ -17,6 +17,16 @@
 # limitations under the License.
 #
 
+# Nodes are started using this file.
+# e.g. Starting a master node
+# 'bin/spark-class org.apache.spark.deploy.master.Master -h spark-master'
+#
+# By modifying this file, we can add the debugger arguments along with the
+# rest of the jvm parameters.
+#
+# The file is copied from here
+# https://github.com/apache/spark/blob/v3.3.2-rc1/bin/spark-class
+
 if [ -z "${SPARK_HOME}" ]; then
   source "$(dirname "$0")"/find-spark-home
 fi

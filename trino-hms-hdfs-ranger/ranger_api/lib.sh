@@ -20,6 +20,8 @@ RANGER_UI_PASSWORD=
 RANGER_UI_HOSTNAME=
 RANGER_UI_PORT=
 
+DEBUG="false"
+
 if [[ "${USE_RANGER_UI_CUSTOM_VALUES}" != "true" ]]; then
   HADOOP_RANGER_SERVICE="hadoopdev"
   HIVE_RANGER_SERVICE="hivedev"
@@ -84,9 +86,13 @@ createRangerPolicy() {
   # Prettify the json.
   json_payload=$(echo "$json_payload" | jq '.')
 
-  output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy)
-
-  checkApiCallStatusCode "$output"
+  if [ "$DEBUG" == "true" ]; then
+    output=$(curl -s -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy)
+    echo "$output" | jq .
+  else
+    output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy)
+    checkApiCallStatusCode "$output"
+  fi
 }
 
 # Update an existing Ranger policy.
@@ -97,18 +103,26 @@ putUpdatedRangerPolicyJson() {
   # Prettify the json.
   json_payload=$(echo "$json_payload" | jq '.')
 
-  output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
-
-  checkApiCallStatusCode "$output"
+  if [ "$DEBUG" == "true" ]; then
+    output=$(curl -s -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
+    echo "$output" | jq .
+  else
+    output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
+    checkApiCallStatusCode "$output"
+  fi
 }
 
 # Delete one of the existing Ranger policies.
 deleteRangerPolicy() {
   id=$1
 
-  output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
-
-  checkApiCallStatusCode "$output"
+  if [ "$DEBUG" == "true" ]; then
+    output=$(curl -s -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
+    echo "$output" | jq .
+  else
+    output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
+    checkApiCallStatusCode "$output"
+  fi
 }
 
 getIdFromRangerPolicyJsonResponse() {

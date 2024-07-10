@@ -87,7 +87,7 @@ createRangerPolicy() {
   json_payload=$(echo "$json_payload" | jq '.')
 
   if [ "$DEBUG" == "true" ]; then
-    output=$(curl -s -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy)
+    output=$(curl -s -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy)
     echo "$output" | jq .
   else
     output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy)
@@ -104,7 +104,7 @@ putUpdatedRangerPolicyJson() {
   json_payload=$(echo "$json_payload" | jq '.')
 
   if [ "$DEBUG" == "true" ]; then
-    output=$(curl -s -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
+    output=$(curl -s -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
     echo "$output" | jq .
   else
     output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
@@ -117,7 +117,7 @@ deleteRangerPolicy() {
   id=$1
 
   if [ "$DEBUG" == "true" ]; then
-    output=$(curl -s -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
+    output=$(curl -s -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
     echo "$output" | jq .
   else
     output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)

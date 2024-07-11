@@ -15,17 +15,20 @@ rerun=$2
 wait_for_debugger=$3
 
 if [ "$policy_setup" == "true" ]; then
-  changeHdfsDirPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 755
-  changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR" 755
+  # changeHdfsDirPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 755
+  # changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR" 755
   # The notes are creating 'testdb.db' but the ranger policies are providing access for 'gross_test.db'
   # also the db is named 'gross_test'. Let's assume that 'testdb.db' is a typo.
+
   createHdfsDir "$HIVE_WAREHOUSE_DIR/gross_test.db"
 
   # Create the tmp directory and provide world access to it so that Trino can use it.
   createHdfsDir "tmp"
   changeHdfsDirPermissions "tmp" 777
 
-  updateHdfsPathPolicy "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
+  # updateHdfsPathPolicy "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
+  updateHdfsPathPolicy "/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
+  # updateHdfsPathPolicy ""
 
   # It's the same as in the previous test.
   updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$SPARK_USER1/select:$SPARK_USER2"
@@ -42,7 +45,9 @@ if [ "$policy_setup" == "true" ]; then
   # 'org.apache.hadoop.hive.ql.metadata.HiveException: MetaException(message:Permission denied: user [$SPARK_USER1] does not have [WRITE] privilege on [[hdfs://$NAMENODE_NAME/data/projects/gross_test/test2, hdfs://$NAMENODE_NAME/data/projects/gross_test/test2/]])'
   # but the table creation will actually succeed and the data will be there.
   # updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db,hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write:$SPARK_USER1"
-  updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$SPARK_USER1"
+  # updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$SPARK_USER1"
+  # updateHiveUrlPolicy ""
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write:$SPARK_USER1"
 
   waitForPoliciesUpdate
 fi

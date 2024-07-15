@@ -18,6 +18,7 @@ copyTestFilesUnderSpark() {
     test_files_array+=("$CREATE_DROP_TABLE_FILE")
     test_files_array+=("$INSERT_SELECT_TABLE_WITH_ACCESS_FILE")
     test_files_array+=("$INSERT_SELECT_TABLE_NO_ACCESS_FILE")
+    test_files_array+=("$SPARK_JOB_ON_LARGE_DATASET_FILE")
   else
     # Populate the array.
     test_files_array+=("$TEST_CMD_FILE")
@@ -48,6 +49,29 @@ createHdfsDir() {
   dir_name=$1
 
   hdfs_cmd="hdfs dfs -mkdir -p /$dir_name"
+
+  echo ""
+  echo "Running command:"
+  echo "$hdfs_cmd"
+  echo ""
+
+  if [ "$CURRENT_ENV" == "local" ]; then
+    docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
+  else
+    # c3 - TODO.
+    echo "Implement this."
+  fi
+
+  echo ""
+  echo "Command succeeded."
+  echo ""
+}
+
+putFileUnderHdfsPath() {
+  file_name=$1
+  hdfs_path=$2
+
+  hdfs_cmd="hdfs dfs -put $file_name /$hdfs_path"
 
   echo ""
   echo "Running command:"
@@ -172,6 +196,18 @@ runScalaFileInSparkShell() {
     # c3 - TODO.
     echo "Implement this."
   fi
+}
+
+runDatasetSparkJobInSparkShell() {
+  user=$1
+  dataset_type=$2
+  dataset_size=$3
+  debug=$4
+  background_run=$5
+
+  spark_cmd="bin/spark-shell --conf spark.namenode_name=\"$NAMENODE_NAME\" --conf spark.dataset_type=\"$dataset_type\" --conf spark.dataset_size=\"$dataset_size\" --conf spark.enable.debug.prints=\"$debug\" -I $SPARK_JOB_ON_LARGE_DATASET_FILE"
+
+  runScalaFileInSparkShell "$spark_cmd" "$user" "$background_run"
 }
 
 base64encode() {

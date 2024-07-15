@@ -41,6 +41,7 @@ CREATE_DROP_DB_FILE="create_drop_db.scala"
 CREATE_DROP_TABLE_FILE="create_drop_table.scala"
 INSERT_SELECT_TABLE_WITH_ACCESS_FILE="insert_select_table_with_access.scala"
 INSERT_SELECT_TABLE_NO_ACCESS_FILE="insert_select_table_no_access.scala"
+SPARK_JOB_ON_LARGE_DATASET_FILE="spark_job_on_large_dataset.scala"
 
 # Trino variables.
 TRINO_TMP_OUTPUT_FILE="trino_output_tmp.txt"

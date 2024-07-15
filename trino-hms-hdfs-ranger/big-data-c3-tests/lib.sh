@@ -159,9 +159,9 @@ listContentsOnHdfsPath() {
       exit 1
     fi
   else
-    # A '-' is provided in case we don't want to check the output,
+    # 'ignoreExpectedOutput' is provided in case we don't want to check the output,
     # but the env isn't local and we need to set a location.
-    if [ "$expectedOutput" != "-" ]; then
+    if [ "$expectedOutput" != "ignoreExpectedOutput" ]; then
       # If grep fails then it will exit.
       cat "$result" | grep "$expectedOutput"
     fi

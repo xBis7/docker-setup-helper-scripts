@@ -6,40 +6,50 @@ import java.util.Base64
 object CommonUtils {
 
   def printUnexpectedExceptionMsg(e: Exception): Boolean = {
+    printf("\n\n")
     println("--------------------------")
     println(s"Command failed while it was expected to succeed.")
     println("\nMessage: " + e.getMessage)
     println("--------------------------")
+    printf("\n\n")
     return false
   }
 
   def hasFailedWithTheExceptionAndMsg(expectedErrorMsg: String, e: Exception): Boolean = {
     if (e.getMessage().contains(expectedErrorMsg)) {
+      printf("\n\n")
       println("--------------------------")
       println(s"Command failed with the expected error.")
       println("\nMessage: " + e.getMessage)
       println("--------------------------")
+      printf("\n\n")
       return true
     } else {
+      printf("\n\n")
       println("--------------------------")
       println(s"Command failed with the wrong error.")
       println("\nExpected Message: " + expectedErrorMsg)
       println("\nActual Message: " + e.getMessage())
       println("--------------------------")
+      printf("\n\n")
       return false
     }
   }
 
   def printUnexpectedSuccessMsg(): Any = {
+    printf("\n\n")
     println("--------------------------")
     println("Test finished without issues while it was expected to fail.")
     println("--------------------------")
+    printf("\n\n")
   }
 
   def printSuccessMsg(): Any = {
+    printf("\n\n")
     println("--------------------------")
     println(s"Command succeeded as expected.")
     println("--------------------------")
+    printf("\n\n")
   }
 
   def runCommandWithException(encodedCommandStr: String, encodedExpectedErrorMsg: String): Boolean = {    
@@ -51,10 +61,12 @@ object CommonUtils {
     val decodedErrorBytes = Base64.getDecoder.decode(encodedExpectedErrorMsg)
     val decodedErrorStr = new String(decodedErrorBytes)
 
+    printf("\n\n")
     println("Running command:")
     println(decodedCommandStr)
     println("\nExpecting it to fail.")
     println("--------------------------")
+    printf("\n\n")
 
     try {
       // Using Scala reflection, we can execute the String as scala code.
@@ -102,10 +114,12 @@ object CommonUtils {
     val decodedCmdBytes = Base64.getDecoder.decode(encodedCommandStr)
     val decodedCommandStr = new String(decodedCmdBytes)
 
+    printf("\n\n")
     println("Running command:")
     println(decodedCommandStr)
     println("\nExpecting it to succeed.")
     println("--------------------------")
+    printf("\n\n")
 
     // Get the original streams, so that we can later restore 'System.out' and 'System.err'.
     // Setup new streams to capture the output.

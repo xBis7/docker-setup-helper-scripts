@@ -10,10 +10,12 @@ echo "## Test 11 ##"
 echo "Attempt various DDL operations against the managed table as a different user"
 echo ""
 
-# It's the same as in the previous test.
-updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1,$TRINO_USER2"
+# BigData note: There are no notes about making policy changes.
+# That prevents the create table call below from getting the Execute error it is supposed to get.
+# So we remove HDFS access for user2 here:
+updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
-# In order to get the expected errors then user2 must have select access.
+# BigData note: In order to get the expected errors then user2 must have select access.
 # The select that has been added here, isn't part of the BigData notes.
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2"
 
@@ -27,7 +29,7 @@ waitForPoliciesUpdate
 
 # Run the commands as user2.
 command="drop table $TRINO_HIVE_SCHEMA.gross_test.test"
-# In the BigData notes, this command is expected to fail with this error. But this is a Spark error.
+# BigData note: In the notes, this command is expected to fail with this error. But this is a Spark error.
 # The Trino error for lack of DROP privileges, is different.
 
 # expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test]"
@@ -45,8 +47,6 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privil
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
 command="create table $TRINO_HIVE_SCHEMA.gross_test.test2 (id int, greeting varchar)"
-# In the BigData notes, this command is expected to fail with this error.
-# expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"$HIVE_WAREHOUSE_DIR/gross_test.db\":"
-expectedMsg="Permission denied: user [$TRINO_USER2] does not have [CREATE] privilege on [gross_test/test2]"
+expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"

@@ -10,15 +10,8 @@ echo "## Test 8 ##"
 echo "Create a managed table"
 echo ""
 
-# BigData note: "/*" isn't part of the BigData notes but it must have been added in a different policy.
-# If it's not there, then we get this error
-#
-# ==========================
-# Running trino command: 'insert into hive.gross_test.test values (1, 'Austin')'
-# --------------------------
-#
-# Query 20240704_105000_00008_b6t3t failed: Create temporary directory for hdfs://namenode/opt/hive/data/gross_test.db/test failed: Permission denied: user=trino, access=WRITE, inode="/":hadoop:supergroup:drwxr-xr-x
-updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
+# It's the same as in the previous test.
+updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"

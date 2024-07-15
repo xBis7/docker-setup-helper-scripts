@@ -80,7 +80,7 @@ if [ "$without_url" == 0 ]; then
   echo "When Hive URL policies are disabled and the coarse check is also disabled,"
   echo "then the hive plugin is recursively checking permissions for all sub-dirs under the provided path."
   echo "On the first permission check failure, the recursion stops."
-  echo "We are providing ACL access to the parent dir and all sub directories except the last."
+  echo "We are providing POSIX permission access to the parent dir and all sub directories except the last."
   echo "The operation should fail."
   echo ""
 
@@ -95,7 +95,7 @@ if [ "$with_url" == 0 ]; then
   setup "true"
 
   echo ""
-  echo "User [spark] has metadata access, Hive URL access and no HDFS policies access, but has Hadoop ACL access to the parent dir."
+  echo "User [spark] has metadata access, Hive URL access and no HDFS policies access, but has Hadoop POSIX permission access to the parent dir."
   echo "Because Hive URL policies are enabled, no sub-dirs should be checked for access. Operation should succeed."
   echo ""
 

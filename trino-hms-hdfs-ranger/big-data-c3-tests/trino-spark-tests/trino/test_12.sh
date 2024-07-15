@@ -10,7 +10,7 @@ echo "## Test 12 ##"
 echo "Repeat using an external table"
 echo ""
 
-updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
+updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2"
@@ -49,18 +49,18 @@ expectedMsg="test2"
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
 
-# Change permissions here to get an HDFS ACLs error and
+# BigData note: Change permissions here to get an HDFS POSIX permissions error and
 # check that creating a Ranger policy fixes it.
 changeHdfsDirPermissions "data/projects/gross_test" 700
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test2"
-# In the BigData notes this is failing with an EXECUTE error.
+# BigData note: In the notes this is failing with an EXECUTE error.
 # expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
 expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/data/projects/gross_test/test2"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
-updateHdfsPathPolicy "/*,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1/read,execute:$TRINO_USER2"
+updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1/read,execute:$TRINO_USER2"
 waitForPoliciesUpdate
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test2"
@@ -68,16 +68,21 @@ expectedMsg="\"1\",\"Austin\""
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
 
-# We have updated the HDFS policies. We shouldn't still get an EXECUTE error.
+# BigData note: We have updated the HDFS policies. We shouldn't still get an EXECUTE error.
 command="insert into $TRINO_HIVE_SCHEMA.gross_test.test2 values (2, 'Fred')"
-# In the BigData notes we are getting this error.
+# BigData note: In the notes we are getting this error.
 # expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
-expectedMsg="Create temporary directory for hdfs://$NAMENODE_NAME/data/projects/gross_test/test2 failed: Permission denied: user=$TRINO_USER2, access=WRITE, inode=\"/tmp\":"
+expectedMsg="Error moving data files from hdfs://$NAMENODE_NAME/tmp/"
 
-runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
+# BigData note: We can see the EXECUTE error on the namenode logs but Trino swallows the original exception and throws a new one with a new message.
+#
+# This is the error from the namenode log:
+# "org.apache.hadoop.security.AccessControlException: Permission denied: user=games, access=EXECUTE, inode="/data/projects/gross_test":hadoop:supergroup:drwx------"
+
+runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
 command="drop table $TRINO_HIVE_SCHEMA.gross_test.test2"
-# In the BigData notes, this command is expected to fail with this error. But this is a Spark error.
+# BigData note: In the notes, this command is expected to fail with this error. But this is a Spark error.
 # The Trino error for lack of DROP privileges, is different.
 
 # expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test]"
@@ -90,16 +95,14 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privil
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
-# The BigData notes repeat the previous error
-# expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privilege on [gross_test/test2]"
-# Assumming that this is a table creation and we expect a metadata error, then it will be a CREATE error.
-# user2 also requires HDFS "write" access so we are adding that here.
-# There won't be metadata access.
-updateHdfsPathPolicy "/*,/data/projects,/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1/read,write,execute:$TRINO_USER2"
-waitForPoliciesUpdate
-
+# BigData note:
+# This is a 'create table' command where user2 has to create a new directory under '/data/projects'.
+# Based on the provided policies, the user doesn't have write access on '/data/projects'.
+# There should be an HDFS write error.
 command="create table $TRINO_HIVE_SCHEMA.gross_test.test3 (id int, name varchar) with (external_location = 'hdfs://$NAMENODE_NAME/data/projects/squirrel/test3')"
-expectedMsg="Permission denied: user [$TRINO_USER2] does not have [CREATE] privilege on [gross_test/test3]"
+# BigData note: The notes repeat the previous error
+# expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privilege on [gross_test/test2]"
+expectedMsg="Permission denied: user=$TRINO_USER2, access=WRITE, inode=\"/data/projects\":"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 

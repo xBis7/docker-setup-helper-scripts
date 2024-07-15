@@ -11,7 +11,7 @@ echo "Create a managed table and attempt to access it as a different user"
 echo ""
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
+updateHdfsPathPolicy "/data/projects/gross_test,/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
@@ -20,7 +20,7 @@ updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$
 updateHiveDefaultDbPolicy ""
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 
@@ -44,12 +44,12 @@ runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
 command="show schemas in $TRINO_HIVE_SCHEMA"
 expectedMsg="gross_test"
 
-runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
+runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 
 command="describe $TRINO_HIVE_SCHEMA.gross_test.test"
 expectedMsg="Permission denied: user [$TRINO_USER2] does not have [SELECT] privilege on [gross_test]"
 
-runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
+runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
 
 # Provide select access for user2.
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1/select:$TRINO_USER2"
@@ -58,32 +58,32 @@ waitForPoliciesUpdate
 command="describe $TRINO_HIVE_SCHEMA.gross_test.test"
 expectedMsg=""
 
-runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
+runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 
 # BigData note: Change permissions here to get an HDFS POSIX permissions error and
 # check that creating a Ranger policy fixes it.
-changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR/gross_test.db" 700
+changeHdfsDirPermissions "$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" 700 "devpod"
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test"
 # BigData note: This is the expected error according to the notes for POSIX permission access drwx------.
-# expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
-expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db/test"
+# expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db\":"
+expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db/test"
 
-runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
+runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
 
 # BigData note: In the notes there is a screenshot updating the policies for the 2nd user,
 # but the user isn't part of the policy update. Based on the screenshot, the policies should look like this
 #
-# updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
+# updateHdfsPathPolicy "/data/projects/gross_test,/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 #
 # But after the update, select is expected to work.
 # If we don't include user2, then nothing will change.
 
 # Update the HDFS permissions to resolve the POSIX permission execute error.
-updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1,$TRINO_USER2"
+updateHdfsPathPolicy "/data/projects/gross_test,/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1,$TRINO_USER2"
 waitForPoliciesUpdate
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test"
 expectedMsg="\"1\",\"Austin\""
 
-runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg"
+runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"

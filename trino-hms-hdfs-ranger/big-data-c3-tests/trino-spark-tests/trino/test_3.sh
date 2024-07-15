@@ -24,7 +24,7 @@ updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write
 waitForPoliciesUpdate
 
 # BigData note: Change directory permissions so that there won't be permissions to execute on HDFS paths without a Ranger policy.
-changeHdfsDirPermissions "data/projects/gross_test" 750
+changeHdfsDirPermissions "data/projects/gross_test" 750 devpod
 
 command="create schema $TRINO_HIVE_SCHEMA.gross_test with (location = 'hdfs://$NAMENODE_NAME/data/projects/gross_test/test.db')"
 

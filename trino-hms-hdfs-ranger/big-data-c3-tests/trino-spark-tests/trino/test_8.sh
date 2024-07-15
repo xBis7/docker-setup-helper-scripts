@@ -11,7 +11,7 @@ echo "Create a managed table"
 echo ""
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
+updateHdfsPathPolicy "/data/projects/gross_test,/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
@@ -20,7 +20,7 @@ updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$
 updateHiveDefaultDbPolicy ""
 
 # It's the same as in the previous test.
-updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 
@@ -49,4 +49,4 @@ expectedMsg="DROP TABLE"
 runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
 
 # 'hdfs dfs -ls' and check data after drop.
-listContentsOnHdfsPath "$HIVE_WAREHOUSE_DIR/gross_test.db" "shouldBeEmpty"
+listContentsOnHdfsPath "$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "shouldBeEmpty" "" "devpod"

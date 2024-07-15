@@ -25,7 +25,7 @@ echo ""
 #   - create the schema again.
 
 # It's the same as in the previous test.
-updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
+updateHdfsPathPolicy "/data/projects/gross_test,/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # Remove select access.
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,update:$TRINO_USER1"
@@ -34,7 +34,7 @@ updateHiveDefaultDbPolicy ""
 
 # Provide a deny policy.
 # 2nd parameter: allow policies -> empty "-"
-updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "-" "write:$TRINO_USER1"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "-" "write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 
@@ -48,5 +48,5 @@ expectedMsg="Permission denied: user [$TRINO_USER1] does not have [SELECT] privi
 runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
 
 # Remove the deny condition and restore the Hive URL policy.
-updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 waitForPoliciesUpdate

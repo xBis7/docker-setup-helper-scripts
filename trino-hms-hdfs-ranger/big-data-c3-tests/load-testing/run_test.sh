@@ -20,7 +20,7 @@ background_run=$4
 copyTestFilesUnderSpark "$abs_path" "true"
 
 if [ "$test_num" == "1" ]; then
-  db_location="/opt/hive/data/gross_test/gross_test.db"
+  db_location="/data/projects/gross_load_tests/gross_test.db"
 
   runCreateDropDbOnRepeatWithAccess "$SPARK_USER1" "$iteration_num" "$db_location" "$background_run"
 elif [ "$test_num" == "2" ]; then

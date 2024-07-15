@@ -37,8 +37,7 @@ copyTestFilesUnderSpark() {
 
       docker cp "$abs_path/$project_path/scala-test-files/$file" "$SPARK_MASTER_HOSTNAME:/opt/spark"
     else
-      # c3 - TODO.
-      echo "Implement this."
+      echo "No need to copy files under Spark."
     fi
   done
 }
@@ -46,6 +45,7 @@ copyTestFilesUnderSpark() {
 # -- HDFS --
 createHdfsDir() {
   dir_name=$1
+  location=${2:-hdfs}
 
   hdfs_cmd="hdfs dfs -mkdir -p /$dir_name"
 
@@ -57,8 +57,12 @@ createHdfsDir() {
   if [ "$CURRENT_ENV" == "local" ]; then
     docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
   else
-    # c3 - TODO.
-    echo "Implement this."
+    if [ "$location" == "hdfs" ]; then
+      eval "$hdfs_cmd"
+    else
+      echo "Running through sshpass"
+      sshpass -e ssh "$HDFS_USER@$HDFS_HOSTNAME" "$hdfs_cmd"
+    fi
   fi
 
   echo ""
@@ -69,6 +73,7 @@ createHdfsDir() {
 changeHdfsDirPermissions() {
   path=$1
   permissions=$2
+  location=${3:-hdfs}
 
   hdfs_cmd="hdfs dfs -chmod $permissions /$path"
 
@@ -80,8 +85,12 @@ changeHdfsDirPermissions() {
   if [ "$CURRENT_ENV" == "local" ]; then
     docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
   else
-    # c3 - TODO.
-    echo "Implement this."
+    if [ "$location" == "hdfs" ]; then
+      eval "$hdfs_cmd"
+    else
+      echo "Running through sshpass"
+      sshpass -e ssh "$HDFS_USER@$HDFS_HOSTNAME" "$hdfs_cmd"
+    fi
   fi
 
   echo ""
@@ -102,8 +111,8 @@ deleteHdfsDir() {
   if [ "$CURRENT_ENV" == "local" ]; then
     docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
   else
-    # c3 - TODO.
-    echo "Implement this."
+    echo "Running through sshpass"
+    sshpass -e ssh "$HDFS_USER@$HDFS_HOSTNAME" "$hdfs_cmd"
   fi
 
   echo ""
@@ -115,6 +124,7 @@ listContentsOnHdfsPath() {
   path=$1
   expectedEmptyResult=$2
   expectedOutput=$3
+  location=${4:-hdfs}
 
   hdfs_cmd="hdfs dfs -ls /$path"
 
@@ -130,8 +140,12 @@ listContentsOnHdfsPath() {
   if [ "$CURRENT_ENV" == "local" ]; then
     result=$(docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd")
   else
-    # c3 - TODO.
-    echo "Implement this."
+    if [ "$location" == "hdfs" ]; then
+      eval "$hdfs_cmd"
+    else
+      echo "Running through sshpass"
+      sshpass -e ssh "$HDFS_USER@$HDFS_HOSTNAME" "$hdfs_cmd"
+    fi
     # result=$()
   fi
 
@@ -169,8 +183,8 @@ runScalaFileInSparkShell() {
       docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "$spark_shell_cmd"
     fi
   else
-    # c3 - TODO.
-    echo "Implement this."
+    echo "Executing Scala file in Spark shell"
+    eval $SPARK_PATH/$spark_shell_cmd
   fi
 }
 
@@ -203,7 +217,13 @@ runSpark() {
   if [ "$expected_result" == "shouldPass" ]; then
     expect_exception=false
   fi
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.expect_exception=\"$expect_exception\" --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_output=\"$encoded_output\" -I $TEST_CMD_FILE" "$user"
+
+  if [ "$CURRENT_ENV" == "c3" ]; then
+    echo "kinit for $user"
+    eval kinit -kt $KRB_KEYTAB_PATH/$user$KRB_KEYTAB_SUFFIX $user$KRB_REALM
+  fi
+
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.expect_exception=\"$expect_exception\" --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_output=\"$encoded_output\" -I $TEST_FILES_DIR_PATH/$TEST_CMD_FILE" "$user"
 }
 
 # -- TRINO TESTS --
@@ -212,6 +232,14 @@ runTrino() {
   trino_cmd=$2
   expectedResult=$3
   expectedOutput=$4
+  signin_profile=${5:-svc}
+
+  access_token=
+  if [ "$signin_profile" == "svc" ]; then
+    access_token=$SIGNIN_PROFILE_SVC_ACCESS_TOKEN_BASE64
+  else
+    access_token=$SIGNIN_PROFILE_USER_ACCESS_TOKEN_BASE64
+  fi
 
   resultMsg=""
   if [ "$expectedResult" == "shouldPass" ]; then
@@ -222,16 +250,14 @@ runTrino() {
 
   echo ""
   echo "=========================="
-  echo "Running trino command: '$trino_cmd'"
+  echo "Running trino command: '$trino_cmd' for user '$user' and signin profile '$signin_profile'"
   echo "--------------------------"
   echo ""
 
   if [ "$CURRENT_ENV" == "local" ]; then
     docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
   else
-    # c3 - TODO.
-    echo "Implement this."
-    # $(cmd) 2>&1 | tee "$tmp_file"
+    eval "$TRINO_BIN_PATH" "--server $TRINO_HOSTNAME" "--access-token=$(echo -n $access_token | base64 --decode)" "--user $user" "--execute \"$trino_cmd\"" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
   fi
 
   # Test the output.
@@ -259,7 +285,7 @@ createSparkTableForTestingDdlOps() {
   user=$1
 
   # This will be run only once during setup. We don't need to run it in the background.
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.db_name=\"default\" --conf spark.table_name=\"test2\" -I $SETUP_CREATE_TABLE_FILE" "$user"
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.db_name=\"default\" --conf spark.table_name=\"test2\" -I $LOAD_TEST_FILES_DIR_PATH/$SETUP_CREATE_TABLE_FILE" "$user"
 }
 
 runCreateDropDbOnRepeatWithAccess() {
@@ -268,7 +294,7 @@ runCreateDropDbOnRepeatWithAccess() {
   location=$3
   background_run=$4
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" --conf spark.db_location=\"$location\" -I $CREATE_DROP_DB_FILE" "$user" "$background_run"
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" --conf spark.db_location=\"$location\" -I $LOAD_TEST_FILES_DIR_PATH/$CREATE_DROP_DB_FILE" "$user" "$background_run"
 }
 
 runCreateDropTableOnRepeatWithAccess() {
@@ -276,7 +302,7 @@ runCreateDropTableOnRepeatWithAccess() {
   iterations=$2
   background_run=$3
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $CREATE_DROP_TABLE_FILE" "$user" "$background_run"
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $LOAD_TEST_FILES_DIR_PATH/$CREATE_DROP_TABLE_FILE" "$user" "$background_run"
 }
 
 runInsertSelectTableOnRepeatWithAccess() {
@@ -284,7 +310,7 @@ runInsertSelectTableOnRepeatWithAccess() {
   iterations=$2
   background_run=$3
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_WITH_ACCESS_FILE" "$user" "$background_run"
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $LOAD_TEST_FILES_DIR_PATH/$INSERT_SELECT_TABLE_WITH_ACCESS_FILE" "$user" "$background_run"
 }
 
 runInsertSelectTableOnRepeatNoAccess() {
@@ -292,7 +318,7 @@ runInsertSelectTableOnRepeatNoAccess() {
   iterations=$2
   background_run=$3
 
-  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $INSERT_SELECT_TABLE_NO_ACCESS_FILE" "$user" "$background_run"
+  runScalaFileInSparkShell "bin/spark-shell --conf spark.iteration_num=\"$iterations\" -I $LOAD_TEST_FILES_DIR_PATH/$INSERT_SELECT_TABLE_NO_ACCESS_FILE" "$user" "$background_run"
 }
 
 # -- RANGER POLICIES --

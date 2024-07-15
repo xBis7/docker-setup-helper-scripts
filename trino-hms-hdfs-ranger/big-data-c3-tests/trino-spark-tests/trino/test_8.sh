@@ -10,10 +10,6 @@ echo "## Test 8 ##"
 echo "Create a managed table"
 echo ""
 
-# BigData note: Create the tmp directory and provide world access to it so that Trino can use it.
-createHdfsDir "tmp"
-changeHdfsDirPermissions "tmp" 777
-
 # It's the same as in the previous test.
 updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 

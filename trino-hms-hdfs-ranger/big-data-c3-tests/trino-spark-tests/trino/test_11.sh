@@ -10,11 +10,9 @@ echo "## Test 11 ##"
 echo "Attempt various DDL operations against the managed table as a different user"
 echo ""
 
-# BigData note: There are no notes about making policy changes. But if we leave them as they are in the previous test, then user2 will have all HDFS access.
-# We are expecting that 'create table' will fail with an HDFS error which won't happen. Instead, it will fail with a metadata error.
-# "Permission denied: user [$TRINO_USER2] does not have [CREATE] privilege on [gross_test/test2]"
-
-# Remove user2.
+# BigData note: There are no notes about making policy changes.
+# That prevents the create table call below from getting the Execute error it is supposed to get.
+# So we remove HDFS access for user2 here:
 updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # BigData note: In order to get the expected errors then user2 must have select access.

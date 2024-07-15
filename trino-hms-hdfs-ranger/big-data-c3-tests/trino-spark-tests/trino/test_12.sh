@@ -76,9 +76,8 @@ expectedMsg="Error moving data files from hdfs://$NAMENODE_NAME/tmp/"
 
 # BigData note: We can see the EXECUTE error on the namenode logs but Trino swallows the original exception and throws a new one with a new message.
 #
-# 2024-07-09 12:11:56 INFO  Server:3102 - IPC Server handler 8 on default port 8020, call Call#128 Retry#0
-# org.apache.hadoop.hdfs.protocol.ClientProtocol.rename from trino-coordinator-1.rangernw:34720 / 172.19.0.14:34720:
-# org.apache.hadoop.security.AccessControlException: Permission denied: user=games, access=EXECUTE, inode="/data/projects/gross_test":hadoop:supergroup:drwx------
+# This is the error from the namenode log:
+# "org.apache.hadoop.security.AccessControlException: Permission denied: user=games, access=EXECUTE, inode="/data/projects/gross_test":hadoop:supergroup:drwx------"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
@@ -96,16 +95,13 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privil
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
-# BigData note: The notes repeat the previous error
-# expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privilege on [gross_test/test2]"
-#
+# BigData note:
 # This is a 'create table' command where user2 has to create a new directory under '/data/projects'.
 # Based on the provided policies, the user doesn't have write access on '/data/projects'.
 # There should be an HDFS write error.
-updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1/read,write,execute:$TRINO_USER2"
-waitForPoliciesUpdate
-
 command="create table $TRINO_HIVE_SCHEMA.gross_test.test3 (id int, name varchar) with (external_location = 'hdfs://$NAMENODE_NAME/data/projects/squirrel/test3')"
+# BigData note: The notes repeat the previous error
+# expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privilege on [gross_test/test2]"
 expectedMsg="Permission denied: user=$TRINO_USER2, access=WRITE, inode=\"/data/projects\":"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"

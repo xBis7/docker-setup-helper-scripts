@@ -23,7 +23,7 @@ updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write
 
 waitForPoliciesUpdate
 
-command="create schema $TRINO_HIVE_SCHEMA.gross_test with (location = 'hdfs://$HAMENODE_NAME/data/projects/gross_test/test.db')"
+command="create schema $TRINO_HIVE_SCHEMA.gross_test with (location = 'hdfs://$NAMENODE_NAME/data/projects/gross_test/test.db')"
 
 successMsg="CREATE SCHEMA"
 

@@ -68,6 +68,7 @@ while (counter < iterations) {
   println("--------------------------")
   println("Finished iteration '" + counter + "'.")
   println("--------------------------")
+  printf("\n\n")
 
   counter += 1
 }

@@ -39,4 +39,6 @@ changeHdfsDirPermissions "tmp" 777
 
 ./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
 
-./big-data-c3-tests/trino-spark-tests/spark/test_11_copy.sh "$prepare_env" "false" "true"
+# ./big-data-c3-tests/trino-spark-tests/spark/test_11_copy.sh "$prepare_env" "false" "true"
+
+./big-data-c3-tests/trino-spark-tests/spark/insert_into.sh "$prepare_env"

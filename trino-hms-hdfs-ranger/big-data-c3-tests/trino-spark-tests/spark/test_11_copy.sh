@@ -26,9 +26,7 @@ if [ "$policy_setup" == "true" ]; then
   createHdfsDir "tmp"
   changeHdfsDirPermissions "tmp" 777
 
-  # updateHdfsPathPolicy "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
-  updateHdfsPathPolicy "/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
-  # updateHdfsPathPolicy ""
+  updateHdfsPathPolicy "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
 
   # It's the same as in the previous test.
   updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$SPARK_USER1/select:$SPARK_USER2"
@@ -47,7 +45,9 @@ if [ "$policy_setup" == "true" ]; then
   # updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db,hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write:$SPARK_USER1"
   # updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$SPARK_USER1"
   # updateHiveUrlPolicy ""
-updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write:$SPARK_USER1"
+
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db,hdfs://$NAMENODE_NAME/data/projects/gross_test" "read,write:$SPARK_USER1"
+# updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$SPARK_USER1"
 
   waitForPoliciesUpdate
 fi
@@ -64,12 +64,17 @@ if [ "$rerun" == "true" ]; then
   deleteHdfsDir "data/projects/gross_test/test2"
 fi
 
-if [ "$wait_for_debugger" == "true" ]; then
-  echo ""
-  echo "Waiting for the debugger"
-  echo ""
-  sleep 10
-fi
+# if [ "$wait_for_debugger" == "true" ]; then
+#   echo ""
+#   echo "Waiting for the debugger"
+#   echo ""
+#   sleep 10
+# fi
+
+# updateHdfsPathPolicy "/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
+# updateHiveUrlPolicy ""
+
+# waitForPoliciesUpdate
 
 # Create.
 command=$(cat <<EOF
@@ -78,8 +83,29 @@ command=$(cat <<EOF
 EOF
 )
 
+# command="spark.sql(\"create external table if not exists gross_test.test2 (id int, name string) location 'hdfs://namenode/data/projects/gross_test/test2'\")"
+
 # 1st parameter: the user to execute the command
 # 2nd parameter: the command to be executed
 # 3rd parameter: 'shouldPass' if the command should succeed and 'shouldFail' if the command should fail
 # 4th parameter: the expected error message if the previous parameter is 'shouldFail'
 runSpark "$SPARK_USER1" "$command" "shouldPass"
+
+# updateHdfsPathPolicy "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
+# updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$SPARK_USER1"
+updateHdfsPathPolicy ""
+updateHiveDbAllPolicy "gross_test" "create,drop,index,lock,select,update:$SPARK_USER1/select:$SPARK_USER2"
+updateHiveUrlPolicy ""
+waitForPoliciesUpdate
+
+# Create.
+command="spark.sql(\"ALTER TABLE gross_test.test2 ADD COLUMNS (age int)\")"
+
+runSpark "$SPARK_USER1" "$command" "shouldPass"
+
+
+# spark.sql("ALTER TABLE gross_test.test2 RENAME COLUMN name TO new_name")
+#       org.apache.spark.sql.AnalysisException: RENAME COLUMN is only supported with v2 tables.
+
+# spark.sql("ALTER TABLE gross_test.test2 DROP COLUMNS (name)")
+#       org.apache.spark.sql.AnalysisException: DROP COLUMN is only supported with v2 tables.

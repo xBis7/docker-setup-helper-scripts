@@ -9,3 +9,4 @@ compose/spark/conf/spark-events
 compose/spark/conf/hive-jars
 
 compose/hadoop/conf/ranger-jars
+trino_output_tmp.txt

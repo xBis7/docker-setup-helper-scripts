@@ -26,7 +26,7 @@ waitForPoliciesUpdate
 
 command="create schema $TRINO_HIVE_SCHEMA.gross_test"
 
-hdfsLocation="hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db"
+hdfsLocation="hdfs://$NAMENODE_NAME/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db"
 
 expectedErrorMsg="Permission denied: user [$TRINO_USER1] does not have [WRITE] privilege on [[$hdfsLocation, $hdfsLocation/]]"
 

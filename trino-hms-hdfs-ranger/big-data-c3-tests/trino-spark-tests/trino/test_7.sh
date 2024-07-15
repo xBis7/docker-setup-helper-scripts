@@ -20,8 +20,8 @@ echo ""
 #
 # We can update Hive Warehouse directory to provide WRITE access for 'group'.
 #
-# changeHdfsDirPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 775
-# changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR" 775
+# changeHdfsDirPermissions "$TRINO_HIVE_WAREHOUSE_PARENT_DIR" 755 "devpod"
+# changeHdfsDirPermissions "$TRINO_HIVE_WAREHOUSE_DIR" 755 "devpod"
 #
 # or we can provide access through HDFS policies
 #
@@ -32,9 +32,12 @@ echo ""
 # createHdfsDir "$HIVE_WAREHOUSE_DIR/gross_test.db"
 
 # Even if the directory exists, there won't be any errors. The command uses the '-p' option.
-createHdfsDir "$HIVE_WAREHOUSE_DIR/gross_test.db"
+createHdfsDir "$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "devpod"
 
-updateHdfsPathPolicy "/data/projects/gross_test,/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
+# This is the error that we get without updating the Hive warehouse ACLs and creating the 'gross_test.db' directory.
+# Query 20240701_134717_00010_39diz failed: Got exception: org.apache.hadoop.security.AccessControlException Permission denied: user=trino, access=WRITE, inode="/opt/hive/data":hadoop:supergroup:drwxr-xr-x
+
+updateHdfsPathPolicy "/data/projects/gross_test,/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write,execute:$TRINO_USER1"
 
 # It's the same as in the previous test.
 updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$TRINO_USER1"
@@ -42,7 +45,7 @@ updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$
 # It's the same as in the previous test.
 updateHiveDefaultDbPolicy ""
 
-updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
+updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 
@@ -61,3 +64,4 @@ expectedMsg="CREATE SCHEMA"
 # 3rd parameter: 'shouldPass' if the command should succeed and 'shouldFail' if the command should fail
 # 4th parameter: the expected output message. For Trino all commands (whether successful or not) have an expected output message.
 runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
+

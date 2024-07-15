@@ -7,10 +7,7 @@ set -e
 
 abs_path=$1
 
-./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
-
-# c3 - TODO.
-# kinit
+#./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
 
 ./big-data-c3-tests/trino-spark-tests/spark/test_1.sh
 

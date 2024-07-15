@@ -20,7 +20,7 @@ updateHiveUrlPolicy "/*" "read,write:$TRINO_USER1"
 
 waitForPoliciesUpdate
 
-command="drop schema hive.gross_test cascade;"
+command="drop schema $TRINO_HIVE_SCHEMA.gross_test cascade;"
 
 expectedMsg="DROP SCHEMA"
 
@@ -37,4 +37,4 @@ runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
 deleteHdfsDir "data/projects/gross_test"
 
 # Create the directory again as empty.
-createHdfsDir "data/projects/gross_test"
+createHdfsDir "data/projects/gross_test" "devpod"

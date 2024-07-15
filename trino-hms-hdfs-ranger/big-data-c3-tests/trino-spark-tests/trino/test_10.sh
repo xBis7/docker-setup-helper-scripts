@@ -44,6 +44,7 @@ runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
 command="show schemas in $TRINO_HIVE_SCHEMA"
 expectedMsg="gross_test"
 
+# The last parameter is the signing profile.
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 
 command="describe $TRINO_HIVE_SCHEMA.gross_test.test"

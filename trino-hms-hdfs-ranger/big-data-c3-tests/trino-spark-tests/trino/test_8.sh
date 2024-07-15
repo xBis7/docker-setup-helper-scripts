@@ -49,4 +49,4 @@ expectedMsg="DROP TABLE"
 runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
 
 # 'hdfs dfs -ls' and check data after drop.
-listContentsOnHdfsPath "$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "shouldBeEmpty" "" "devpod"
+listContentsOnHdfsPath "$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "shouldBeEmpty" "ignoreExpectedOutput" "devpod"

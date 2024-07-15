@@ -78,6 +78,18 @@ getRangerPolicyJsonResponseUsingShortNames() {
   echo "$policy_res"
 }
 
+runCurlCommand() {
+  curl_cmd=$1
+
+  if [ "$DEBUG" == "true" ]; then
+    output=$(eval $curl_cmd)
+    echo "$output" | jq .
+  else
+    output=$(eval $curl_cmd -s -o /dev/null)
+    checkApiCallStatusCode "$output"
+  fi
+}
+
 # Create a new Ranger policy.
 createRangerPolicy() {
   json_payload=$1
@@ -86,13 +98,9 @@ createRangerPolicy() {
   # Prettify the json.
   json_payload=$(echo "$json_payload" | jq '.')
 
-  if [ "$DEBUG" == "true" ]; then
-    output=$(curl -s -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy)
-    echo "$output" | jq .
-  else
-    output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X POST $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy)
-    checkApiCallStatusCode "$output"
-  fi
+  curl_command="curl -w \"%{http_code}\" -u \"$RANGER_UI_USERNAME:$RANGER_UI_PASSWORD\" -H \"Content-Type: application/json\" -d '$json_payload' -X POST \"$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy\""
+
+  runCurlCommand "$curl_command"
 }
 
 # Update an existing Ranger policy.
@@ -103,26 +111,18 @@ putUpdatedRangerPolicyJson() {
   # Prettify the json.
   json_payload=$(echo "$json_payload" | jq '.')
 
-  if [ "$DEBUG" == "true" ]; then
-    output=$(curl -s -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
-    echo "$output" | jq .
-  else
-    output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -H "Content-Type: application/json" -d "$json_payload" -X PUT $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
-    checkApiCallStatusCode "$output"
-  fi
+  curl_command="curl -w \"%{http_code}\" -u \"$RANGER_UI_USERNAME:$RANGER_UI_PASSWORD\" -H \"Content-Type: application/json\" -d '$json_payload' -X PUT \"$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id\""
+
+  runCurlCommand "$curl_command"
 }
 
 # Delete one of the existing Ranger policies.
 deleteRangerPolicy() {
   id=$1
 
-  if [ "$DEBUG" == "true" ]; then
-    output=$(curl -s -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
-    echo "$output" | jq .
-  else
-    output=$(curl -s -o /dev/null -w "%{http_code}" -u "$RANGER_UI_USERNAME":"$RANGER_UI_PASSWORD" -X DELETE $RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id)
-    checkApiCallStatusCode "$output"
-  fi
+  curl_command="curl -w \"%{http_code}\" -u \"$RANGER_UI_USERNAME:$RANGER_UI_PASSWORD\" -X DELETE \"$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id\""
+
+  runCurlCommand "$curl_command"
 }
 
 getIdFromRangerPolicyJsonResponse() {

@@ -124,7 +124,7 @@ listContentsOnHdfsPath() {
   path=$1
   expectedEmptyResult=$2
   expectedOutput=$3
-  location=${4:-hdfs}
+  location=${4:-hdfs} # Ignored if the env is local.
 
   hdfs_cmd="hdfs dfs -ls /$path"
 
@@ -159,6 +159,8 @@ listContentsOnHdfsPath() {
       exit 1
     fi
   else
+    # A '-' is provided in case we don't want to check the output,
+    # but the env isn't local and we need to set a location.
     if [ "$expectedOutput" != "-" ]; then
       # If grep fails then it will exit.
       cat "$result" | grep "$expectedOutput"

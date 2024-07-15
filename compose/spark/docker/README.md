@@ -3,3 +3,18 @@ There is an issue with starting Spark worker with official Docker image apache/s
 More info can be found here: https://github.com/G-Research/gr-oss/issues/614
 
 Because of the above-mentioned issue, Dockerfile and entrypoint.sh are copied from official https://github.com/apache/spark-docker repo (SHA 4f2d96a415c89cfe0fde89a55e9034d095224c94). Dockerfile is further modified for our needs.
+
+## Debugger
+
+In case the debugger isn't working, you might need to rebuild the spark image.
+
+The easiest way is to remove the old image and then let docker-compose build it again during the first environment startup.
+
+```
+docker image ls | grep spark
+```
+get the image id
+
+```
+docker image rm <id>
+```

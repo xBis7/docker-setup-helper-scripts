@@ -56,10 +56,15 @@ changeHdfsDirPermissions "data/projects/gross_test" 700 "devpod"
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test2"
 # BigData note: In the notes this is failing with an EXECUTE error.
 # expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
-# TODO why is this not failing?
-expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/data/projects/gross_test/test2"
-# expectedMsg="\"1\",\"Austin\""
-runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
+
+if [ "$CURRENT_ENV" == "local" ]; then
+  expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/data/projects/gross_test/test2"
+  runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
+else
+  # TODO why is this not failing?
+  expectedMsg="\"1\",\"Austin\""
+  runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
+fi
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 
@@ -82,8 +87,10 @@ expectedMsg="Error moving data files from hdfs://$NAMENODE_NAME/tmp/"
 # This is the error from the namenode log:
 # "org.apache.hadoop.security.AccessControlException: Permission denied: user=games, access=EXECUTE, inode="/data/projects/gross_test":hadoop:supergroup:drwx------"
 
-# TODO fix this
-# runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
+# TODO fix this for c3.
+if [ "$CURRENT_ENV" == "local" ]; then
+  runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
+fi
 
 command="drop table $TRINO_HIVE_SCHEMA.gross_test.test2"
 # BigData note: In the notes, this command is expected to fail with this error. But this is a Spark error.

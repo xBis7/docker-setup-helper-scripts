@@ -9,4 +9,7 @@ compose/spark/conf/spark-events
 compose/spark/conf/hive-jars
 
 compose/hadoop/conf/ranger-jars
+<<<<<<< HEAD
 trino_output_tmp.txt
+=======
+>>>>>>> 0e14aee (fix automated tests)

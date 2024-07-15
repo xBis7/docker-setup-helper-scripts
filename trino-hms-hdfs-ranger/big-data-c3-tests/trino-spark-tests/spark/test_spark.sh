@@ -7,7 +7,9 @@ set -e
 
 abs_path=$1
 
-#./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
+if [ "$CURRENT_ENV" == "local" ]; then
+  ./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
+fi
 
 ./big-data-c3-tests/trino-spark-tests/spark/test_1.sh
 

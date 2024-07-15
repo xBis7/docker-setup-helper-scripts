@@ -15,10 +15,6 @@ policy_setup=$1
 if [ "$policy_setup" == "true" ]; then
   createHdfsDir "$HIVE_WAREHOUSE_DIR/gross_test.db"
 
-  # Create the tmp directory and provide world access to it so that Trino can use it.
-  createHdfsDir "tmp"
-  changeHdfsDirPermissions "tmp" 777
-
   updateHdfsPathPolicy "/$HIVE_WAREHOUSE_DIR/gross_test.db,/data/projects/gross_test" "read,write,execute:$SPARK_USER1"
 
   updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,select,update:$SPARK_USER1"

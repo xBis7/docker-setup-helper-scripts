@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./ranger_api/lib.sh"
+source "./ranger_api/env_variables.sh"
 
 set -e
 

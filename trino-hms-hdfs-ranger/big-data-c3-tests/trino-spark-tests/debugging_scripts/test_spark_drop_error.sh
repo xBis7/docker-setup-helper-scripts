@@ -5,16 +5,16 @@ source "./big-data-c3-tests/env_variables.sh"
 
 set -e
 
-abs_path=$1       # /home/project/...
-prepare_env=$2    # "true"
-iterations=$3     # 0 or 10 or 100 or ...
-check_result=$4   # "showDbAfter"
+abs_path=$1             # /home/project/...
+prepare_env=$2          # "true"
+iterations=$3           # 0 or 10 or 100 or ...
+after_test_check=$4     # "showDbsAfter"
 
 # Functions.
 checkResults() {
   check=$1
 
-  if [ "$check" == "showDbAfter" ]; then
+  if [ "$check" == "showDbsAfter" ]; then
 
     command="spark.sql(\"show databases\").show"
     expectedOutput="gross_test"
@@ -58,7 +58,12 @@ test4() {
   runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 }
 
-# Env setup.
+echo ""
+echo "## Drop DB fails with NoSuchNamespaceException ##"
+echo "## Check: https://github.com/G-Research/gr-oss/issues/720 ##"
+echo ""
+
+# Local env setup.
 if [ "$CURRENT_ENV" == "local" ] && [ "$prepare_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"
   ./setup/setup_docker_env.sh "$abs_path"
@@ -75,10 +80,12 @@ if [ "$CURRENT_ENV" == "local" ] && [ "$prepare_env" == "true" ]; then
   echo "- INFO: Updating Ranger policies. Loading base Hive URL policies. No user will have any access."
   ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
 
-  waitForPoliciesUpdate
   # If we try to change the policies while the Ranger container is still restarting,
   # the call will fail and the script will exit.
+  waitForPoliciesUpdate
+fi
 
+if [ "$prepare_env" == "true" ]; then
   # Copy the files here to make sure that they are available for test3.
   if [ "$CURRENT_ENV" == "local" ]; then
     copyTestFilesUnderSpark "$abs_path"
@@ -86,6 +93,7 @@ if [ "$CURRENT_ENV" == "local" ] && [ "$prepare_env" == "true" ]; then
 
   test3 "true"
 fi
+
 
 counter=0
 # If 'iterations' is 0, then it will run only once.
@@ -104,7 +112,7 @@ while [[ "$counter" -le "$iterations" ]]; do
     test4
   fi
 
-  checkResults "$check_result"
+  checkResults "$after_test_check"
 
   counter=$(($counter + 1))
 done

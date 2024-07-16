@@ -93,7 +93,7 @@ while [[ "$counter" -le "$iterations" ]]; do
 
   echo ""
   echo "--------------------------"
-  echo "Starting iteration '$iterations'"
+  echo "Starting iteration '$counter'"
   echo "--------------------------"
   echo ""
 

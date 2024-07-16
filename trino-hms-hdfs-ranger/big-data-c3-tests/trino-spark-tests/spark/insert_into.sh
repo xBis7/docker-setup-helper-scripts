@@ -40,7 +40,7 @@ updateHiveDbAllPolicy "gross_test" "select:$SPARK_USER1"
 updateHiveDefaultDbPolicy "select:$SPARK_USER1"
 waitForPoliciesUpdate
 
-# exit
+exit
 
 # Run the command manually and connect the debugger from Spark? Doesn't hit the breakpoint from hive.
 # Don't forget to copy the hive jars under spark.

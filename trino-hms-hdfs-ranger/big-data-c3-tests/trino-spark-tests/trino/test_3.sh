@@ -36,3 +36,5 @@ expectedErrorMsg="Permission denied: user=$TRINO_USER1, access=EXECUTE, inode=\"
 # 3rd parameter: 'shouldPass' if the command should succeed and 'shouldFail' if the command should fail
 # 4th parameter: the expected output message. For Trino all commands (whether successful or not) have an expected output message.
 runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedErrorMsg"
+
+verifyCreateWriteFailure "trino" "createDb" "gross_test"

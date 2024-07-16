@@ -37,6 +37,8 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privile
 # 4th parameter: the expected output message. For Trino all commands (whether successful or not) have an expected output message.
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
 
+verifyCreateWriteFailure "trino" "dropTable" "gross_test" "test"
+
 command="alter table $TRINO_HIVE_SCHEMA.gross_test.test rename to $TRINO_HIVE_SCHEMA.gross_test.test2"
 expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privilege on [gross_test/test]"
 
@@ -46,3 +48,5 @@ command="create table $TRINO_HIVE_SCHEMA.gross_test.test2 (id int, greeting varc
 expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
+
+verifyCreateWriteFailure "trino" "createTable" "gross_test" "test2"

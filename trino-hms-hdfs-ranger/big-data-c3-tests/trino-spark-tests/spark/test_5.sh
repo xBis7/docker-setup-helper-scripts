@@ -39,5 +39,5 @@ expectedErrorMsg="Permission denied: user [$SPARK_USER1] does not have [WRITE] p
 
 runSpark "$SPARK_USER1" "$command" "shouldFail" "$expectedErrorMsg"
 
-verifySparkCreateWriteFailure "createDb" "gross_test"
+verifyCreateWriteFailure "spark" "createDb" "gross_test"
 

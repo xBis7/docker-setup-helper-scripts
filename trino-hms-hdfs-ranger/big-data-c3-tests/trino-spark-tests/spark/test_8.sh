@@ -76,4 +76,4 @@ expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
-verifySparkCreateWriteFailure "insertInto" "gross_test" "test" "4"
+verifyCreateWriteFailure "spark" "insertInto" "gross_test" "test" "4"

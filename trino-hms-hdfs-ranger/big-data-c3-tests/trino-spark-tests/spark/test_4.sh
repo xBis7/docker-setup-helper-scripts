@@ -33,4 +33,4 @@ expectedErrorMsg="Permission denied: user [$SPARK_USER2] does not have [DROP] pr
 # 4th parameter: the expected error message if the previous parameter is 'shouldFail'
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
-verifySparkCreateWriteFailure "dropDb" "gross_test"
+verifyCreateWriteFailure "spark" "dropDb" "gross_test"

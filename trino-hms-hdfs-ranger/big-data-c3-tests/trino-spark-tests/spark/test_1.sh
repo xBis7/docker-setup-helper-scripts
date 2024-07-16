@@ -45,4 +45,4 @@ expectedErrorMsg="Permission denied: user [$SPARK_USER1] does not have [CREATE] 
 # 4th parameter: the expected error message if the previous parameter is 'shouldFail'
 runSpark "$SPARK_USER1" "$command" "shouldFail" "$expectedErrorMsg"
 
-verifySparkCreateWriteFailure "createDb" "gross_test"
+verifyCreateWriteFailure "spark" "createDb" "gross_test"

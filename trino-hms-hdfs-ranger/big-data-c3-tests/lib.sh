@@ -235,96 +235,6 @@ runSpark() {
   runScalaFileInSparkShell "bin/spark-shell --conf spark.expect_exception=\"$expect_exception\" --conf spark.encoded.command=\"$encoded_cmd\" --conf spark.encoded.expected_output=\"$encoded_output\" -I $file" "$user"
 }
 
-verifySparkCreateWriteFailure() {
-  # Run all checks as user1 for now.
-  operation=$1
-  db_name=$2
-  table_name=$3
-  insert_id=$4 # All tables have an id field.
-
-  if [ "$operation" == "createDb" ]; then
-    echo ""
-    echo "=> Testing that the db hasn't been created."
-    echo ""
-    # If createDb failed, then db shouldn't exist.
-    command="spark.sql(\"show tables in $db_name\").show"
-    expectedOutput="Database '$db_name' not found"
-    
-    runSpark "$SPARK_USER1" "$command" "shouldFail" "$expectedOutput"
-
-    echo ""
-    echo "=> Verified successfully that the db hasn't been created."
-    echo ""
-  elif [ "$operation" == "dropDb" ]; then
-    echo ""
-    echo "=> Testing that the db hasn't been dropped."
-    echo ""
-    # If dropDb failed, then db should exist in show databases.
-    command="spark.sql(\"show databases\").show"
-    expectedOutput="|$db_name|"
-    
-    runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
-
-    echo ""
-    echo "=> Verified successfully that the db hasn't been dropped."
-    echo ""
-  elif [ "$operation" == "createTable" ]; then
-    echo ""
-    echo "=> Testing that the table hasn't been created."
-    echo ""
-    # If createTable failed, then select from the table should fail.
-    command="spark.sql(\"select * from $db_name.$table_name\").show"
-    expectedOutput="Table or view not found: $db_name.$table_name;"
-
-    runSpark "$SPARK_USER1" "$command" "shouldFail" "$expectedOutput"
-
-    echo ""
-    echo "=> Verified successfully that the table hasn't been created."
-    echo ""
-  elif [ "$operation" == "dropTable" ]; then
-    echo ""
-    echo "=> Testing that the table hasn't been dropped."
-    echo ""
-    # If dropTable failed, then the table should exist in show tables from the db.
-    command="spark.sql(\"show tables from $db_name\").show"
-    expectedOutput="$table_name"
-
-    runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
-
-    echo ""
-    echo "=> Verified successfully that the table hasn't been dropped."
-    echo ""
-  elif [ "$operation" == "insertInto" ]; then
-    echo ""
-    echo "=> Testing that the data haven't been inserted into the table."
-    echo ""
-    # In most insert into calls, the table isn't empty.
-    # Therefore, it doesn't make sense to check the table dir in HDFS.
-
-    # All tables have an id column. Check that the provided id
-    # hasn't been inserted into the table.
-
-    command="spark.sql(\"select id from $db_name.$table_name where id=$insert_id\").show"
-    expectedOutput=$(cat <<EOF
-+---+
-| id|
-+---+
-+---+
-EOF
-)
-
-    runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
-
-    echo ""
-    echo "=> Verified successfully that the data haven't been inserted into the table."
-    echo ""
-  else
-    echo ""
-    echo "Invalid operation. Try one of the following: createDb, dropDb, createTable, dropTable, insertInto"
-    echo ""
-  fi
-}
-
 # -- TRINO TESTS --
 runTrino() {
   user=$1
@@ -380,6 +290,141 @@ runTrino() {
     echo "Command '$resultMsg' as expected."
     echo "The output matched the provided message!"
     echo "=========================="
+    echo ""
+  fi
+}
+
+# -- CHECK CREATE/WRITE FAILURES --
+verifyCreateWriteFailure() {
+  # Run all checks as user1 for now.
+  component=$1
+  operation=$2
+  db_name=$3
+  table_name=$4
+  insert_id=$5 # All tables have an id field.
+
+  if [ "$operation" == "createDb" ]; then
+    echo ""
+    echo "=> Testing that the db hasn't been created."
+    echo ""
+
+    # If createDb failed, then show tables in db should return that db doesn't exist.
+
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"show tables in $db_name\").show"
+      expectedOutput="Database '$db_name' not found"
+
+      runSpark "$SPARK_USER1" "$command" "shouldFail" "$expectedOutput"
+    else
+      command="show tables in $TRINO_HIVE_SCHEMA.$db_name"
+      expectedOutput="Schema '$db_name' does not exist"
+
+      runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedOutput" "user"
+    fi
+
+    echo ""
+    echo "=> Verified successfully that the db hasn't been created."
+    echo ""
+  elif [ "$operation" == "dropDb" ]; then
+    echo ""
+    echo "=> Testing that the db hasn't been dropped."
+    echo ""
+
+    # If dropDb failed, then db should exist in show databases.
+
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"show databases\").show"
+      expectedOutput="|$db_name|"
+
+      runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
+    else
+      command="show schemas in $TRINO_HIVE_SCHEMA"
+      expectedOutput="$db_name"
+
+      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput" "user"
+    fi
+
+    echo ""
+    echo "=> Verified successfully that the db hasn't been dropped."
+    echo ""
+  elif [ "$operation" == "createTable" ]; then
+    echo ""
+    echo "=> Testing that the table hasn't been created."
+    echo ""
+
+    # If createTable failed, then select table should fail.
+
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"select * from $db_name.$table_name\").show"
+      expectedOutput="Table or view not found: $db_name.$table_name;"
+
+      runSpark "$SPARK_USER1" "$command" "shouldFail" "$expectedOutput"
+    else
+      command="select * from $TRINO_HIVE_SCHEMA.$db_name.$table_name"
+      expectedOutput="Table '$TRINO_HIVE_SCHEMA.$db_name.$table_name' does not exist"
+
+      runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedOutput"
+    fi
+
+    echo ""
+    echo "=> Verified successfully that the table hasn't been created."
+    echo ""
+  elif [ "$operation" == "dropTable" ]; then
+    echo ""
+    echo "=> Testing that the table hasn't been dropped."
+    echo ""
+
+    # If dropTable failed, then the table should exist in show tables from db.
+
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"show tables from $db_name\").show"
+      expectedOutput="$table_name"
+
+      runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
+    else
+      command="show tables in $TRINO_HIVE_SCHEMA.$db_name"
+      expectedOutput="$table_name"
+
+      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput" "user"
+    fi
+
+    echo ""
+    echo "=> Verified successfully that the table hasn't been dropped."
+    echo ""
+  elif [ "$operation" == "insertInto" ]; then
+    echo ""
+    echo "=> Testing that the data haven't been inserted into the table."
+    echo ""
+    # In most insert into calls, the table isn't empty.
+    # Therefore, it doesn't make sense to check the table dir in HDFS.
+
+    # All tables have an id column. Check that the provided id
+    # hasn't been inserted into the table.
+
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"select id from $db_name.$table_name where id=$insert_id\").show"
+      expectedOutput=$(cat <<EOF
++---+
+| id|
++---+
++---+
+EOF
+)
+
+      runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
+    else
+      command="select id from $TRINO_HIVE_SCHEMA.$db_name.$table_name where id=$insert_id"
+      expectedOutput="(0 rows)"
+
+      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
+    fi
+
+    echo ""
+    echo "=> Verified successfully that the data haven't been inserted into the table."
+    echo ""
+  else
+    echo ""
+    echo "Invalid operation. Try one of the following: createDb, dropDb, createTable, dropTable, insertInto"
     echo ""
   fi
 }

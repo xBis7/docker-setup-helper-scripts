@@ -80,12 +80,16 @@ expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data
 # TODO fix this for c3.
 if [ "$CURRENT_ENV" == "local" ]; then
   runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
+
+  verifyCreateWriteFailure "trino" "insertInto" "gross_test" "test2" "2"
 fi
 
 command="drop table $TRINO_HIVE_SCHEMA.gross_test.test2"
 expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test2]"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
+
+verifyCreateWriteFailure "trino" "dropTable" "gross_test" "test2"
 
 command="alter table $TRINO_HIVE_SCHEMA.gross_test.test2 rename to $TRINO_HIVE_SCHEMA.gross_test.test3"
 expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privilege on [gross_test/test2]"
@@ -102,3 +106,5 @@ command="create table $TRINO_HIVE_SCHEMA.gross_test.test3 (id int, name varchar)
 expectedMsg="Permission denied: user=$TRINO_USER2, access=WRITE, inode=\"/data/projects\":"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
+
+verifyCreateWriteFailure "trino" "createTable" "gross_test" "test3"

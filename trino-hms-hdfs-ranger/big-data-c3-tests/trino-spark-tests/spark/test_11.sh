@@ -99,12 +99,16 @@ expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
+verifySparkCreateWriteFailure "insertInto" "gross_test" "test2" "4"
+
 # Drop.
 command="spark.sql(\"drop table gross_test.test2\")"
 
 expectedErrorMsg="Permission denied: user [$SPARK_USER2] does not have [DROP] privilege on [gross_test/test2]"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
+
+verifySparkCreateWriteFailure "dropTable" "gross_test" "test2"
 
 # Alter.
 command="spark.sql(\"alter table gross_test.test2 rename to gross_test.test3\")"
@@ -120,3 +124,4 @@ expectedErrorMsg="Permission denied: user [$SPARK_USER2] does not have [CREATE] 
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
+verifySparkCreateWriteFailure "createTable" "gross_test" "test3"

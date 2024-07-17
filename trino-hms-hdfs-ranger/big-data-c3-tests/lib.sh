@@ -268,7 +268,13 @@ runTrino() {
   echo ""
 
   if [ "$CURRENT_ENV" == "local" ]; then
+<<<<<<< HEAD
     docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --debug --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
+=======
+    # Use '--output-format ALIGNED' to make sure that there is always output and it has the correct format.
+    # This option, aligns the output columns in tabs.
+    docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --output-format ALIGNED --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
+>>>>>>> 6094321 (specify the output format for trino commands)
   else
     # TODO: enable --debug for c3.
     eval "$TRINO_BIN_PATH" "--server $TRINO_HOSTNAME" "--access-token=$(echo -n $access_token | base64 --decode)" "--user $user" "--execute \"$trino_cmd\"" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"

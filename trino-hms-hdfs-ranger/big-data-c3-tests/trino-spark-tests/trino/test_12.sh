@@ -60,7 +60,7 @@ if [ "$CURRENT_ENV" == "local" ]; then
   runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 else
   # TODO why is this not failing?
-  expectedMsg="\"1\",\"Austin\""
+  expectedMsg="  1 | Austin "
   runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 fi
 
@@ -70,7 +70,7 @@ updateHdfsPathPolicy "/data/projects/gross_test,/$TRINO_HIVE_WAREHOUSE_DIR/gross
 waitForPoliciesUpdate
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test2"
-expectedMsg="\"1\",\"Austin\""
+expectedMsg="  1 | Austin "
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 

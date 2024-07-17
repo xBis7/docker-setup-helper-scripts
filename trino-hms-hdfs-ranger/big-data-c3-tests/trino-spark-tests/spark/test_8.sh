@@ -54,7 +54,7 @@ runSpark "$SPARK_USER2" "$command" "shouldPass"
 # BigData note: User1 created the directory and the default permissions are 755.
 # Change permissions here to get an HDFS POSIX permissions error and
 # check that creating a Ranger policy fixes it.
-changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR/gross_test.db" 750
+changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR/gross_test.db" 744
 
 command="spark.sql(\"select * from gross_test.test\")"
 expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"

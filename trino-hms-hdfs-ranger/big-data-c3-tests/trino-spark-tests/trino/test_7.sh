@@ -20,8 +20,8 @@ echo ""
 #
 # We can update Hive Warehouse directory to provide WRITE access for 'group'.
 #
-# changeHdfsDirPermissions "$TRINO_HIVE_WAREHOUSE_PARENT_DIR" 755 "devpod"
-# changeHdfsDirPermissions "$TRINO_HIVE_WAREHOUSE_DIR" 755 "devpod"
+# changeHdfsDirPermissions "$TRINO_HIVE_WAREHOUSE_PARENT_DIR" 744 "devpod"
+# changeHdfsDirPermissions "$TRINO_HIVE_WAREHOUSE_DIR" 744 "devpod"
 #
 # or we can provide access through HDFS policies
 #

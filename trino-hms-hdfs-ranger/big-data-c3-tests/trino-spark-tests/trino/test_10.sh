@@ -63,7 +63,7 @@ runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 
 # BigData note: Change permissions here to get an HDFS POSIX permissions error and
 # check that creating a Ranger policy fixes it.
-changeHdfsDirPermissions "$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" 700 "devpod"
+changeHdfsDirPermissions "$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" 744 "devpod"
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test"
 # BigData note: This is the expected error according to the notes for POSIX permission access drwx------.

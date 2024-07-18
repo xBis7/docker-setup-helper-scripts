@@ -63,7 +63,7 @@ expectedOutput="|Location                    |hdfs://$NAMENODE_NAME/data/project
 runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
 
 # BigData note: Change directory permissions so that another user won't be able to execute on HDFS paths without a Ranger policy. 
-changeHdfsDirPermissions "data/projects/gross_test" 750
+changeHdfsDirPermissions "data/projects/gross_test" 744
 
 # Run commands as user2.
 

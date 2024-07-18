@@ -305,11 +305,14 @@ verifyCreateWriteFailure() {
   table_name=$4
   insert_id=$5 # All tables have an id field.
 
-  if [ "$operation" == "createDb" ]; then
-    echo ""
-    echo "=> Testing that the db hasn't been created."
-    echo ""
+  echo ""
+  echo "=> Testing that '$operation' has failed as expected."
+  echo ""
 
+  # Temporarily disable the flag so that we can handle the error.
+  set +e
+
+  if [ "$operation" == "createDb" ]; then
     # If createDb failed, then show tables in db should return that db doesn't exist.
 
     if [ "$component" == "spark" ]; then
@@ -323,15 +326,7 @@ verifyCreateWriteFailure() {
 
       runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedOutput" "user"
     fi
-
-    echo ""
-    echo "=> Verified successfully that the db hasn't been created."
-    echo ""
   elif [ "$operation" == "dropDb" ]; then
-    echo ""
-    echo "=> Testing that the db hasn't been dropped."
-    echo ""
-
     # If dropDb failed, then db should exist in show databases.
 
     if [ "$component" == "spark" ]; then
@@ -345,15 +340,7 @@ verifyCreateWriteFailure() {
 
       runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput" "user"
     fi
-
-    echo ""
-    echo "=> Verified successfully that the db hasn't been dropped."
-    echo ""
   elif [ "$operation" == "createTable" ]; then
-    echo ""
-    echo "=> Testing that the table hasn't been created."
-    echo ""
-
     # If createTable failed, then select table should fail.
 
     if [ "$component" == "spark" ]; then
@@ -367,15 +354,7 @@ verifyCreateWriteFailure() {
 
       runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedOutput"
     fi
-
-    echo ""
-    echo "=> Verified successfully that the table hasn't been created."
-    echo ""
   elif [ "$operation" == "dropTable" ]; then
-    echo ""
-    echo "=> Testing that the table hasn't been dropped."
-    echo ""
-
     # If dropTable failed, then the table should exist in show tables from db.
 
     if [ "$component" == "spark" ]; then
@@ -389,14 +368,7 @@ verifyCreateWriteFailure() {
 
       runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput" "user"
     fi
-
-    echo ""
-    echo "=> Verified successfully that the table hasn't been dropped."
-    echo ""
   elif [ "$operation" == "insertInto" ]; then
-    echo ""
-    echo "=> Testing that the data haven't been inserted into the table."
-    echo ""
     # In most insert into calls, the table isn't empty.
     # Therefore, it doesn't make sense to check the table dir in HDFS.
 
@@ -420,15 +392,33 @@ EOF
 
       runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
     fi
-
-    echo ""
-    echo "=> Verified successfully that the data haven't been inserted into the table."
-    echo ""
   else
     echo ""
     echo "Invalid operation. Try one of the following: createDb, dropDb, createTable, dropTable, insertInto"
     echo ""
+
+    # Enable the flag again before exiting.
+    set -e
+    exit 1
   fi
+
+  # Get the exit_code from the testing call.
+  exit_code=$?
+
+  # Enable the flag again before exiting.
+  set -e
+
+  if [ "$exit_code" -ne 0 ]; then
+    echo ""
+    echo "=> There was an error. '$operation' was expected to have failed but it was successful."
+    echo ""
+
+    exit 1
+  fi
+
+  echo ""
+  echo "=> Verified successfully that '$operation' has failed."
+  echo ""
 }
 
 # -- LOAD TESTING --

@@ -1,36 +1,40 @@
 <?xml version="1.0"?>
 <configuration>
 
-    <property>
-        <name>fs.defaultFS</name>
-        <value>hdfs://namenode</value>
-    </property>
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://namenode</value>
+  </property>
 
-    <property>
-        <name>fs.defaultFS.name</name>
-        <value>hdfs://namenode</value>
-    </property>
+  <property>
+    <name>fs.defaultFS.name</name>
+    <value>hdfs://namenode</value>
+  </property>
 
-    <!-- After enabling trino impersonation, trino communicates with HDFS -->
-    <!-- either as 'trino' proxy user or 'hive' proxy user. -->
-    <!-- With these properties we are allowing the proxy users to authenticate with HDFS. -->
-    <property>
-      <name>hadoop.proxyuser.trino.hosts</name>
-      <value>*</value>
-    </property>
-    <property>
-      <name>hadoop.proxyuser.trino.groups</name>
-      <value>*</value>
-    </property>
+  <!-- After enabling trino impersonation, trino communicates with HDFS -->
+  <!-- either as 'trino' proxy user or 'hive' proxy user. -->
+  <!-- With these properties we are allowing the proxy users to authenticate with HDFS. -->
+  <property>
+    <name>hadoop.proxyuser.trino.hosts</name>
+    <value>*</value>
+  </property>
+  <property>
+    <name>hadoop.proxyuser.trino.groups</name>
+    <value>*</value>
+  </property>
 
-    <property>
-      <name>hadoop.proxyuser.hive.hosts</name>
-      <value>*</value>
-    </property>
-    <property>
-      <name>hadoop.proxyuser.hive.groups</name>
-      <value>*</value>
-    </property>
+  <property>
+    <name>hadoop.proxyuser.hive.hosts</name>
+    <value>*</value>
+  </property>
+  <property>
+    <name>hadoop.proxyuser.hive.groups</name>
+    <value>*</value>
+  </property>
 
+  <property>
+    <name>hadoop.security.key.provider.path</name>
+    <value>kms://http@ranger-kms:9292/kms</value>
+  </property>
 
 </configuration>

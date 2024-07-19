@@ -366,6 +366,7 @@ deleteRangerDockerImages() {
   docker image rm --force ranger-solr:latest
   docker image rm --force ranger-postgres:latest
   docker image rm --force ranger-zk:latest
+  docker image rm --force ranger-kms:latest
 }
 
 handleRangerEnv() {

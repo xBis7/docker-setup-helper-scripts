@@ -6,6 +6,7 @@ PROJECT_HADOOP="hadoop"
 PROJECT_HIVE="hive"
 PROJECT_TRINO="trino"
 PROJECT_SPARK="spark"
+PROJECT_ZOOKEEPER="zookeeper"
 
 # Current repo paths
 CURRENT_REPO="docker-setup-helper-scripts"
@@ -117,6 +118,8 @@ RANGER_AUDIT_JAR_NAME="ranger-plugins-audit-$RANGER_BUILD_VERSION.jar"
 RANGER_HDFS_JAR_NAME="ranger-hdfs-plugin-$RANGER_BUILD_VERSION.jar"
 RANGER_HIVE_JAR_NAME="ranger-hive-plugin-$RANGER_BUILD_VERSION.jar"
 
+RANGER_KMS_JAR_NAME="ranger-kms-plugin-$RANGER_BUILD_VERSION.jar"
+
 # Ranger jars, paths from Ranger project root
 RANGER_COMMON_UBER_JAR="agents-common/target/$RANGER_COMMON_UBER_JAR_NAME"
 RANGER_COMMON_JAR="agents-common/target/$RANGER_COMMON_JAR_NAME"
@@ -124,6 +127,8 @@ RANGER_AUDIT_JAR="agents-audit/target/$RANGER_AUDIT_JAR_NAME"
 
 RANGER_HDFS_JAR="hdfs-agent/target/$RANGER_HDFS_JAR_NAME"
 RANGER_HIVE_JAR="hive-agent/target/$RANGER_HIVE_JAR_NAME"
+
+RANGER_KMS_JAR="plugin-kms/target/$RANGER_KMS_JAR_NAME"
 
 # Hive jars names
 HIVE_BEELINE_JAR_NAME="hive-beeline-$HIVE_BUILD_VERSION.jar"
@@ -335,10 +340,12 @@ setupRangerJarsIfNeeded() {
   ranger_common_uber_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_COMMON_UBER_JAR"
   ranger_audit_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_AUDIT_JAR"
   ranger_hdfs_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_HDFS_JAR"
+  ranger_kms_jar_path="$abs_path/$PROJECT_RANGER/$RANGER_KMS_JAR"
 
   cpJarIfNotExist "$jars_dir_path" "$ranger_common_uber_jar_path" "$RANGER_COMMON_UBER_JAR"
   cpJarIfNotExist "$jars_dir_path" "$ranger_audit_jar_path" "$RANGER_AUDIT_JAR"
   cpJarIfNotExist "$jars_dir_path" "$ranger_hdfs_jar_path" "$RANGER_HDFS_JAR"
+  cpJarIfNotExist "$jars_dir_path" "$ranger_kms_jar_path" "$RANGER_KMS_JAR"
 }
 
 deleteRangerDistTarballs() {
@@ -583,6 +590,32 @@ handleSparkEnv() {
     echo "Cleaning up $SPARK_EVENTS_DIR dir."
     rm -rf $spark_path/conf/$SPARK_EVENTS_DIR
 
+  fi
+}
+
+handleZookeeperEnv() {
+  abs_path=$1
+  op=$2
+
+  zookeeper_path="$abs_path/docker-setup-helper-scripts/compose/zookeeper"
+  docker_compose_path="$zookeeper_path/docker-compose.yml"
+
+  if [ "$op" == "start" ]; then
+    echo ""
+    echo "Starting '$PROJECT_ZOOKEEPER' env."
+
+    docker compose -p zookeeper -f $docker_compose_path up -d
+
+    echo ""
+    echo "'$PROJECT_ZOOKEEPER' env started."
+  else
+    echo ""
+    echo "Stopping '$PROJECT_ZOOKEEPER' env."
+
+    docker compose -p zookeeper -f $docker_compose_path down
+
+    echo ""
+    echo "'$PROJECT_ZOOKEEPER' env stopped."
   fi
 }
 

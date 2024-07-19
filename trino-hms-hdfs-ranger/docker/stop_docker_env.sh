@@ -10,6 +10,8 @@ abs_path=$1
 # Ranger was started first but now we need to stop it
 # last so that the network will be properly removed.
 
+# handleZookeeperEnv "$abs_path" "start"
+
 handleTrinoEnv "$abs_path" "stop"
 
 handleSparkEnv "$abs_path" "stop"

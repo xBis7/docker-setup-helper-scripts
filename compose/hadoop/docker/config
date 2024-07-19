@@ -15,22 +15,49 @@ HDFS-SITE.XML_dfs.namenode.rpc-address=namenode:8020
 HDFS-SITE.XML_dfs.replication=1
 
 HDFS-SITE.XML_dfs.encryption.key.provider.uri=kms://http@ranger-kms:9292/kms
+# HDFS_SITE.XML_hadoop.kms.security.authorization.manager=org.apache.ranger.authorization.kms.authorizer.RangerKmsAuthorizer
+HDFS_SITE.XML_dfs.encryption.key.provider.authority=kms://http@ranger-kms:9292/kms
+HDFS_SITE.XML_dfs.encryption.key.provider.classname=org.apache.hadoop.crypto.key.kms.RangerKmsAuthorizer
 # HDFS-SITE.XML_dfs.encryption.key.provider.uri=http://ranger-kms:9292/kms
-
-KMS_SITE.XML_hadoop.kms.proxyuser.keyadmin.groups=*
-KMS_SITE.XML_hadoop.kms.proxyuser.keyadmin.hosts=*
-KMS_SITE.XML_hadoop.kms.proxyuser.keyadmin.users=*
-KMS_SITE.XML_hadoop.kms.proxyuser.hadoop.groups=*
-KMS_SITE.XML_hadoop.kms.proxyuser.hadoop.hosts=*
-KMS_SITE.XML_hadoop.kms.proxyuser.hadoop.users=*
-KMS_SITE.XML_hadoop.kms.cache.enable=false
-KMS_SITE.XML_hadoop.kms.authentication.type=simple
+HDFS_SITE.XML_dfs.client.ignore.namenode.default.kms.uri=true
 
 # Security - Ranger
 HDFS-SITE.XML_dfs.permissions.enabled=true
 HDFS-SITE.XML_dfs.namenode.acls.enabled=true
 HDFS-SITE.XML_dfs.permissions.ContentSummary.subAccess=true
 HDFS-SITE.XML_dfs.namenode.inode.attributes.provider.class=org.apache.ranger.authorization.hadoop.RangerHdfsAuthorizer
+
+KMS_SITE.XML_hadoop.kms.audit.aggregation.window.ms=10000
+KMS_SITE.XML_hadoop.kms.authentication.signer.secret.provider=zookeeper
+KMS_SITE.XML_hadoop.kms.authentication.signer.secret.provider.zookeeper.auth.type=sasl
+KMS_SITE.XML_hadoop.kms.authentication.signer.secret.provider.zookeeper.path=/hadoop-kms/hadoop-auth-signature-secret
+KMS_SITE.XML_hadoop.kms.authentication.type=simple
+KMS_SITE.XML_hadoop.kms.cache.enable=false
+# KMS_SITE.XML_hadoop.kms.cache.enable=true
+# KMS_SITE.XML_hadoop.kms.cache.timeout.ms=600000
+# KMS_SITE.XML_hadoop.kms.current.key.cache.timeout.ms=30000
+KMS_SITE.XML_hadoop.kms.proxyuser.HTTP.groups='*'
+KMS_SITE.XML_hadoop.kms.proxyuser.HTTP.hosts='*'
+KMS_SITE.XML_hadoop.kms.proxyuser.hdfs.groups='*'
+KMS_SITE.XML_hadoop.kms.proxyuser.hdfs.hosts='*'
+KMS_SITE.XML_hadoop.kms.proxyuser.hive.groups='*'
+KMS_SITE.XML_hadoop.kms.proxyuser.hive.hosts='*'
+KMS_SITE.XML_hadoop.kms.proxyuser.ranger.groups='*'
+KMS_SITE.XML_hadoop.kms.proxyuser.ranger.hosts='*'
+KMS_SITE.XML_hadoop.kms.key.provider.uri=kms://http@ranger-kms:9292/kms
+KMS_SITE.XML_hadoop.kms.security.authorization.manager=org.apache.ranger.authorization.kms.authorizer.RangerKmsAuthorizer
+
+# KMS_SITE.XML_hadoop.kms.authentication.signer.secret.provider.zookeeper.connection.string="{{ ranger_kms.zookeeper_connect_string }}"
+
+# KMS_SITE.XML_ranger.keystore.file.type=jks
+# KMS_SITE.XML_ranger.truststore.file.type=jks
+
+# KMS_SITE.XML_hadoop.kms.authentication.zk-dt-secret-manager.enable=true
+# KMS_SITE.XML_hadoop.kms.authentication.zk-dt-secret-manager.zkConnectionString="{{ ranger_kms.zookeeper_connect_string }}"
+# KMS_SITE.XML_hadoop.kms.authentication.zk-dt-secret-manager.znodeWorkingPath=hadoop-kms-dt
+# KMS_SITE.XML_hadoop.kms.authentication.zk-dt-secret-manager.zkAuthType=sasl
+
+# KMS_SITE.XML_ranger.accesslog.rotate.max.days=5
 
 MAPRED-SITE.XML_mapreduce.framework.name=yarn
 MAPRED-SITE.XML_yarn.app.mapreduce.am.env=HADOOP_MAPRED_HOME=$HADOOP_HOME

@@ -30,3 +30,7 @@ command="spark.sql(\"create database gross_test location '/data/projects/gross_t
 # 3rd parameter: 'shouldPass' if the command should succeed and 'shouldFail' if the command should fail
 # 4th parameter: the expected error message if the previous parameter is 'shouldFail'
 runSpark "$SPARK_USER1" "$command" "shouldPass"
+
+# Update permissions to the parent dir.
+changeHdfsDirPermissions "$EXTERNAL_HIVE_DB_PATH" 755
+changeHdfsDirPermissions "$EXTERNAL_HIVE_DB_PARENT_PATH" 755

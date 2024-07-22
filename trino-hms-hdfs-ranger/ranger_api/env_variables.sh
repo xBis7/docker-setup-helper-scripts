@@ -9,13 +9,17 @@ HIVE_DEFAULTDB_POLICY_NAME="default database tables columns"
 HIVE_DEFAULTDB_POLICY_URI_NAME="default%20database%20tables%20columns"
 HIVE_URL_POLICY_NAME="all - url"
 HIVE_URL_POLICY_URI_NAME="all%20-%20url"
+KEYNAME_POLICY_NAME="all - keyname"
+KEYNAME_POLICY_URI_NAME="all%20-%20keyname"
 
 # Service names.
 HADOOP_RANGER_SERVICE="hadoopdev"
 HIVE_RANGER_SERVICE="hivedev"
+KMS_RANGER_SERVICE="kmsdev"
 
 # Ranger ui variables.
 RANGER_UI_USERNAME="admin"
+RANGER_KEY_UI_USERNAME="keyadmin"
 RANGER_UI_PASSWORD="rangerR0cks!"
 RANGER_UI_HOSTNAME="http://localhost"
 RANGER_UI_PORT="6080"

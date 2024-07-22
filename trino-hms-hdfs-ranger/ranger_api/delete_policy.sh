@@ -17,4 +17,9 @@ id=$(getIdFromRangerPolicyJsonResponse "$policy_res")
 echo ""
 echo "-- Deleting Ranger policy with id: $id"
 
-deleteRangerPolicy "$id"
+policy_type=
+if [ "$service" == "kms" ]; then
+  policy_type="isKeyPolicy"
+fi
+
+deleteRangerPolicy "$id" "$policy_type"

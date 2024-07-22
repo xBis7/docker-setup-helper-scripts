@@ -25,6 +25,9 @@ checkIfPolicyExists "hive" "defaultdb"
 ./ranger_api/delete_policy.sh "hive" "url"
 checkIfPolicyExists "hive" "url"
 
+./ranger_api/delete_policy.sh "kms" "all"
+checkIfPolicyExists "kms" "all"
+
 # Create the policies again with new values and validate the values in the Ranger Admin service.
 ./ranger_api/create_update/create_update_hdfs_path_policy.sh "create" "read,write:hadoop" "/*"
 validateRangerData "hdfs" "all" "read,write:hadoop" "path" "/*"
@@ -38,6 +41,9 @@ validateRangerData "hive" "defaultdb" "select,drop:hadoop/alter,read:spark"
 ./ranger_api/create_update/create_update_hive_url_policy.sh "create" "read:spark"
 validateRangerData "hive" "url" "read:spark"
 
+./ranger_api/create_update/create_update_kms_key_policy.sh "create" "create,delete,get,getkeys,getmetadata:keyadmin,hadoop"
+validateRangerData "kms" "all" "create,delete,get,getkeys,getmetadata:keyadmin,hadoop"
+
 # Update all policies with more or less allow conditions and validate the values in the Ranger Admin service.
 ./ranger_api/create_update/create_update_hdfs_path_policy.sh "put" "read,write:hadoop/execute:spark" "/dir1,/test/*"
 validateRangerData "hdfs" "all" "read,write:hadoop/execute:spark" "path" "/dir1,/test/*"
@@ -50,3 +56,6 @@ validateRangerData "hive" "defaultdb" "select,index,lock:spark" "column" "test_c
 
 ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "read:spark/write:hadoop"
 validateRangerData "hive" "url" "read:spark/write:hadoop"
+
+./ranger_api/create_update/create_update_kms_key_policy.sh "put" "create,delete,rollover,setkeymaterial,get,getkeys,getmetadata,generateeek,decrypteek:hadoop"
+validateRangerData "kms" "all" "create,delete,rollover,setkeymaterial,get,getkeys,getmetadata,generateeek,decrypteek:hadoop"

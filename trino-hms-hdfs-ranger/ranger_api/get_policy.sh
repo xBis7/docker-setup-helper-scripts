@@ -14,6 +14,7 @@ policy=$2
 # "hive" "all_db"
 # "hive" "defaultdb"
 # "hive" "url"
+# "kms" "all"
 
 # Get the JSON response from the Ranger API.
 policy_res=$(getRangerPolicyJsonResponseUsingShortNames "$service" "$policy")

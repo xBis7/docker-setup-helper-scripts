@@ -94,6 +94,7 @@ HMS_POSTGRES_HOSTNAME="hive-metastore-ranger-postgres-1"
 RANGER_HOSTNAME="ranger"
 RANGER_POSTGRES_HOSTNAME="ranger-postgres"
 RANGER_USERSYNC_HOSTNAME="ranger-usersync"
+RANGER_KMS_HOSTNAME="ranger-kms"
 
 TRINO_HOSTNAME="trino-coordinator-1"
 
@@ -199,6 +200,8 @@ getHostnameFromName() {
     echo "$RANGER_POSTGRES_HOSTNAME"
   elif [ "$name" == "ranger_usersync" ]; then
     echo "$RANGER_USERSYNC_HOSTNAME"
+  elif [ "$name" == "ranger_kms" ]; then
+    echo "$RANGER_KMS_HOSTNAME"
   elif [ "$name" == "trino" ]; then
     echo "$TRINO_HOSTNAME"
   elif [ "$name" == "spark_master" ]; then
@@ -208,7 +211,7 @@ getHostnameFromName() {
   else
     echo "The provided name is unknown."
     echo "Try one of the following: "
-    echo "[namenode, dn1, dn2, dn3, hms, hms_postgres, ranger, ranger_postgres, trino, spark_master, spark_worker1]"
+    echo "[namenode, dn1, dn2, dn3, hms, hms_postgres, ranger, ranger_postgres, ranger_usersync, rangrer_kms, trino, spark_master, spark_worker1]"
   fi
 }
 

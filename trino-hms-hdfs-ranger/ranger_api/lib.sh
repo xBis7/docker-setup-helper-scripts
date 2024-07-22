@@ -25,6 +25,15 @@ getRangerPolicyJsonResponseUsingShortNames() {
       # It's a custom name, set 'policy_name' to that.
       policy_uri_name="$policy"
     fi
+  elif [ "$service" == "kms" ]; then
+    service_name=$KMS_RANGER_SERVICE
+
+    if [ "$policy" == "all" ]; then
+      policy_uri_name="$KEYNAME_POLICY_URI_NAME"
+    else
+      # It's a custom name, set 'policy_name' to that.
+      policy_uri_name="$policy"
+    fi
   else
     service_name=$HIVE_RANGER_SERVICE
 
@@ -63,12 +72,20 @@ runCurlCommand() {
 # Create a new Ranger policy.
 createRangerPolicy() {
   json_payload=$1
+  policy_type=$2
+
+  username=
+  if [ "$policy_type" == "isKeyPolicy" ]; then
+    username="$RANGER_KEY_UI_USERNAME"
+  else
+    username="$RANGER_UI_USERNAME"
+  fi
 
   # If we use 'jq' when creating each json string, then identation for each variable will be off.
   # Prettify the json.
   json_payload=$(echo "$json_payload" | jq '.')
 
-  curl_command="curl -w \"%{http_code}\" -u \"$RANGER_UI_USERNAME:$RANGER_UI_PASSWORD\" -H \"Content-Type: application/json\" -d '$json_payload' -X POST \"$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy\""
+  curl_command="curl -w \"%{http_code}\" -u \"$username:$RANGER_UI_PASSWORD\" -H \"Content-Type: application/json\" -d '$json_payload' -X POST \"$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy\""
 
   runCurlCommand "$curl_command"
 }
@@ -77,11 +94,19 @@ createRangerPolicy() {
 putUpdatedRangerPolicyJson() {
   json_payload=$1
   id=$2
+  policy_type=$3
+
+  username=
+  if [ "$policy_type" == "isKeyPolicy" ]; then
+    username="$RANGER_KEY_UI_USERNAME"
+  else
+    username="$RANGER_UI_USERNAME"
+  fi
 
   # Prettify the json.
   json_payload=$(echo "$json_payload" | jq '.')
 
-  curl_command="curl -w \"%{http_code}\" -u \"$RANGER_UI_USERNAME:$RANGER_UI_PASSWORD\" -H \"Content-Type: application/json\" -d '$json_payload' -X PUT \"$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id\""
+  curl_command="curl -w \"%{http_code}\" -u \"$username:$RANGER_UI_PASSWORD\" -H \"Content-Type: application/json\" -d '$json_payload' -X PUT \"$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id\""
 
   runCurlCommand "$curl_command"
 }
@@ -89,8 +114,16 @@ putUpdatedRangerPolicyJson() {
 # Delete one of the existing Ranger policies.
 deleteRangerPolicy() {
   id=$1
+  policy_type=$2
 
-  curl_command="curl -w \"%{http_code}\" -u \"$RANGER_UI_USERNAME:$RANGER_UI_PASSWORD\" -X DELETE \"$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id\""
+  username=
+  if [ "$policy_type" == "isKeyPolicy" ]; then
+    username="$RANGER_KEY_UI_USERNAME"
+  else
+    username="$RANGER_UI_USERNAME"
+  fi
+
+  curl_command="curl -w \"%{http_code}\" -u \"$username:$RANGER_UI_PASSWORD\" -X DELETE \"$RANGER_UI_HOSTNAME:$RANGER_UI_PORT/service/public/v2/api/policy/$id\""
 
   runCurlCommand "$curl_command"
 }

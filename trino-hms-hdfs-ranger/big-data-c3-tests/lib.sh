@@ -43,6 +43,63 @@ copyTestFilesUnderSpark() {
 }
 
 # -- HDFS --
+runHdfsCmd() {
+  user=$1
+  hdfs_cmd=$2
+  expected_output=$3
+  location=${4:-hdfs}
+
+  echo ""
+  echo "==================>"
+  echo "Running command:"
+  echo "$hdfs_cmd"
+  echo ""
+
+  output=
+  if [ "$CURRENT_ENV" == "local" ]; then
+    output=$(docker exec -it -u $user "$DN1_HOSTNAME" bash -c "$hdfs_cmd" || true)
+  else
+    if [ "$location" == "hdfs" ]; then
+      # TODO: test this.
+      output=$(eval "$hdfs_cmd")
+    else
+      echo "Running through sshpass"
+      # TODO: test this.
+      output=$(sshpass -e ssh "$HDFS_USER@$HDFS_HOSTNAME" "$hdfs_cmd")
+    fi
+  fi
+
+  if [ "$expected_output" != "shouldBeEmpty" ]; then
+    echo ""
+    echo "Checking command output."
+    echo ""
+    if echo "$output" | grep -q "$expected_output"; then
+      echo ""
+      echo "Expected message was found in the output: '$expected_output'"
+      echo ""
+    else
+      echo ""
+      echo "Expected message wasn't found in the command output. Exiting..."
+      echo ""
+      exit 1
+    fi
+  else
+    echo ""
+    echo "Output is expected to be empty."
+    echo ""
+    # Check that the result is empty as expected.
+    if [ "$output" != "" ]; then
+      echo "Output is expected to be empty but it isn't. Exiting..."
+      exit 1
+    fi
+  fi
+
+  echo ""
+  echo "Command succeeded."
+  echo "<=================="
+  echo ""
+}
+
 createHdfsDir() {
   dir_name=$1
   location=${2:-hdfs} # Ignored if the env is local.

@@ -31,5 +31,3 @@ changeHdfsDirPermissions "tmp" 777
 
 updateKmsAllPolicy ""
 waitForPoliciesUpdate
-# updateKmsAllPolicy "*" "create,getmetadata:hadoop"
-# ./ranger_api/create_update/create_update_kms_key_policy.sh put "create,get,getkeys,getmetadata:hadoop"

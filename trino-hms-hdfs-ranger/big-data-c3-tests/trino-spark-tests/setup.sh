@@ -19,6 +19,7 @@ if [ "$CURRENT_ENV" == "local" ] && [ "$prepare_env" == "true" ]; then
   echo ""
   echo "- INFO: Updating Ranger policies. Loading base Hive URL policies. No user will have any access."
   ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
+  # waitForPoliciesUpdate
 fi
 
 # createHdfsDir uses the '-p' option. If the directory already exists, there won't be an error.
@@ -27,3 +28,8 @@ createHdfsDir "$HIVE_GROSS_DB_TEST_DIR"
 # BigData note: Create the tmp directory and provide world access to it so that Trino can use it.
 createHdfsDir "tmp"
 changeHdfsDirPermissions "tmp" 777
+
+updateKmsAllPolicy ""
+waitForPoliciesUpdate
+# updateKmsAllPolicy "*" "create,getmetadata:hadoop"
+# ./ranger_api/create_update/create_update_kms_key_policy.sh put "create,get,getkeys,getmetadata:hadoop"

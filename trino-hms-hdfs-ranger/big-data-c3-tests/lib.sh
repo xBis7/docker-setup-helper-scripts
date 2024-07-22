@@ -421,3 +421,11 @@ updateHiveUrlPolicy() {
     ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list"
   fi
 }
+
+updateKmsAllPolicy() {
+  key_list=$1
+  permissions=$2
+  deny_permissions=$3
+
+  ./ranger_api/create_update/create_update_kms_key_policy.sh "put" "$permissions" "$key_list" "$deny_permissions"
+}

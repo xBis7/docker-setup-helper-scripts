@@ -6,8 +6,7 @@ source "./big-data-c3-tests/env_variables.sh"
 set -e
 
 echo ""
-echo "## Test KMS ##"
-echo "Test Ranger KMS permissions with basic key operations"
+echo "## Test Ranger KMS permissions with basic key operations ##"
 echo ""
 
 updateKmsAllPolicy ""

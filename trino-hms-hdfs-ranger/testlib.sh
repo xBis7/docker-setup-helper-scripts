@@ -6,7 +6,6 @@ PROJECT_HADOOP="hadoop"
 PROJECT_HIVE="hive"
 PROJECT_TRINO="trino"
 PROJECT_SPARK="spark"
-PROJECT_ZOOKEEPER="zookeeper"
 
 # Current repo paths
 CURRENT_REPO="docker-setup-helper-scripts"
@@ -593,32 +592,6 @@ handleSparkEnv() {
     echo "Cleaning up $SPARK_EVENTS_DIR dir."
     rm -rf $spark_path/conf/$SPARK_EVENTS_DIR
 
-  fi
-}
-
-handleZookeeperEnv() {
-  abs_path=$1
-  op=$2
-
-  zookeeper_path="$abs_path/docker-setup-helper-scripts/compose/zookeeper"
-  docker_compose_path="$zookeeper_path/docker-compose.yml"
-
-  if [ "$op" == "start" ]; then
-    echo ""
-    echo "Starting '$PROJECT_ZOOKEEPER' env."
-
-    docker compose -p zookeeper -f $docker_compose_path up -d
-
-    echo ""
-    echo "'$PROJECT_ZOOKEEPER' env started."
-  else
-    echo ""
-    echo "Stopping '$PROJECT_ZOOKEEPER' env."
-
-    docker compose -p zookeeper -f $docker_compose_path down
-
-    echo ""
-    echo "'$PROJECT_ZOOKEEPER' env stopped."
   fi
 }
 

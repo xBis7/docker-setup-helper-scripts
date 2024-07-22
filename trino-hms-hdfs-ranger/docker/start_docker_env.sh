@@ -27,5 +27,3 @@ handleHiveEnv "$abs_path" "start" "$hive_url_policies_enabled"
 handleTrinoEnv "$abs_path" "start"
 
 handleSparkEnv "$abs_path" "start" "$workers_num"
-
-# handleZookeeperEnv "$abs_path" "start"

@@ -79,6 +79,10 @@ runHdfsCmd() {
       echo ""
     else
       echo ""
+      echo "Expected output: $expected_output"
+      echo ""
+      echo "Actual output: $output"
+      echo ""
       echo "Expected message wasn't found in the command output. Exiting..."
       echo ""
       exit 1

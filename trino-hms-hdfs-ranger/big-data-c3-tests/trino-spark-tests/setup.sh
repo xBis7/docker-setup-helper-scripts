@@ -28,6 +28,3 @@ createHdfsDir "$HIVE_GROSS_DB_TEST_DIR"
 # BigData note: Create the tmp directory and provide world access to it so that Trino can use it.
 createHdfsDir "tmp"
 changeHdfsDirPermissions "tmp" 777
-
-updateKmsAllPolicy ""
-waitForPoliciesUpdate

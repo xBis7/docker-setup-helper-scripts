@@ -16,6 +16,10 @@ if [ "$prepare_env" == "true" ]; then
   ./setup/setup_docker_env.sh "$abs_path"
   ./docker/start_docker_env.sh "$abs_path" "true"
   createHdfsDir "$HIVE_WAREHOUSE_DIR" # This isn't called with retryOperationIfNeeded and it won't print any descriptive output.
+
+  changeHdfsPathPermissions "$HIVE_WAREHOUSE_ROOT_DIR" 755
+  changeHdfsPathPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 755
+  changeHdfsPathPermissions "$HIVE_WAREHOUSE_DIR" 755
 fi
 
 echo ""

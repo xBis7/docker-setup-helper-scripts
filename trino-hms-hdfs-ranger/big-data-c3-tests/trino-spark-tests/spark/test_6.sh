@@ -16,9 +16,9 @@ echo ""
 
 # BigData note: In the notes, this test is explicitly setting the 
 # posix permissions for the HiveWarehouse dir to 755.
-changeHdfsDirPermissions "$HIVE_WAREHOUSE_ROOT_DIR" 755
-changeHdfsDirPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 755
-changeHdfsDirPermissions "$HIVE_WAREHOUSE_DIR" 755
+changeHdfsPathPermissions "$HIVE_WAREHOUSE_ROOT_DIR" 755
+changeHdfsPathPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 755
+changeHdfsPathPermissions "$HIVE_WAREHOUSE_DIR" 755
 # The notes are creating 'testdb.db' but the ranger policies are providing access for 'gross_test.db'
 # also the db is named 'gross_test'. Let's assume that 'testdb.db' is a typo.
 createHdfsDir "$HIVE_WAREHOUSE_DIR/gross_test.db"

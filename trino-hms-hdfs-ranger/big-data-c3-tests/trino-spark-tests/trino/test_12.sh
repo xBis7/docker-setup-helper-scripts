@@ -83,7 +83,7 @@ if [ "$CURRENT_ENV" == "local" ]; then
 fi
 
 command="drop table $TRINO_HIVE_SCHEMA.gross_test.test2"
-expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test]"
+expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test2]"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
 

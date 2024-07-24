@@ -303,7 +303,7 @@ verifyCreateWriteFailure() {
 
   # 'trino' or 'spark'
   component=$1
-  # 'createDb', 'dropDb', 'createTable', 'dropTable', 'insertInto'
+  # 'createDb', 'dropDb', 'createTable', 'dropTable', 'renameTable', 'insertInto'
   operation=$2
   db_name=$3
   table_name=$4
@@ -361,8 +361,14 @@ verifyCreateWriteFailure() {
 
       runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedOutput"
     fi
-  elif [ "$operation" == "dropTable" ]; then
+  elif [[ "$operation" == "dropTable" || "$operation" == "renameTable" ]]; then
+    # DROP:
     # If dropTable failed, then the table should exist in show tables from db.
+
+    # RENAME:
+    # If renameTable failed, then the original table name should exist in show tables from db.
+    # The tableName parameter will point to the old name and not the new name.
+    # If the command succeeded then the old name won't be in the output.
 
     if [ "$component" == "spark" ]; then
       command="spark.sql(\"show tables from $db_name\").show"
@@ -401,7 +407,7 @@ EOF
     fi
   else
     echo ""
-    echo "Invalid operation. Try one of the following: createDb, dropDb, createTable, dropTable, insertInto"
+    echo "Invalid operation. Try one of the following: createDb, dropDb, createTable, dropTable, renameTable, insertInto"
     echo ""
 
     # Enable the flag again before exiting.

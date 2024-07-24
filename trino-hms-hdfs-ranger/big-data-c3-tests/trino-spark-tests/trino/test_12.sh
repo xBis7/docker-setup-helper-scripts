@@ -96,6 +96,9 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privil
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
 
+# Use the old table name with 'renameTable' check.
+verifyCreateWriteFailure "trino" "renameTable" "gross_test" "test2"
+
 # BigData note:
 # This is a 'create table' command where user2 has to create a new directory under '/data/projects'.
 # Based on the provided policies, the user doesn't have write access on '/data/projects'.

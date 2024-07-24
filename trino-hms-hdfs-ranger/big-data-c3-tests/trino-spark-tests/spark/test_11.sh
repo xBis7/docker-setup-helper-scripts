@@ -117,6 +117,9 @@ expectedErrorMsg="Permission denied: user [$SPARK_USER2] does not have [ALTER] p
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
+# Use the old table name with 'renameTable' check.
+verifyCreateWriteFailure "spark" "renameTable" "gross_test" "test2"
+
 # Create.
 command="spark.sql(\"create table gross_test.test3 (id int, greeting string)\")"
 

@@ -44,6 +44,9 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privil
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
 
+# Use the old table name with 'renameTable' check.
+verifyCreateWriteFailure "trino" "renameTable" "gross_test" "test"
+
 command="create table $TRINO_HIVE_SCHEMA.gross_test.test2 (id int, greeting varchar)"
 expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 

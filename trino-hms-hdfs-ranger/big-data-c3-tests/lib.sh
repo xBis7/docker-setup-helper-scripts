@@ -299,11 +299,18 @@ runTrino() {
 # -- CHECK CREATE/WRITE FAILURES --
 verifyCreateWriteFailure() {
   # Run all checks as user1 for now.
+  # user1 is the primary user that has more permissions.
+
+  # 'trino' or 'spark'
   component=$1
+  # 'createDb', 'dropDb', 'createTable', 'dropTable', 'insertInto'
   operation=$2
   db_name=$3
   table_name=$4
-  insert_id=$5 # All tables have an id field.
+  # This parameter is optional and set only with operation 'insertInto'.
+  # All rows have an id value passed in during the insert.
+  # Use the id for verifying the insert.
+  insert_id=$5
 
   echo ""
   echo "=> Testing that '$operation' has failed as expected."

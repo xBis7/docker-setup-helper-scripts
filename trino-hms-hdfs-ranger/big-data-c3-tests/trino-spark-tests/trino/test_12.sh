@@ -54,11 +54,9 @@ runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 changeHdfsDirPermissions "data/projects/gross_test" 744 "devpod"
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test2"
-# BigData note: In the notes this is failing with an EXECUTE error.
-# expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
 
 if [ "$CURRENT_ENV" == "local" ]; then
-  expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/data/projects/gross_test/test2"
+  expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
   runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 else
   # TODO why is this not failing?
@@ -76,16 +74,8 @@ expectedMsg="\"1\",\"Austin\""
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 
-# BigData note: We have updated the HDFS policies. We shouldn't still get an EXECUTE error.
 command="insert into $TRINO_HIVE_SCHEMA.gross_test.test2 values (2, 'Fred')"
-# BigData note: In the notes we are getting this error.
-# expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
-expectedMsg="Error moving data files from hdfs://$NAMENODE_NAME/tmp/"
-
-# BigData note: We can see the EXECUTE error on the namenode logs but Trino swallows the original exception and throws a new one with a new message.
-#
-# This is the error from the namenode log:
-# "org.apache.hadoop.security.AccessControlException: Permission denied: user=games, access=EXECUTE, inode="/data/projects/gross_test":hadoop:supergroup:drwx------"
+expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data/projects/gross_test\":"
 
 # TODO fix this for c3.
 if [ "$CURRENT_ENV" == "local" ]; then
@@ -93,11 +83,7 @@ if [ "$CURRENT_ENV" == "local" ]; then
 fi
 
 command="drop table $TRINO_HIVE_SCHEMA.gross_test.test2"
-# BigData note: In the notes, this command is expected to fail with this error. But this is a Spark error.
-# The Trino error for lack of DROP privileges, is different.
-
-# expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test]"
-expectedMsg="The following metastore delete operations failed: drop table gross_test.test2"
+expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privilege on [gross_test/test2]"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
 
@@ -116,5 +102,3 @@ command="create table $TRINO_HIVE_SCHEMA.gross_test.test3 (id int, name varchar)
 expectedMsg="Permission denied: user=$TRINO_USER2, access=WRITE, inode=\"/data/projects\":"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
-
-

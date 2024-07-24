@@ -331,7 +331,7 @@ verifyCreateWriteFailure() {
       command="show tables in $TRINO_HIVE_SCHEMA.$db_name"
       expectedOutput="Schema '$db_name' does not exist"
 
-      runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedOutput" "user"
+      runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedOutput"
     fi
   elif [ "$operation" == "dropDb" ]; then
     # If dropDb failed, then db should exist in show databases.
@@ -345,7 +345,7 @@ verifyCreateWriteFailure() {
       command="show schemas in $TRINO_HIVE_SCHEMA"
       expectedOutput="$db_name"
 
-      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput" "user"
+      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
     fi
   elif [ "$operation" == "createTable" ]; then
     # If createTable failed, then select table should fail.
@@ -379,7 +379,7 @@ verifyCreateWriteFailure() {
       command="show tables in $TRINO_HIVE_SCHEMA.$db_name"
       expectedOutput="$table_name"
 
-      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput" "user"
+      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
     fi
   elif [ "$operation" == "insertInto" ]; then
     # In most insert into calls, the table isn't empty.

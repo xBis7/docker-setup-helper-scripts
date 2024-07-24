@@ -268,8 +268,9 @@ runTrino() {
   echo ""
 
   if [ "$CURRENT_ENV" == "local" ]; then
-    docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
+    docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --debug --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
   else
+    # TODO: enable --debug for c3.
     eval "$TRINO_BIN_PATH" "--server $TRINO_HOSTNAME" "--access-token=$(echo -n $access_token | base64 --decode)" "--user $user" "--execute \"$trino_cmd\"" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
   fi
 

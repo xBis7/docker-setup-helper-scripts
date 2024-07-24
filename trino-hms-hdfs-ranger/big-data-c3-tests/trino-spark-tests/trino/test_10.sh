@@ -66,9 +66,7 @@ runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 changeHdfsDirPermissions "$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" 744 "devpod"
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test"
-# BigData note: This is the expected error according to the notes for POSIX permission access drwx------.
-# expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db\":"
-expectedMsg="Failed to list directory: hdfs://$NAMENODE_NAME/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db/test"
+expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db\":"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
 

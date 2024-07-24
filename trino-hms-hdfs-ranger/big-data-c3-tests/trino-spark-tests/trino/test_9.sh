@@ -47,14 +47,11 @@ expectedMsg="Permission denied: user [$TRINO_USER1] does not have [SELECT] privi
 # 4th parameter: the expected output message. For Trino all commands (whether successful or not) have an expected output message.
 runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedMsg"
 
-# Update the policies to provide select access so that we can verify that the db creation failed.
-# updateHiveDbAllPolicy "gross_test" "select,alter,create,drop,index,lock,update:$TRINO_USER1"
-# waitForPoliciesUpdate
-
-# verifyCreateWriteFailure "trino" "createDb" "gross_test"
+# Here we shouldn't check if the DB creation has failed because the DB already exists.
+# 'test_7.sh' created the db and we haven't dropped it since.
+# We are testing that we don't have enough permissions to perform a read and see that
+# the db exists.
 
 # Remove the deny condition and restore the Hive URL policy.
 updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
-# Remove the select to restore the policies.
-updateHiveDbAllPolicy "gross_test" "alter,create,drop,index,lock,update:$TRINO_USER1"
 waitForPoliciesUpdate

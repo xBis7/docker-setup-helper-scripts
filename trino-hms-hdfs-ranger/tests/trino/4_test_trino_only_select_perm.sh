@@ -23,7 +23,7 @@ echo "- INFO: Select from $TRINO_TABLE table."
 echo "- INFO: [select] should succeed."
 
 command="select * from hive.$DEFAULT_DB.$TRINO_TABLE"
-expectedMsg="  1 | dog"
+expectedMsg="1       |  dog"
 runTrino "trino" "$command" "shouldPass" "$expectedMsg"
 
 echo ""

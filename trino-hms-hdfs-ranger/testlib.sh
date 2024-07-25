@@ -724,85 +724,6 @@ createHdfsFileAsUser() {
   echo ""
 }
 
-createTrinoTable() {
-  table_name=$1
-  hdfs_dir_name=$2
-  schema_name=$3
-
-  c="create table hive.$schema_name.$table_name (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode/$hdfs_dir_name',format = 'CSV');"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
-  fi
-}
-
-selectDataFromTrinoTable() {
-  table_name=$1
-  schema_name=$2
-
-  c="select * from hive.$schema_name.$table_name;"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
-  fi
-}
-
-alterTrinoTable() {
-  old_table_name=$1
-  new_table_name=$2
-  schema_name=$3
-
-  c="alter table hive.$schema_name.$old_table_name rename to $new_table_name;"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
-  fi
-}
-
-dropTrinoTable() {
-  table_name=$1
-  schema_name=$2
-
-  c="drop table hive.$schema_name.$table_name;"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
-  fi
-}
-
-dropSchemaWithTrino() {
-  schema_name=$1
-  use_cascade=$2
-
-  if [ "$use_cascade" == "true" ]; then
-
-    c="DROP SCHEMA hive.$schema_name CASCADE;"
-
-    if [ "$PRINT_CMD" == "true" ]; then
-      printCmdString "$c"
-    else
-      docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
-    fi
-  else
-
-    c="DROP SCHEMA hive.$schema_name;"
-
-    if [ "$PRINT_CMD" == "true" ]; then
-      printCmdString "$c"
-    else
-      docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
-    fi
-  fi
-}
-
 # Currently, `set -e` has been set on top of every script.
 # Therefore, on any failure, the script will exit.
 # For that reason, this method might not be needed and probably can be deleted.
@@ -829,12 +750,4 @@ execCmdAndHandleErrorIfNeeded() {
     echo "$action_msg failed. Exiting..."
     exit 1
   fi
-}
-
-createHiveUrlPolicy() {
-  # access1,access2:user1/access2,access4:user2
-  permissions=$1
-  url_list=$2
-
-  ./ranger_api/create_update/create_update_hive_url_policy.sh "create" "$permissions" "$url_list"
 }

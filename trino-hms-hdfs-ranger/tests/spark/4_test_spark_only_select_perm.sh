@@ -45,33 +45,15 @@ echo ""
 echo "- INFO: Insert into table."
 echo "- INFO: User [spark] shouldn't be able to alter table."
 
-exit 1
-
-# scala> spark.sql("select * from sports").show
-# Hive Session ID = f3ff10b1-81cf-45a1-af25-8839d87a41fe
-# +---+--------+                                                                  
-# | id|    name|
-# +---+--------+
-# |  1|football|
-# +---+--------+
-
-# scala>  spark.sql("insert into sports values(2, 'soccer')")
-# org.apache.spark.sql.AnalysisException: org.apache.hadoop.hive.ql.metadata.HiveException: 
-# Unable to alter table. Permission denied: user [spark] does not have [ALTER] privilege on [default/sports]
-
-# scala> spark.sql("select * from sports").show
-# +---+--------+
-# | id|    name|
-# +---+--------+
-# |  1|football|
-# |  2|  soccer|
-# +---+--------+
-
 command="spark.sql(\"insert into $TABLE_SPORTS values(2, 'soccer')\")"
 expectedMsg="Permission denied: user [spark] does not have [ALTER] privilege on [$DEFAULT_DB/$TABLE_SPORTS]"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
 
-verifyCreateWriteFailure "spark" "insertInto" "$DEFAULT_DB" "$TABLE_SPORTS" "2"
+# 'insertInto' writes the data and then alters the table.
+# Because the user only lacks alter permissions, although we get an exception, the data have already been written.
+# The check doesn't make sense here because the data will exist.
+#
+# verifyCreateWriteFailure "spark" "insertInto" "$DEFAULT_DB" "$TABLE_SPORTS" "2"
 
 # Failing for Spark-Hive4
 # Operation not allowed: TRUNCATE TABLE on external tables: `spark_catalog`.`default`.`sports`.

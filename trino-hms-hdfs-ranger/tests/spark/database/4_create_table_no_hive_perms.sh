@@ -20,3 +20,5 @@ waitForPoliciesUpdate
 command="spark.read.text(\"hdfs://namenode:8020/test\").write.option(\"path\", \"hdfs://namenode/opt/hive/data\").mode(\"overwrite\").format(\"csv\").saveAsTable(\"$EXTERNAL_DB.$SPARK_TABLE\")"
 expectedMsg="Permission denied: user [spark] does not have [CREATE] privilege on [$EXTERNAL_DB/$SPARK_TABLE]"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "spark" "createTable" "$EXTERNAL_DB" "$SPARK_TABLE"

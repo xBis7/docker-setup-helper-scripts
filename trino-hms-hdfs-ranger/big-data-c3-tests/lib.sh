@@ -307,10 +307,13 @@ verifyCreateWriteFailure() {
   operation=$2
   db_name=$3
   table_name=$4
-  # This parameter is optional and set only with operation 'insertInto'.
-  # All rows have an id value passed in during the insert.
+  # This parameter is optional. It's set for operation 'insertInto' or 'alterLocation'.
+  #
+  # For 'insertInto', it's an id because all rows have an id value passed in during the insert.
   # Use the id for verifying the insert.
-  insert_id=$5
+  #
+  # For 'alterLocation', it's the table location.
+  value_to_check=$5
 
   echo ""
   echo "=> Testing that '$operation' has failed as expected."
@@ -389,7 +392,7 @@ verifyCreateWriteFailure() {
     # hasn't been inserted into the table.
 
     if [ "$component" == "spark" ]; then
-      command="spark.sql(\"select id from $db_name.$table_name where id=$insert_id\").show"
+      command="spark.sql(\"select id from $db_name.$table_name where id=$value_to_check\").show"
       expectedOutput=$(cat <<EOF
 +---+
 | id|
@@ -400,14 +403,27 @@ EOF
 
       runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
     else
-      command="select id from $TRINO_HIVE_SCHEMA.$db_name.$table_name where id=$insert_id"
+      command="select id from $TRINO_HIVE_SCHEMA.$db_name.$table_name where id=$value_to_check"
       expectedOutput="0 rows"
+
+      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
+    fi
+  elif [ "$operation" == "alterLocation" ]; then
+    # Run describe table and check the table location.
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"describe extended table $db_name.$table_name\").show"
+      expectedOutput="$value_to_check"
+
+      runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
+    else
+      command="describe $TRINO_HIVE_SCHEMA.$db_name.$table_name"
+      expectedOutput="$value_to_check"
 
       runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
     fi
   else
     echo ""
-    echo "Invalid operation. Try one of the following: createDb, dropDb, createTable, dropTable, renameTable, insertInto"
+    echo "Invalid operation. Try one of the following: createDb, dropDb, createTable, dropTable, renameTable, insertInto, alterLocation"
     echo ""
 
     # Enable the flag again before exiting.

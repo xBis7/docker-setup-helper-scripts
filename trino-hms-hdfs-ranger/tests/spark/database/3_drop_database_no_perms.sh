@@ -18,3 +18,5 @@ echo "- INFO: User [spark] shouldn't be able to drop database."
 command="spark.sql(\"drop database if exists $EXTERNAL_DB cascade\")"
 expectedMsg="Permission denied: user [spark] does not have [DROP] privilege on [$EXTERNAL_DB]"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "spark" "dropDb" "$EXTERNAL_DB"

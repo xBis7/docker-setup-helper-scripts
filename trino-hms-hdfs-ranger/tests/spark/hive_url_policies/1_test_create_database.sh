@@ -16,6 +16,8 @@ command="spark.sql(\"create database $GROSS_DB_NAME location '/$HIVE_GROSS_DB_TE
 expectedMsg="Permission denied: user [spark] does not have [WRITE] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/]]"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
 
+verifyCreateWriteFailure "spark" "createDb" "$GROSS_DB_NAME"
+
 echo ""
 echo "Updating Hive URL policies."
 echo ""

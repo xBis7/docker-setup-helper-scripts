@@ -38,6 +38,8 @@ fi
 expectedMsg="Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR_SEC, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR_SEC/"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
 
+verifyCreateWriteFailure "spark" "alterLocation" "$GROSS_DB_NAME" "$GROSS_TABLE_NAME" "hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR_SEC"
+
 echo ""
 echo "Creating Hive URL policies again."
 

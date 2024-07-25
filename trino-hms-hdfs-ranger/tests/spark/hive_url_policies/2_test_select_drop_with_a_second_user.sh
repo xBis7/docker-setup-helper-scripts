@@ -30,3 +30,6 @@ command="spark.sql(\"drop database $GROSS_DB_NAME\")"
 expectedMsg="Permission denied: user [games] does not have [DROP] privilege on [$GROSS_DB_NAME]"
 # Run as user 'games'.
 runSpark "games" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "spark" "dropDb" "$GROSS_DB_NAME"
+

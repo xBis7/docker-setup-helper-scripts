@@ -27,3 +27,4 @@ fi
 
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
 
+verifyCreateWriteFailure "spark" "dropDb" "$EXTERNAL_DB"

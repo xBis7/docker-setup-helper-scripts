@@ -21,3 +21,5 @@ waitForPoliciesUpdate
 command="spark.sql(\"create database $EXTERNAL_DB location 'hdfs://namenode/opt/hive/data/$EXTERNAL_DB/external/$EXTERNAL_DB.db'\")"
 expectedMsg="Permission denied: user [spark] does not have [ALL] privilege on [hdfs://namenode/opt/hive/data/$EXTERNAL_DB/external/$EXTERNAL_DB.db]"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "spark" "createDb" "$EXTERNAL_DB"

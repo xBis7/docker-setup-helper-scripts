@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -9,44 +10,44 @@ abs_path=$1
 echo ""
 echo "- INFO: Updating Ranger policies. User [spark] will now have all access to Hive default DB."
 
-updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
-updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,trino,spark"
+updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 updateHiveDefaultDbPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:spark,trino"
-updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
 waitForPoliciesUpdate
 
 echo ""
 echo "- INFO: Create table."
 echo "- INFO: User [spark] should be able to create table."
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME
-scala_sql=$(base64encode "$DEFAULT_DB.$SPARK_TABLE")
-retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
+
+command="spark.read.text(\"hdfs://namenode:8020/test\").write.option(\"path\", \"hdfs://namenode/opt/hive/data\").mode(\"overwrite\").format(\"csv\").saveAsTable(\"$DEFAULT_DB.$SPARK_TABLE\")"
+runSpark "spark" "$command" "shouldPass"
 
 echo ""
 echo "- INFO: Create partitioned table."
 echo "- INFO: User [spark] should be able to create table."
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(base64encode "create table $TABLE_ANIMALS (id int, name string) using parquet partitioned by (name)")
-retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
+
+command="spark.sql(\"create table $TABLE_ANIMALS (id int, name string) using parquet partitioned by (name)\")"
+runSpark "spark" "$command" "shouldPass"
 
 echo ""
 echo "- INFO: Add partition."
 echo "- INFO: User [spark] should be able to alter table."
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(base64encode "alter table $TABLE_ANIMALS add partition (name='cow')")
-retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
+
+command="spark.sql(\"alter table $TABLE_ANIMALS add partition (name='cow')\")"
+runSpark "spark" "$command" "shouldPass"
 
 echo ""
 echo "- INFO: Create non partitioned table."
 echo "- INFO: User [spark] should be able to create table."
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(base64encode "create table $TABLE_SPORTS (id int, name string)")
-retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
+
+command="spark.sql(\"create table $TABLE_SPORTS (id int, name string)\")"
+runSpark "spark" "$command" "shouldPass"
 
 echo ""
 echo "- INFO: Insert into table."
 echo "- INFO: User [spark] should be able to alter table."
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-scala_sql=$(base64encode "insert into $TABLE_SPORTS values(1, 'football')")
-retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
+
+command="spark.sql(\"insert into $TABLE_SPORTS values(1, 'football')\")"
+runSpark "spark" "$command" "shouldPass"

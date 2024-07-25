@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -12,15 +13,14 @@ abs_path=$1
 
 ./docker/start_docker_env.sh "$abs_path"
 
+./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
+
 ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
 
 waitForPoliciesUpdate
 
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $HDFS_DIR" "$notExpMsg" "false" "true"
+createHdfsDir "$HDFS_DIR"
 
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsFile $HDFS_DIR" "$notExpMsg" "false" "true"
+createHdfsFile "$HDFS_DIR"
 
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_WAREHOUSE_DIR" "$notExpMsg" "false" "true"
+createHdfsDir "$HIVE_WAREHOUSE_DIR"

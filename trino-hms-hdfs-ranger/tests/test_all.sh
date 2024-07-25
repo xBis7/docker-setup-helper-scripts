@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -22,6 +23,8 @@ if [ "$prepare_env" == "true" ]; then
   ./setup/setup_docker_env.sh "$abs_path"
   ./docker/start_docker_env.sh "$abs_path"
 fi
+
+./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
 
 ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
 

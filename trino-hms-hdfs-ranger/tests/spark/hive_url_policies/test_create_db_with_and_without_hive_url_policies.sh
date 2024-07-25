@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -52,20 +53,20 @@ setup() {
     echo ""
     echo "- INFO: Updating Ranger policies. User [spark] will have Write permission for Hive URL policy but no HDFS access."
 
-    updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
-    updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,spark"
+    updateHdfsPathPolicy "/*" "read,write,execute:hadoop"
+    updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,spark"
     updateHiveDefaultDbPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:trino/select:spark"
-    updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,trino,spark"
+    updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,trino,spark"
 
     waitForPoliciesUpdate
   else
     echo ""
     echo "- INFO: Updating Ranger policies. User [spark] now will have all Hive access to default DB but no HDFS."
 
-    updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
-    updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+    updateHdfsPathPolicy "/*" "read,write,execute:hadoop"
+    updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
     updateHiveDefaultDbPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:trino,spark"
-    updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+    updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
     waitForPoliciesUpdate
   fi
@@ -84,10 +85,9 @@ if [ "$without_url" == 0 ]; then
   echo "The operation should fail."
   echo ""
 
-  cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME
-  scala_sql=$(base64encode "create database gross_test location '/$HIVE_GROSS_DB_TEST_DIR'")
-  scala_msg=$(base64encode "Permission denied: user [spark] does not have [ALL] privilege on [hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR]")
-  retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILENAME $scala_sql $scala_msg" "$SPARK_TEST_SUCCESS_MSG" "false"
+  command="spark.sql(\"create database gross_test location '/$HIVE_GROSS_DB_TEST_DIR'\")"
+  expectedMsg="Permission denied: user [spark] does not have [ALL] privilege on [hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR]"
+  runSpark "spark" "$command" "shouldFail" "$expectedMsg"
 fi
 
 # With URL policies.
@@ -99,9 +99,8 @@ if [ "$with_url" == 0 ]; then
   echo "Because Hive URL policies are enabled, no sub-dirs should be checked for access. Operation should succeed."
   echo ""
 
-  cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-  scala_sql=$(base64encode "create database gross_test location '/$HIVE_GROSS_DB_TEST_DIR'")
-  retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
+  command="spark.sql(\"create database gross_test location '/$HIVE_GROSS_DB_TEST_DIR'\")"
+  runSpark "spark" "$command" "shouldPass"
 fi
 
 

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -33,15 +34,12 @@ echo "- INFO: User [hadoop] will create both directories."
 echo "- INFO: We will test that user [$user] will be able to put a file under /$dir1 but not under /$dir2."
 echo ""
 
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $dir1" "$notExpMsg" "false" "true"
+createHdfsDir "$dir1"
 
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $dir2" "$notExpMsg" "false" "true"
+createHdfsDir "$dir2"
 
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsFileAsUser $user $dir1" "$notExpMsg" "false" "true"
+createHdfsFileAsUser "$user" "$dir1" "ignoreExpectedOutput"
 
 failMsg="org.apache.ranger.authorization.hadoop.exceptions.RangerAccessControlException: Permission denied: user=games, access=EXECUTE,"
-retryOperationIfNeeded "$abs_path" "createHdfsFileAsUser $user $dir2" "$failMsg" "true"
+createHdfsFileAsUser "$user" "$dir2" "$failMsg"
 

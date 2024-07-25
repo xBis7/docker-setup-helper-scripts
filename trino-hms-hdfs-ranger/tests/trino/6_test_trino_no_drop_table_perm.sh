@@ -1,15 +1,16 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
 abs_path=$1
 
-updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
-updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,trino,spark"
+updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 updateHiveDefaultDbPolicy "select,Alter:spark,trino"
-updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
 waitForPoliciesUpdate
 
@@ -20,5 +21,6 @@ echo "- INFO: [drop] should fail."
 # Thanks to xBis7 for investigation, it was found that permission denied exception is swallowed and a new exception is thrown with a different message.
 # This seems to done for better messaging experience, but it is misleading.
 # More info could be found on the link https://github.com/G-Research/gr-oss/issues/551#issuecomment-1994240651.
-failMsg="The following metastore delete operations failed: drop table $DEFAULT_DB.$NEW_TRINO_TABLE_NAME"
-retryOperationIfNeeded "$abs_path" "dropTrinoTable $NEW_TRINO_TABLE_NAME $DEFAULT_DB" "$failMsg" "true"
+command="drop table hive.$DEFAULT_DB.$NEW_TRINO_TABLE_NAME;"
+expectedMsg="The following metastore delete operations failed: drop table $DEFAULT_DB.$NEW_TRINO_TABLE_NAME"
+runTrino "trino" "$command" "shouldFail" "$expectedMsg"

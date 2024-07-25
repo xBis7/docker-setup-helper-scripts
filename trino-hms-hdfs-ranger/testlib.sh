@@ -679,82 +679,49 @@ checkoutToProjectCommit() {
   echo ""
 }
 
-printCmdString() {
-  str=$1
-
-  echo ""
-  echo "Command being run: -- '$str'"
-  echo ""
-}
-
-createHdfsDir() {
-  dir_name=$1
-
-  c="hdfs dfs -mkdir -p /$dir_name"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$DN1_HOSTNAME" bash -c "$c"
-  fi
-}
-
 createHdfsFile() {
   dir_name=$1
   file_name=${2:-"test.csv"} # Provide a default value if not set.
 
-  c="hdfs dfs -put $file_name /$dir_name"
+  hdfs_cmd="hdfs dfs -put $file_name /$dir_name"
 
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$DN1_HOSTNAME" bash -c "$c"
-  fi
+  echo ""
+  echo "Running command:"
+  echo "$hdfs_cmd"
+  echo ""
+
+  docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
+
+  echo ""
+  echo "Command succeeded."
+  echo ""
 }
 
 createHdfsFileAsUser() {
   user=$1
   dir_name=$2
-  file_name=${3:-"test.csv"} # Provide a default value if not set.
+  expectedOutput=$3
+  file_name=${4:-"test.csv"} # Provide a default value if not set.
 
-  c="hdfs dfs -put $file_name /$dir_name"
+  hdfs_cmd="hdfs dfs -put $file_name /$dir_name"
 
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it -u "$user" "$DN1_HOSTNAME" bash -c "$c"
+  echo ""
+  echo "Running command:"
+  echo "$hdfs_cmd"
+  echo "and checking results."
+  echo ""
+
+  result=$(docker exec -it -u "$user" "$DN1_HOSTNAME" bash -c "$hdfs_cmd")
+
+  # 'ignoreExpectedOutput' is provided in case we don't want to check the output.
+  if [ "$expectedOutput" != "ignoreExpectedOutput" ]; then
+    # If grep fails then it will exit.
+    cat "$result" | grep "$expectedOutput"
   fi
-}
 
-
-changeHdfsDirPermissions() {
-  perms=$1
-  dir_name=$2
-
-  c="hdfs dfs -chmod $perms /$dir_name"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$DN1_HOSTNAME" bash -c "$c"
-  fi
-}
-
-performTrinoCmd() {
-  # First argument is the user.
-  user=$1
-
-  # This is removing the first argument.
-  shift
-
-  # Join all other args with space.
-  trino_cmd="$*"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$trino_cmd"
-  else
-    docker exec -it -u $user "$TRINO_HOSTNAME" trino --execute="$trino_cmd"
-  fi
+  echo ""
+  echo "Command succeeded."
+  echo ""
 }
 
 createTrinoTable() {
@@ -803,19 +770,6 @@ dropTrinoTable() {
   schema_name=$2
 
   c="drop table hive.$schema_name.$table_name;"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$TRINO_HOSTNAME" trino --execute="$c"
-  fi
-}
-
-createSchemaWithTrino() {
-  schema_name=$1
-  location=${2:-"$HIVE_WAREHOUSE_DIR/$schema_name/external/$schema_name.db"}
-
-  c="CREATE SCHEMA hive.$schema_name WITH (location = 'hdfs://namenode/$location');"
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "$c"
@@ -875,195 +829,6 @@ execCmdAndHandleErrorIfNeeded() {
     echo "$action_msg failed. Exiting..."
     exit 1
   fi
-}
-
-retryOperationIfNeeded() {
-  abs_path=$1
-  cmd=$2
-  expMsg=$3
-  expFailure=$4
-  msgNotPresent=$5
-  exp_exit_code=1
-
-  result=""
-
-  if [ "$expFailure" == "true" ]; then
-    result="failed"
-  else
-    result="succeeded"
-    exp_exit_code=0
-  fi
-
-  echo ""
-  echo "- INFO: Some wait time might be needed for the policy update to get picked up. Retry a few times if needed."
-  echo ""
-
-  counter=0
-  while [[ "$counter" -le 10 ]]; do
-    if [ "$counter" -eq 10 ]; then
-      echo ""
-      echo "- RESULT -> FAILURE: Operation exceeded the retry limit. Exiting..."
-      echo "---------------------------------------------------"
-      exit 1
-    fi
-
-    echo "- INFO: Counter=$counter"
-
-    # If we print the command being run, right before every execution
-    # then the print will be stored in the tmp file along with the stdout.
-    # This is going to make retryOperationIfNeeded() result in unexpected failures.
-    #
-    # E.g.
-    # * We want to create a schema in trino
-    # * The expected output is just the phrase 'CREATE SCHEMA'
-    # * The command to create a schema, starts with the phrase 'CREATE SCHEMA ...'
-    # * We do a 'grep' on the tmp file to check that the output contains 'CREATE SCHEMA'
-    # * The command failed and the output is some error
-    # * 'CREATE SCHEMA' exists in the command, which is present in the tmp file.
-    # * 'grep' succeeds, exit status will be 0 regardless of the output.
-    #
-    # To fix that, each method will either print the command or execute it.
-    # We will call each method twice. Once with the print parameter and once without.
-    PRINT_CMD="true"
-    $cmd
-
-    # Restore the flag to empty.
-    PRINT_CMD=""
-
-    echo ""
-    echo "### Stdout- {"
-    echo ""
-
-    sleep 3
-
-    # Use the 'tee' command, which prints the output in the stdout
-    # and writes it in a file at the same time.
-    $cmd 2>&1 | tee "$abs_path/$CURRENT_REPO/$TMP_FILE"
-    exit_code=${PIPESTATUS[0]}
-
-    echo ""
-    echo "} -Stdout ###"
-    echo ""
-
-    if [ $exit_code -ne $exp_exit_code ]; then
-      echo ""
-      echo "- Unexpected exit code. Expected: $exp_exit_code. Actual: $exit_code."
-      counter=$(($counter + 1))
-      continue
-    fi
-
-    if [ "$msgNotPresent" == "true" ]; then
-      # '> /dev/null' hides the grep output. Remove it to reveal the output.
-      echo ""
-      echo "- Not expected msg: $expMsg"
-      echo ""
-      if !(grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null); then
-        # echo "- DEBUG: Exit code NotExp-Suc-Grep: $?"
-        # echo ""
-        # echo "- DEBUG: NotExp-Suc-Output= "
-        # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
-        # echo "- DEBUG: Exit code NotExp-Suc-Output: $?"
-        echo "- RESULT -> SUCCESS: Operation '$result' as expected."
-        echo "---------------------------------------------------"
-        break
-      else
-        echo "- RESULT -> FAILURE: Operation '$result'. The operation result or output wasn't expected."
-        echo "---------------------------------------------------"
-        counter=$(($counter + 1))
-        continue
-      fi
-    else
-      echo ""
-      echo "- Expected Msg: $expMsg"
-      echo ""
-      if grep -F "$expMsg" "$abs_path/$CURRENT_REPO/$TMP_FILE" > /dev/null; then
-        # echo "- DEBUG: Exit code NotExp-Fail-Grep: $?"
-        # echo ""
-        # echo "- DEBUG: NotExp-Fail-Output= "
-        # cat "$abs_path/$CURRENT_REPO/$TMP_FILE"
-        # echo "- DEBUG: Exit code NotExp-Fail-Output: $?"
-        echo "- RESULT -> SUCCESS: Operation '$result' as expected."
-        echo "---------------------------------------------------"
-        break
-      else
-        echo "- RESULT -> FAILURE: Operation '$result'. The operation result or output wasn't expected."
-        echo "---------------------------------------------------"
-        counter=$(($counter + 1))
-        continue
-      fi
-    fi
-  done
-}
-
-waitForPoliciesUpdate() {
-  wait_time_sec=30
-  echo ""
-  echo "- INFO: Waiting $wait_time_sec sec to make sure enough time has passed for the policies to get updated."
-  sleep "$wait_time_sec"
-}
-
-cpSparkTest() {
-  testFilePath=$1
-
-  docker cp "$testFilePath" "$SPARK_MASTER_HOSTNAME":/opt/spark/"$SPARK_TEST_FILENAME"
-}
-
-runSparkTest() {
-  testFileName=$1
-  sql_arg=$(echo -n "$2" | base64 --decode)
-  msg_arg=$(echo -n "$3" | base64 --decode)
-  user=${4:-"spark"}
-  message="Running Spark test: [$testFileName] with arguments sql_arg: [$sql_arg] and msg_arg: [$msg_arg]"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-      printCmdString "$message"
-  else
-    docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell --conf spark.app.sql=\"$sql_arg\" --conf spark.app.msg=\"$msg_arg\" -I test.scala"
-  fi
-}
-
-# This function is created to allow for substitutes or changes if base64 works differently on different systems.
-# We can achieve the correct variable substitution and space handling by encoding and decoding the string.
-base64encode() {
-  input=$1
-
-  # Because of OS differences, it is necessary to use -w 0 for Linux distros.
-  if [[ $(uname) != "Darwin"* ]]; then
-    echo -n "$input" | base64 -w 0
-  else
-    echo -n "$input" | base64
-  fi
-}
-
-updateHdfsPathPolicy() {
-  # access1,access2:user1/access2,access4:user2
-  permissions=$1
-  path_list=$2
-
-  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "put" "$permissions" "$path_list"
-}
-
-updateHiveDbAllPolicy() {
-  # access1,access2:user1/access2,access4:user2
-  permissions=$1
-  db_list=$2
-
-  ./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "$permissions" "$db_list"
-}
-
-updateHiveDefaultDbPolicy() {
-  # access1,access2:user1/access2,access4:user2
-  permissions=$1
-
-  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "put" "$permissions"
-}
-
-updateHiveUrlPolicy() {
-  # access1,access2:user1/access2,access4:user2
-  permissions=$1
-  url_list=$2
-
-  ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list"
 }
 
 createHiveUrlPolicy() {

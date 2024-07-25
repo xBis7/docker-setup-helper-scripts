@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -22,11 +23,8 @@ echo ""
 echo "- INFO: HDFS user hadoop, should be able to create data with ranger default policies."
 echo ""
 
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $HDFS_DIR" "$notExpMsg" "false" "true"
+createHdfsDir "$HDFS_DIR"
 
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsFile $HDFS_DIR" "$notExpMsg" "false" "true"
+createHdfsFile "$HDFS_DIR"
 
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_WAREHOUSE_DIR" "$notExpMsg" "false" "true"
+createHdfsDir "$HIVE_WAREHOUSE_DIR"

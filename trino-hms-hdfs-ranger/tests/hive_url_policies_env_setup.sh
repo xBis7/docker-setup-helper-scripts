@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -15,8 +16,10 @@ if [ "$prepare_env" == "true" ]; then
   ./docker/stop_docker_env.sh "$abs_path"
   ./setup/setup_docker_env.sh "$abs_path"
   ./docker/start_docker_env.sh "$abs_path" "true"
-  createHdfsDir "$HIVE_WAREHOUSE_DIR" # This isn't called with retryOperationIfNeeded and it won't print any descriptive output.
+  createHdfsDir "$HIVE_WAREHOUSE_DIR"
 fi
+
+./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
 
 echo ""
 echo "- INFO: Updating Ranger policies. Loading base policies. No user will have any access."
@@ -25,13 +28,12 @@ echo "- INFO: Updating Ranger policies. Loading base policies. No user will have
 waitForPoliciesUpdate
 
 # Create external DB directory 'gross_test.db'.
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR" "$notExpMsg" "false" "true"
+createHdfsDir "$HIVE_GROSS_DB_TEST_DIR"
 
 echo ""
 echo "Updating HDFS policies."
 echo ""
-updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,spark,trino"
 
 echo ""
 echo "---------------------------------------------------"
@@ -39,7 +41,7 @@ echo "---------------------------------------------------"
 echo ""
 echo "Updating Hive all db, cols, tables."
 echo ""
-updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveDbAllPolicy "*" "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 
 echo ""
 echo "---------------------------------------------------"

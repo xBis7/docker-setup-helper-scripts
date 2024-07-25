@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -11,6 +12,8 @@ abs_path=$1
 ./setup/setup_docker_env.sh "$abs_path"
 
 ./docker/start_docker_env.sh "$abs_path"
+
+./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
 
 ./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
 

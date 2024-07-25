@@ -44,7 +44,6 @@ op="WRITE"
 if [ "$HIVE_VERSION" == "4" ]; then # TODO: investigate this.
   op="READ"
 fi
-
 expectedMsg="Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME/"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
 

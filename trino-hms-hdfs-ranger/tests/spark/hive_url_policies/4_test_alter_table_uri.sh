@@ -15,7 +15,7 @@ echo ""
 echo "Creating the new URI."
 
 # Create external DB directory 'gross_test2.db'.
-createHdfsDir $HIVE_GROSS_DB_TEST_DIR_SEC
+createHdfsDir "$HIVE_GROSS_DB_TEST_DIR_SEC"
 
 echo ""
 echo "Removing all Hive URL policies."
@@ -37,10 +37,8 @@ op="WRITE"
 if [ "$HIVE_VERSION" == "4" ]; then # TODO: investigate this.
   op="READ"
 fi
-
 expectedMsg="Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR_SEC, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR_SEC/"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
-
 
 echo ""
 echo "Creating Hive URL policies again."

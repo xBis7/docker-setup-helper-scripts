@@ -341,7 +341,7 @@ verifyCreateWriteFailure() {
 
     if [ "$component" == "spark" ]; then
       command="spark.sql(\"show databases\").show"
-      expectedOutput="|$db_name|"
+      expectedOutput="$db_name"
 
       runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
     else

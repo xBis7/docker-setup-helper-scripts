@@ -19,3 +19,5 @@ echo "- INFO: Dropping a DB that's not empty, without using CASCADE, should fail
 command="drop schema hive.$EXTERNAL_DB"
 expectedMsg="Cannot drop non-empty schema '$EXTERNAL_DB'"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "trino" "dropDb" "$EXTERNAL_DB"

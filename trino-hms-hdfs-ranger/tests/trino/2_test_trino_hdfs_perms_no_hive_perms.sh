@@ -26,3 +26,5 @@ command="create table hive.$DEFAULT_DB.$TRINO_TABLE (column1 varchar,column2 var
 # Failure due to lack of Hive metastore permissions.
 expectedMsg="Permission denied: user [trino] does not have [CREATE] privilege on"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "trino" "createTable" "$DEFAULT_DB" "$TRINO_TABLE"

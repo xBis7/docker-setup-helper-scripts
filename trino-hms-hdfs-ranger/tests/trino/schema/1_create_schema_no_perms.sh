@@ -22,3 +22,5 @@ waitForPoliciesUpdate
 command="create schema hive.$EXTERNAL_DB with (location = 'hdfs://namenode/$HIVE_WAREHOUSE_DIR/$EXTERNAL_DB/external/$EXTERNAL_DB.db')"
 expectedMsg="Permission denied: user [trino] does not have [ALL] privilege on [hdfs://namenode/opt/hive/data/$EXTERNAL_DB/external/$EXTERNAL_DB.db]"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "trino" "createDb" "$EXTERNAL_DB"

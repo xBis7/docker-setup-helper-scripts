@@ -33,14 +33,21 @@ expectedErrorMsg="Permission denied: user [$SPARK_USER2] does not have [DROP] pr
 # 4th parameter: the expected error message if the previous parameter is 'shouldFail'
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
+verifyCreateWriteFailure "spark" "dropTable" "gross_test" "test"
+
 # Alter.
 command="spark.sql(\"alter table gross_test.test rename to gross_test.test2\")"
 expectedErrorMsg="Permission denied: user [$SPARK_USER2] does not have [ALTER] privilege on [gross_test/test]"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
 
+# Use the old table name with 'renameTable' check.
+verifyCreateWriteFailure "spark" "renameTable" "gross_test" "test"
+
 # Create.
 command="spark.sql(\"create table gross_test.test2 (id int, greeting string)\")"
 expectedErrorMsg="Permission denied: user [$SPARK_USER2] does not have [CREATE] privilege on [gross_test/test2]"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
+
+verifyCreateWriteFailure "spark" "createTable" "gross_test" "test2"

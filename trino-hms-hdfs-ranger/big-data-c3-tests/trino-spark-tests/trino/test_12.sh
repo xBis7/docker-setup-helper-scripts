@@ -60,7 +60,7 @@ if [ "$CURRENT_ENV" == "local" ]; then
   runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg"
 else
   # TODO why is this not failing?
-  expectedMsg="\"1\",\"Austin\""
+  expectedMsg="  1 | Austin "
   runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 fi
 
@@ -70,7 +70,7 @@ updateHdfsPathPolicy "/data/projects/gross_test,/$TRINO_HIVE_WAREHOUSE_DIR/gross
 waitForPoliciesUpdate
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test2"
-expectedMsg="\"1\",\"Austin\""
+expectedMsg="  1 | Austin "
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 
@@ -80,6 +80,8 @@ expectedMsg="Permission denied: user=$TRINO_USER2, access=EXECUTE, inode=\"/data
 # TODO fix this for c3.
 if [ "$CURRENT_ENV" == "local" ]; then
   runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
+
+  verifyCreateWriteFailure "trino" "insertInto" "gross_test" "test2" "2"
 fi
 
 command="drop table $TRINO_HIVE_SCHEMA.gross_test.test2"
@@ -87,10 +89,15 @@ expectedMsg="Permission denied: user [$TRINO_USER2] does not have [DROP] privile
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
 
+verifyCreateWriteFailure "trino" "dropTable" "gross_test" "test2"
+
 command="alter table $TRINO_HIVE_SCHEMA.gross_test.test2 rename to $TRINO_HIVE_SCHEMA.gross_test.test3"
 expectedMsg="Permission denied: user [$TRINO_USER2] does not have [ALTER] privilege on [gross_test/test2]"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
+
+# Use the old table name with 'renameTable' check.
+verifyCreateWriteFailure "trino" "renameTable" "gross_test" "test2"
 
 # BigData note:
 # This is a 'create table' command where user2 has to create a new directory under '/data/projects'.
@@ -102,3 +109,5 @@ command="create table $TRINO_HIVE_SCHEMA.gross_test.test3 (id int, name varchar)
 expectedMsg="Permission denied: user=$TRINO_USER2, access=WRITE, inode=\"/data/projects\":"
 
 runTrino "$TRINO_USER2" "$command" "shouldFail" "$expectedMsg" "user"
+
+verifyCreateWriteFailure "trino" "createTable" "gross_test" "test3"

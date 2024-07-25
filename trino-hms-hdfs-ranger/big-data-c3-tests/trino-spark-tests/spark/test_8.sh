@@ -75,3 +75,5 @@ command="spark.sql(\"insert into gross_test.test values (4, 'Austin')\")"
 expectedErrorMsg="Permission denied: user=$SPARK_USER2, access=EXECUTE, inode=\"/$HIVE_WAREHOUSE_DIR/gross_test.db\":"
 
 runSpark "$SPARK_USER2" "$command" "shouldFail" "$expectedErrorMsg"
+
+verifyCreateWriteFailure "spark" "insertInto" "gross_test" "test" "4"

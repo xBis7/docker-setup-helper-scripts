@@ -268,7 +268,9 @@ runTrino() {
   echo ""
 
   if [ "$CURRENT_ENV" == "local" ]; then
-    docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --debug --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
+    # Use '--output-format ALIGNED' to make sure that there is always output and it has the correct format.
+    # This option, aligns the output columns in tabs.
+    docker exec -it -u "$user" "$TRINO_HOSTNAME" trino --output-format ALIGNED --debug --execute="$trino_cmd" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
   else
     # TODO: enable --debug for c3.
     eval "$TRINO_BIN_PATH" "--server $TRINO_HOSTNAME" "--access-token=$(echo -n $access_token | base64 --decode)" "--user $user" "--execute \"$trino_cmd\"" 2>&1 | tee "$TRINO_TMP_OUTPUT_FILE"
@@ -292,6 +294,144 @@ runTrino() {
     echo "=========================="
     echo ""
   fi
+}
+
+# -- CHECK CREATE/WRITE FAILURES --
+verifyCreateWriteFailure() {
+  # Run all checks as user1 for now.
+  # user1 is the primary user that has more permissions.
+
+  # 'trino' or 'spark'
+  component=$1
+  # 'createDb', 'dropDb', 'createTable', 'dropTable', 'renameTable', 'insertInto'
+  operation=$2
+  db_name=$3
+  table_name=$4
+  # This parameter is optional and set only with operation 'insertInto'.
+  # All rows have an id value passed in during the insert.
+  # Use the id for verifying the insert.
+  insert_id=$5
+
+  echo ""
+  echo "=> Testing that '$operation' has failed as expected."
+  echo ""
+
+  # Temporarily disable the flag so that we can handle the error.
+  set +e
+
+  if [ "$operation" == "createDb" ]; then
+    # If createDb failed, then show tables in db should return that db doesn't exist.
+
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"show tables in $db_name\").show"
+      expectedOutput="Database '$db_name' not found"
+
+      runSpark "$SPARK_USER1" "$command" "shouldFail" "$expectedOutput"
+    else
+      command="show tables in $TRINO_HIVE_SCHEMA.$db_name"
+      expectedOutput="Schema '$db_name' does not exist"
+
+      runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedOutput"
+    fi
+  elif [ "$operation" == "dropDb" ]; then
+    # If dropDb failed, then db should exist in show databases.
+
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"show databases\").show"
+      expectedOutput="|$db_name|"
+
+      runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
+    else
+      command="show schemas in $TRINO_HIVE_SCHEMA"
+      expectedOutput="$db_name"
+
+      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
+    fi
+  elif [ "$operation" == "createTable" ]; then
+    # If createTable failed, then select table should fail.
+
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"select * from $db_name.$table_name\").show"
+      expectedOutput="Table or view not found: $db_name.$table_name;"
+
+      runSpark "$SPARK_USER1" "$command" "shouldFail" "$expectedOutput"
+    else
+      command="select * from $TRINO_HIVE_SCHEMA.$db_name.$table_name"
+      expectedOutput="Table '$TRINO_HIVE_SCHEMA.$db_name.$table_name' does not exist"
+
+      runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedOutput"
+    fi
+  elif [[ "$operation" == "dropTable" || "$operation" == "renameTable" ]]; then
+    # DROP:
+    # If dropTable failed, then the table should exist in show tables from db.
+
+    # RENAME:
+    # If renameTable failed, then the original table name should exist in show tables from db.
+    # The tableName parameter will point to the old name and not the new name.
+    # If the command succeeded then the old name won't be in the output.
+
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"show tables from $db_name\").show"
+      expectedOutput="$table_name"
+
+      runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
+    else
+      command="show tables in $TRINO_HIVE_SCHEMA.$db_name"
+      expectedOutput="$table_name"
+
+      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
+    fi
+  elif [ "$operation" == "insertInto" ]; then
+    # In most insert into calls, the table isn't empty.
+    # Therefore, it doesn't make sense to check the table dir in HDFS.
+
+    # All tables have an id column. Check that the provided id
+    # hasn't been inserted into the table.
+
+    if [ "$component" == "spark" ]; then
+      command="spark.sql(\"select id from $db_name.$table_name where id=$insert_id\").show"
+      expectedOutput=$(cat <<EOF
++---+
+| id|
++---+
++---+
+EOF
+)
+
+      runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
+    else
+      command="select id from $TRINO_HIVE_SCHEMA.$db_name.$table_name where id=$insert_id"
+      expectedOutput="0 rows"
+
+      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
+    fi
+  else
+    echo ""
+    echo "Invalid operation. Try one of the following: createDb, dropDb, createTable, dropTable, renameTable, insertInto"
+    echo ""
+
+    # Enable the flag again before exiting.
+    set -e
+    exit 1
+  fi
+
+  # Get the exit_code from the testing call.
+  exit_code=$?
+
+  # Enable the flag again before exiting.
+  set -e
+
+  if [ "$exit_code" -ne 0 ]; then
+    echo ""
+    echo "=> There was an error. '$operation' was expected to have failed but it was successful."
+    echo ""
+
+    exit 1
+  fi
+
+  echo ""
+  echo "=> Verified successfully that '$operation' has failed."
+  echo ""
 }
 
 # -- LOAD TESTING --

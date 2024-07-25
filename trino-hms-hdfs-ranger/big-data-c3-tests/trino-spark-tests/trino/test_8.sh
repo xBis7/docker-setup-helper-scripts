@@ -39,7 +39,7 @@ expectedMsg="INSERT: 1 row"
 runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
 
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test"
-expectedMsg="\"1\",\"Austin\""
+expectedMsg="  1 | Austin "
 
 runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
 

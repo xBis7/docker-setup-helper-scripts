@@ -1042,9 +1042,6 @@ setupHdfsPathsAndPermissions() {
   changeHdfsPathPermissions "$HDFS_DIR" 755
   changeHdfsPathPermissions "$HDFS_DIR/test.csv" 655
 
-  createHdfsDir "tmp"
-  changeHdfsPathPermissions "tmp" 777
-
   createHdfsDir "$HIVE_WAREHOUSE_DIR"
   changeHdfsPathPermissions "$HIVE_WAREHOUSE_ROOT_DIR" 755
   changeHdfsPathPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 755

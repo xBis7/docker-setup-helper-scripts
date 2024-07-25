@@ -22,3 +22,5 @@ echo "- INFO: User [spark] shouldn't be able to create table."
 command="spark.read.text(\"hdfs://namenode:8020/test\").write.option(\"path\", \"hdfs://namenode/opt/hive/data\").mode(\"overwrite\").format(\"csv\").saveAsTable(\"$DEFAULT_DB.$SPARK_TABLE\")"
 expectedMsg="Permission denied: user [spark] does not have [CREATE] privilege on [$DEFAULT_DB/$SPARK_TABLE]"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "spark" "createTable" "$DEFAULT_DB" "$SPARK_TABLE"

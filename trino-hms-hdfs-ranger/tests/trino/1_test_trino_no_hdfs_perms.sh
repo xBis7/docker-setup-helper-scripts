@@ -21,3 +21,5 @@ command="create table hive.$DEFAULT_DB.$TRINO_TABLE (column1 varchar,column2 var
 # Failure due to lack of HDFS permissions.
 expectedMsg="Permission denied: user [trino] does not have [ALL] privilege on" # [hdfs://namenode:8020/$HDFS_DIR]"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "trino" "createTable" "$DEFAULT_DB" "$TRINO_TABLE"

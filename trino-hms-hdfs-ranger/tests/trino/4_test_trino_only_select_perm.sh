@@ -31,6 +31,8 @@ command="insert into hive.default.$TRINO_TABLE values ('5', 'cat');"
 expectedMsg="Permission denied: user=trino, access=WRITE, inode=\"/\":hadoop:supergroup:drwxr-xr-x"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
 
+verifyCreateWriteFailure "trino" "insertInto" "$DEFAULT_DB" "$TRINO_TABLE" "5"
+
 echo ""
 echo "- INFO: Rename $TRINO_TABLE table."
 echo "- INFO: [alter] should fail."
@@ -39,9 +41,13 @@ command="alter table hive.$DEFAULT_DB.$TRINO_TABLE rename to $NEW_TRINO_TABLE_NA
 expectedMsg="Permission denied: user [trino] does not have [ALTER] privilege"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
 
+verifyCreateWriteFailure "trino" "renameTable" "$DEFAULT_DB" "$TRINO_TABLE"
+
 echo ""
 echo "- INFO: Insert into $TABLE_ANIMALS table."
 echo "- INFO: [alter] should fail."
 command="insert into hive.default.$TABLE_ANIMALS values (1, 'cat');"
 expectedMsg="Permission denied: user=trino, access=WRITE, inode=\"/\":hadoop:supergroup:drwxr-xr-x"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "trino" "insertInto" "$DEFAULT_DB" "$TABLE_ANIMALS" "1"

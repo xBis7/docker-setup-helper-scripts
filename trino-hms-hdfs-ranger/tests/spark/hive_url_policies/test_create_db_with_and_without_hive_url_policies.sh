@@ -84,6 +84,8 @@ if [ "$without_url" == 0 ]; then
   command="spark.sql(\"create database gross_test location '/$HIVE_GROSS_DB_TEST_DIR'\")"
   expectedMsg="Permission denied: user [spark] does not have [ALL] privilege on [hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR]"
   runSpark "spark" "$command" "shouldFail" "$expectedMsg"
+
+  verifyCreateWriteFailure "spark" "createDb" "gross_test"
 fi
 
 # With URL policies.

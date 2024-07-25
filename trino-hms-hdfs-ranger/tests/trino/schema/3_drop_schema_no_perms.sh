@@ -21,4 +21,4 @@ command="drop schema hive.$EXTERNAL_DB"
 expectedMsg="Permission denied: user [trino] does not have [DROP] privilege on [$EXTERNAL_DB]"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
 
-
+verifyCreateWriteFailure "trino" "dropDb" "$EXTERNAL_DB"

@@ -29,3 +29,5 @@ echo "Trying to drop schema $GROSS_DB_NAME as user 'games'. User doesn't have pe
 command="drop schema hive.$GROSS_DB_NAME;"
 expectedMsg="Permission denied: user [games] does not have [DROP] privilege on [$GROSS_DB_NAME]"
 runTrino "games" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "trino" "dropDb" "$GROSS_DB_NAME"

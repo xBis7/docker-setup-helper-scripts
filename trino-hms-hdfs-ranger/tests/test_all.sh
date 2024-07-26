@@ -38,20 +38,20 @@ echo ""
 echo """### TEST_"$component"_no_hdfs_perms ###"""
 ./tests/"$component"/1_test_"$component"_no_hdfs_perms.sh
 
-# if [ "$component" == "spark" ]; then
-#   echo ""
-#   echo "### TEST_DATABASE ###"
-#   # This script contains multiple tests and can be run independently.
-#   # We already have the correct setup and therefore, 
-#   # no flags regarding the docker env, will be used.
-#   ./tests/"$component"/database/test_database.sh "$abs_path"
-# else
-#   echo ""
-#   echo "### TEST_SCHEMA ###"
-#   # A database in Trino is considered a schema.
-#   # Same as 'spark/database/test_database.sh' but for trino.
-#   ./tests/"$component"/schema/test_schema.sh "$abs_path" "true"
-# fi
+if [ "$component" == "spark" ]; then
+  echo ""
+  echo "### TEST_DATABASE ###"
+  # This script contains multiple tests and can be run independently.
+  # We already have the correct setup and therefore, 
+  # no flags regarding the docker env, will be used.
+  ./tests/"$component"/database/test_database.sh "$abs_path"
+else
+  echo ""
+  echo "### TEST_SCHEMA ###"
+  # A database in Trino is considered a schema.
+  # Same as 'spark/database/test_database.sh' but for trino.
+  ./tests/"$component"/schema/test_schema.sh "$abs_path" "true"
+fi
 
 echo ""
 echo """### TEST_"$component"_hdfs_perms_no_hive_perms ###"""

@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: User [spark] has only 'select' Hive perms. Creating a table under db '$EXTERNAL_DB' should fail."
 echo "- INFO: Create table."

@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: Updating Ranger policies. User [trino] will now have only [select] access to Hive default DB."
 echo "- INFO: HDFS access for user [trino] has been removed."

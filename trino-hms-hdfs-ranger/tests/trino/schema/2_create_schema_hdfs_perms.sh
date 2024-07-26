@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: Updating Ranger policies. User [trino] now will have [ALL] privileges on all HDFS paths."
 echo "- INFO: The user will also have 'select','read','create' Hive permissions."

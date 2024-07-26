@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "Test2-trino: ############### test select and drop with user 'games' ###############"
 echo ""

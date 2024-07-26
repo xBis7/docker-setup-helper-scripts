@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: To create an external schema and store it in HDFS, using Trino,"
 echo "- INFO: all you need is HDFS perms. No Hive perms are needed."

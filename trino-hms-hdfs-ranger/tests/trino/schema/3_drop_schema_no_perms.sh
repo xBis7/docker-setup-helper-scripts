@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 updateHdfsPathPolicy "/*" "read,write,execute:hadoop,trino,spark"
 updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive/select,read,create:spark,trino"
 updateHiveDefaultDbPolicy "select,read:spark,trino"

@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo "- INFO: To create an external Database and store it in HDFS, using Spark,"
 echo "- INFO: all you need is HDFS perms. No Hive perms are needed."
 echo "- INFO: User [spark] doesn't have HDFS permissions. The user will have only 'select' access."

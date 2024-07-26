@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "Test3-trino: ############### create table (managed + not-managed) without and with Hive URL policies ###############"
 echo ""

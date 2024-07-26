@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: Updating Ranger policies."
 echo "- INFO: Users [trino] will now have [select, alter] access to Hive default DB."

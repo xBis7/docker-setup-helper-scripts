@@ -454,7 +454,7 @@ EOF
 
 # The difference of this method with 'verifyCreateWriteFailure.insertInto', is that
 # this check expects to find the value in the table while the other one
-# expects to not get a result back. It's the same check but the reverse result.
+# expects to not get a result back. It's the same check but the expected result is reversed.
 verifyTableEntries() {
   # 'spark' or 'trino'
   component=$1

@@ -73,7 +73,7 @@ if [ "$HIVE_VERSION" != "4" ]; then
 
   # Truncate deletes all the data of the table but not the table itself.
   #
-  # First happens the writing that deletes the entries and then the alter table.
+  # The operation does the writing that deletes the entries and then alters the table.
   # The user has write permissions but doesn't have alter permissions.
   # Just like above, the operation gets an exception but only after the delete has already taken place.
   # The check here doesn't make sense because the data have already been deleted.

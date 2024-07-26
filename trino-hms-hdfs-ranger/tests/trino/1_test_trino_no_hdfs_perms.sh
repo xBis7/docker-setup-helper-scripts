@@ -7,7 +7,7 @@ set -e
 
 updateHdfsPathPolicy "/*" "read,write,execute:hadoop"
 updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
-updateHiveDefaultDbPolicy "select,read:spark"
+updateHiveDefaultDbPolicy "select,read:spark,trino"
 updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
 waitForPoliciesUpdate

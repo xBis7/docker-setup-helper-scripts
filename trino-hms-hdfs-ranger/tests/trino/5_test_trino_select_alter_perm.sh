@@ -31,6 +31,9 @@ command="delete from hive.default.$TRINO_TABLE;"
 expectedMsg="Cannot delete from non-managed Hive table"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
 
+# If the entry from the previous command exists on the table, then delete has failed.
+verifyTableEntries "trino" "default" "$TRINO_TABLE" "5"
+
 echo ""
 echo "- INFO: Rename table $TRINO_TABLE."
 echo "- INFO: [alter] should now succeed."

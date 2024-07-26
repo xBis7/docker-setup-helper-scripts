@@ -303,16 +303,16 @@ verifyCreateWriteFailure() {
 
   # 'trino' or 'spark'
   component=$1
-  # 'createDb', 'dropDb', 'createTable', 'dropTable', 'renameTable', 'insertInto'
+  # 'createDb', 'dropDb', 'createTable', 'dropTable', 'renameTable', 'alterTableData', 'insertInto'
   operation=$2
   db_name=$3
   table_name=$4
-  # This parameter is optional. It's set for operation 'insertInto' or 'alterLocation'.
+  # This parameter is optional. It's set for operation 'insertInto' or 'alterTableData'.
   #
   # For 'insertInto', it's an id because all rows have an id value passed in during the insert.
   # Use the id for verifying the insert.
   #
-  # For 'alterLocation', it's the table location.
+  # For 'alterTableData', it's a value that should exist in the table metadata.
   value_to_check=$5
 
   echo ""
@@ -384,6 +384,20 @@ verifyCreateWriteFailure() {
 
       runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
     fi
+  elif [ "$operation" == "alterTableData" ]; then
+    # Run describe table and check the table metadata.
+    if [ "$component" == "spark" ]; then
+      # 'show(false)' prints the entire output.
+      command="spark.sql(\"describe extended table $db_name.$table_name\").show(false)"
+      expectedOutput="$value_to_check"
+
+      runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
+    else
+      command="describe $TRINO_HIVE_SCHEMA.$db_name.$table_name"
+      expectedOutput="$value_to_check"
+
+      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
+    fi
   elif [ "$operation" == "insertInto" ]; then
     # In most insert into calls, the table isn't empty.
     # Therefore, it doesn't make sense to check the table dir in HDFS.
@@ -408,22 +422,10 @@ EOF
 
       runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
     fi
-  elif [ "$operation" == "alterLocation" ]; then
-    # Run describe table and check the table location.
-    if [ "$component" == "spark" ]; then
-      command="spark.sql(\"describe extended table $db_name.$table_name\").show"
-      expectedOutput="$value_to_check"
-
-      runSpark "$SPARK_USER1" "$command" "shouldPass" "$expectedOutput"
-    else
-      command="describe $TRINO_HIVE_SCHEMA.$db_name.$table_name"
-      expectedOutput="$value_to_check"
-
-      runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedOutput"
-    fi
   else
     echo ""
-    echo "Invalid operation. Try one of the following: createDb, dropDb, createTable, dropTable, renameTable, insertInto, alterLocation"
+    echo "Invalid operation. Try one of the following: "
+    echo "'createDb, dropDb, createTable, dropTable, renameTable, alterTableData, insertInto'"
     echo ""
 
     # Enable the flag again before exiting.
@@ -447,6 +449,51 @@ EOF
 
   echo ""
   echo "=> Verified successfully that '$operation' has failed."
+  echo ""
+}
+
+# The difference of this method with 'verifyCreateWriteFailure.insertInto', is that
+# this check expects to find the value in the table while the other one
+# expects to not get a result back. It's the same check but the reverse result.
+verifyTableEntries() {
+  # 'spark' or 'trino'
+  component=$1
+  db_name=$2
+  table_name=$3
+  # For now this is an id. We are using an id because all tables have an id column.
+  value_to_check=$4
+
+  echo ""
+  echo "=> Verifying that value '$value_to_check' exists in table '$db_name.$table_name'."
+  echo ""
+
+  # Temporarily disable the flag so that we can handle the error.
+  set +e
+
+  if [ "$component" == "spark" ]; then
+    command="spark.sql(\"select id from $db_name.$table_name where id=$value_to_check\").show"
+    runSpark "$SPARK_USER1" "$command" "shouldPass" "$value_to_check"
+  else
+    command="select id from $TRINO_HIVE_SCHEMA.$db_name.$table_name where id=$value_to_check"
+    runTrino "$TRINO_USER1" "$command" "shouldPass" "$value_to_check"
+  fi
+
+  # Get the exit_code from the testing call.
+  exit_code=$?
+
+  # Enable the flag again before exiting.
+  set -e
+
+  if [ "$exit_code" -ne 0 ]; then
+    echo ""
+    echo "=> There was an error. Value '$value_to_check' doesn't exist in table '$db_name.$table_name'."
+    echo ""
+
+    exit 1
+  fi
+
+  echo ""
+  echo "=> Verified successfully that value '$value_to_check' exists in table '$db_name.$table_name'."
   echo ""
 }
 

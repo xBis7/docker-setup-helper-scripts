@@ -41,6 +41,11 @@ command="spark.sql(\"alter table $TABLE_ANIMALS drop partition (name='cow')\")"
 expectedMsg="Permission denied: user [spark] does not have [ALTER] privilege on [$DEFAULT_DB/$TABLE_ANIMALS]"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
 
+# We haven't added any data to the partition and therefore it won't show up in 'describe table'.
+# We can't check if the drop has failed unless we insert data to the partition before the drop.
+#
+# verifyCreateWriteFailure "spark" "alterTableData" "$DEFAULT_DB" "$TABLE_ANIMALS" "cow"
+
 echo ""
 echo "- INFO: Insert into table."
 echo "- INFO: User [spark] shouldn't be able to alter table."
@@ -65,4 +70,13 @@ if [ "$HIVE_VERSION" != "4" ]; then
   command="spark.sql(\"truncate table $TABLE_SPORTS\")"
   expectedMsg="Permission denied: user [spark] does not have [ALTER] privilege on [$DEFAULT_DB/$TABLE_SPORTS]"
   runSpark "spark" "$command" "shouldFail" "$expectedMsg"
+
+  # Truncate deletes all the data of the table but not the table itself.
+  #
+  # First happens the writing that deletes the entries and then the alter table.
+  # The user has write permissions but doesn't have alter permissions.
+  # Just like above, the operation gets an exception but only after the delete has already taken place.
+  # The check here doesn't make sense because the data have already been deleted.
+  #
+  # verifyTableEntries "spark" "$DEFAULT_DB" "$TABLE_SPORTS" "1"
 fi

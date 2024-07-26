@@ -17,7 +17,7 @@ updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Wri
 
 waitForPoliciesUpdate
 
-command="create table hive.$EXTERNAL_DB.$TRINO_TABLE (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode/$HDFS_DIR',format = 'CSV')"
+command="create table hive.$EXTERNAL_DB.$TRINO_TABLE (id varchar, name varchar) with (external_location = 'hdfs://namenode/$HDFS_DIR',format = 'CSV')"
 expectedMsg="Permission denied: user [trino] does not have [CREATE] privilege on [$EXTERNAL_DB/$TRINO_TABLE]"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
 

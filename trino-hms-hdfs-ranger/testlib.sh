@@ -99,6 +99,8 @@ TRINO_HOSTNAME="trino-coordinator-1"
 SPARK_MASTER_HOSTNAME="spark-master-1" # These are the same for Hive3 and Hive4.
 SPARK_WORKER1_HOSTNAME="spark-worker-1"
 
+KDC_HOSTNAME="kerberos-kdc-1"
+
 # Spark test variables
 SPARK_TEST_FILENAME="test.scala"
 SPARK_TEST_PATH="tests/spark"
@@ -200,10 +202,12 @@ getHostnameFromName() {
     echo "$SPARK_MASTER_HOSTNAME"
   elif [ "$name" == "spark_worker1" ]; then
     echo "$SPARK_WORKER1_HOSTNAME"
+  elif [ "$name" == "kdc" ]; then
+    echo "$KDC_HOSTNAME"
   else
     echo "The provided name is unknown."
     echo "Try one of the following: "
-    echo "[namenode, dn1, dn2, dn3, hms, hms_postgres, ranger, ranger_postgres, trino, spark_master, spark_worker1]"
+    echo "[namenode, dn1, dn2, dn3, hms, hms_postgres, ranger, ranger_postgres, trino, spark_master, spark_worker1, kdc]"
   fi
 }
 
@@ -426,6 +430,36 @@ handleHadoopEnv() {
 
     echo ""
     echo "'$PROJECT_HADOOP' env stopped."
+    echo ""
+  fi
+}
+
+handleKerberosEnv() {
+  abs_path=$1
+  op=$2
+
+  krb5_docker_path="$abs_path/$CURRENT_REPO/compose/kerberos"
+  cd $krb5_docker_path
+
+  if [ "$op" == "start" ]; then
+    echo ""
+    echo "Starting 'Kerberos' env."
+    echo ""
+
+    docker compose -f "$krb5_docker_path/docker-compose.yml" up -d
+
+    echo ""
+    echo "'Kerberos' env started."
+    echo ""
+  else
+    echo ""
+    echo "Stopping 'Kerberos' env."
+    echo ""
+
+    docker compose -f "$krb5_docker_path/docker-compose.yml" down
+
+    echo ""
+    echo "'Kerberos' env stopped."
     echo ""
   fi
 }

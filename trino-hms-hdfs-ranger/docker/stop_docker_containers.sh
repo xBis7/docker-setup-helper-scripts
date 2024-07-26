@@ -17,8 +17,10 @@ elif [[ "$project" == "trino" ]]; then
   handleTrinoEnv "$abs_path" "stop"
 elif [[ "$project" == "spark" ]]; then
   handleSparkEnv "$abs_path" "stop"
+elif [[ "$project" == "kerberos" ]]; then
+  handleKerberosEnv "$abs_path" "stop"
 else
   echo "Provided project is unknown."
   echo "Try one of the following: "
-  echo "[ranger, hadoop, hms, trino, spark]"
+  echo "[ranger, hadoop, hms, trino, spark, kerberos]"
 fi

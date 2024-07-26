@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  kdc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: kdc
+    volumes:
+      - ../common/keytabs:/etc/security/keytabs
+      - ./keytab_gen.sh:/opt/keytab_gen.sh
+    command: ["krb5kdc","-n"]
+    networks:
+      - ranger-net
+
+networks:
+  ranger-net:
+    name: rangernw
+    external: true

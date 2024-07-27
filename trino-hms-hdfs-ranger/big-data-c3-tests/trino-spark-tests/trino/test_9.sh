@@ -52,6 +52,28 @@ runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedMsg"
 # We are testing that we don't have enough permissions to perform a read and see that
 # the db exists.
 
+# Provide select access.
+updateHiveDbAllPolicy "gross_test" "select,alter,create,drop,index,lock,update:$TRINO_USER1"
+waitForPoliciesUpdate
+
+# Drop the schema.
+command="drop schema $TRINO_HIVE_SCHEMA.gross_test"
+expectedMsg="DROP SCHEMA"
+runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"
+
+# Verify the deny policy.
+command="create schema $TRINO_HIVE_SCHEMA.gross_test"
+expectedMsg="Permission denied: user [$TRINO_USER1] does not have [WRITE] privilege on [[hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db, hdfs://$NAMENODE_NAME/$HIVE_WAREHOUSE_DIR/gross_test.db/]]"
+runTrino "$TRINO_USER1" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "trino" "createDb" "gross_test"
+
 # Remove the deny condition and restore the Hive URL policy.
 updateHiveUrlPolicy "hdfs://$NAMENODE_NAME/data/projects/gross_test,hdfs://$NAMENODE_NAME/$TRINO_HIVE_WAREHOUSE_DIR/gross_test.db" "read,write:$TRINO_USER1"
 waitForPoliciesUpdate
+
+# Create the schema again.
+command="create schema $TRINO_HIVE_SCHEMA.gross_test"
+expectedMsg="CREATE SCHEMA"
+
+runTrino "$TRINO_USER1" "$command" "shouldPass" "$expectedMsg"

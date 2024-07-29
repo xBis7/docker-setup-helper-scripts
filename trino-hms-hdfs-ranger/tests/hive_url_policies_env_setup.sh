@@ -27,8 +27,7 @@ echo "- INFO: Updating Ranger policies. Loading base policies. No user will have
 waitForPoliciesUpdate
 
 # Create external DB directory 'gross_test.db'.
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR" "$notExpMsg" "false" "true"
+createHdfsDir "$HIVE_GROSS_DB_TEST_DIR"
 
 echo ""
 echo "Updating HDFS policies."

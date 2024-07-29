@@ -15,8 +15,7 @@ echo ""
 echo "Creating the new URI."
 
 # Create external DB directory 'gross_test2.db'.
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR_SEC" "$notExpMsg" "false" "true"
+createHdfsDir "$HIVE_GROSS_DB_TEST_DIR_SEC"
 
 echo ""
 echo "Removing all Hive URL policies."

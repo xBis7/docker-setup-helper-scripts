@@ -690,57 +690,49 @@ printCmdString() {
   echo ""
 }
 
-createHdfsDir() {
-  dir_name=$1
-
-  c="hdfs dfs -mkdir -p /$dir_name"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$DN1_HOSTNAME" bash -c "$c"
-  fi
-}
-
 createHdfsFile() {
   dir_name=$1
   file_name=${2:-"test.csv"} # Provide a default value if not set.
 
-  c="hdfs dfs -put $file_name /$dir_name"
+  hdfs_cmd="hdfs dfs -put $file_name /$dir_name"
 
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$DN1_HOSTNAME" bash -c "$c"
-  fi
+  echo ""
+  echo "Running command:"
+  echo "$hdfs_cmd"
+  echo ""
+
+  docker exec -it "$DN1_HOSTNAME" bash -c "$hdfs_cmd"
+
+  echo ""
+  echo "Command succeeded."
+  echo ""
 }
 
 createHdfsFileAsUser() {
   user=$1
   dir_name=$2
-  file_name=${3:-"test.csv"} # Provide a default value if not set.
+  expectedOutput=$3
+  file_name=${4:-"test.csv"} # Provide a default value if not set.
 
-  c="hdfs dfs -put $file_name /$dir_name"
+  hdfs_cmd="hdfs dfs -put $file_name /$dir_name"
 
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it -u "$user" "$DN1_HOSTNAME" bash -c "$c"
+  echo ""
+  echo "Running command:"
+  echo "$hdfs_cmd"
+  echo "and checking results."
+  echo ""
+
+  result=$(docker exec -it -u "$user" "$DN1_HOSTNAME" bash -c "$hdfs_cmd")
+
+  # 'ignoreExpectedOutput' is provided in case we don't want to check the output.
+  if [ "$expectedOutput" != "ignoreExpectedOutput" ]; then
+    # If grep fails then it will exit.
+    cat "$result" | grep "$expectedOutput"
   fi
-}
 
-
-changeHdfsPathPermissions() {
-  path=$1
-  perms=$2
-
-  c="hdfs dfs -chmod $perms /$path"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-    printCmdString "$c"
-  else
-    docker exec -it "$DN1_HOSTNAME" bash -c "$c"
-  fi
+  echo ""
+  echo "Command succeeded."
+  echo ""
 }
 
 performTrinoCmd() {

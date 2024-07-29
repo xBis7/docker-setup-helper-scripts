@@ -37,17 +37,13 @@ setup() {
   ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
   waitForPoliciesUpdate
 
-  notExpMsg="Permission denied"
-  retryOperationIfNeeded "$abs_path" "createHdfsDir $full_test_path" "$notExpMsg" "false" "true"
+  createHdfsDir "$full_test_path"
 
-  notExpMsg="Permission denied"
-  retryOperationIfNeeded "$abs_path" "changeHdfsPathPermissions $HIVE_GROSS_DB_TEST_DIR 777" "$notExpMsg" "false" "true"
+  changeHdfsDirPermissions "$HIVE_GROSS_DB_TEST_DIR" 777
 
-  notExpMsg="Permission denied"
-  retryOperationIfNeeded "$abs_path" "changeHdfsPathPermissions $HIVE_GROSS_DB_TEST_DIR/test1 777" "$notExpMsg" "false" "true"
+  changeHdfsDirPermissions "$HIVE_GROSS_DB_TEST_DIR/test1" 777
 
-  notExpMsg="Permission denied"
-  retryOperationIfNeeded "$abs_path" "changeHdfsPathPermissions $HIVE_GROSS_DB_TEST_DIR/test1/test2 777" "$notExpMsg" "false" "true"
+  changeHdfsDirPermissions "$HIVE_GROSS_DB_TEST_DIR/test1/test2" 777
 
   if [ "$use_url_config" == "true" ]; then
     echo ""

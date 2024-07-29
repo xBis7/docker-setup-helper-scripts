@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "./big-data-c3-tests/lib.sh"
+
 # Project names
 PROJECT_RANGER="ranger"
 PROJECT_HADOOP="hadoop"

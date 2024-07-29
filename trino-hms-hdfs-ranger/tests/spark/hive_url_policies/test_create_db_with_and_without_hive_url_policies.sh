@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -52,20 +53,20 @@ setup() {
     echo ""
     echo "- INFO: Updating Ranger policies. User [spark] will have Write permission for Hive URL policy but no HDFS access."
 
-    updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
-    updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,spark"
+    updateHdfsPathPolicy "/*" "read,write,execute:hadoop"
+    updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,spark"
     updateHiveDefaultDbPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:trino/select:spark"
-    updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,trino,spark"
+    updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive,trino,spark"
 
     waitForPoliciesUpdate
   else
     echo ""
     echo "- INFO: Updating Ranger policies. User [spark] now will have all Hive access to default DB but no HDFS."
 
-    updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
-    updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+    updateHdfsPathPolicy "/*" "read,write,execute:hadoop"
+    updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
     updateHiveDefaultDbPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:trino,spark"
-    updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+    updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
     waitForPoliciesUpdate
   fi

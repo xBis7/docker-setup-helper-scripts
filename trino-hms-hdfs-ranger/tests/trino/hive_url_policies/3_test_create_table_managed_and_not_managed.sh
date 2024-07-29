@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -13,8 +14,8 @@ echo ""
 echo ""
 echo "Removing all Hive URL policies."
 
-updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
-updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,spark,trino"
+updateHiveDbAllPolicy "*" "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveUrlPolicy ""
 
@@ -61,10 +62,10 @@ retryOperationIfNeeded "$abs_path" "performTrinoCmd trino $cmd" "$failMsg" "true
 echo ""
 echo "Creating Hive URL policies again."
 
-updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
-updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,spark,trino"
+updateHiveDbAllPolicy "*" "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
-updateHiveUrlPolicy "read,write:trino"
+updateHiveUrlPolicy "*" "read,write:trino"
 
 waitForPoliciesUpdate
 

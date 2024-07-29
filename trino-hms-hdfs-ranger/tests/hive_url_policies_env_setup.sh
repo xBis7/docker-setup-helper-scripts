@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -32,7 +33,7 @@ retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR" "$not
 echo ""
 echo "Updating HDFS policies."
 echo ""
-updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,spark,trino"
 
 echo ""
 echo "---------------------------------------------------"
@@ -40,7 +41,7 @@ echo "---------------------------------------------------"
 echo ""
 echo "Updating Hive all db, cols, tables."
 echo ""
-updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHiveDbAllPolicy "*" "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 
 echo ""
 echo "---------------------------------------------------"

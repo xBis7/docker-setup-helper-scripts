@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -20,8 +21,8 @@ retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_GROSS_DB_TEST_DIR_SEC" "
 echo ""
 echo "Removing all Hive URL policies."
 
-updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
-updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,spark,trino"
+updateHiveDbAllPolicy "*" "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveUrlPolicy ""
 
@@ -44,10 +45,10 @@ retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILEN
 echo ""
 echo "Creating Hive URL policies again."
 
-updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
-updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,spark,trino"
+updateHiveDbAllPolicy "*" "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
-updateHiveUrlPolicy "read,write:spark"
+updateHiveUrlPolicy "*" "read,write:spark"
 
 waitForPoliciesUpdate
 

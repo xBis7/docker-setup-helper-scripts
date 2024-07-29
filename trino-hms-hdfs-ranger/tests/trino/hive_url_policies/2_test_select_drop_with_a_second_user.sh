@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -10,10 +11,10 @@ echo ""
 echo "Test2-trino: ############### test select and drop with user 'games' ###############"
 echo ""
 
-updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
-updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,spark,trino"
+updateHiveDbAllPolicy "*" "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
-updateHiveUrlPolicy "read,write:trino"
+updateHiveUrlPolicy "*" "read,write:trino"
 
 waitForPoliciesUpdate
 

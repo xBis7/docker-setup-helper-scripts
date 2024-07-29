@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./testlib.sh"
+source "./big-data-c3-tests/lib.sh"
 
 set -e
 
@@ -10,10 +11,10 @@ echo ""
 echo "- INFO: Updating Ranger policies. User [spark] now will have [ALL] privileges on all HDFS paths."
 echo "- INFO: No user will have permissions on Hive metastore operations on the default db."
 
-updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
-updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive/select,read:spark,trino"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,trino,spark"
+updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive/select,read:spark,trino"
 updateHiveDefaultDbPolicy "select,read:spark,trino"
-updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
 waitForPoliciesUpdate
 

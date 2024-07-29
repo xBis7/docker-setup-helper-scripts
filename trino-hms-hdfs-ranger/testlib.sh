@@ -1037,6 +1037,10 @@ base64encode() {
 }
 
 setupHdfsPathsAndPermissions() {
+  # The default permissions have been set to
+  #   - 700 for dirs
+  #   - 600 for files
+  # Change posix permissions to avoid getting an EXECUTE error.
   createHdfsDir "$HDFS_DIR"
   createHdfsFile "$HDFS_DIR"
   changeHdfsPathPermissions "$HDFS_DIR" 755

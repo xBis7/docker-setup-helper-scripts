@@ -990,26 +990,6 @@ retryOperationIfNeeded() {
   done
 }
 
-cpSparkTest() {
-  testFilePath=$1
-
-  docker cp "$testFilePath" "$SPARK_MASTER_HOSTNAME":/opt/spark/"$SPARK_TEST_FILENAME"
-}
-
-runSparkTest() {
-  testFileName=$1
-  sql_arg=$(echo -n "$2" | base64 --decode)
-  msg_arg=$(echo -n "$3" | base64 --decode)
-  user=${4:-"spark"}
-  message="Running Spark test: [$testFileName] with arguments sql_arg: [$sql_arg] and msg_arg: [$msg_arg]"
-
-  if [ "$PRINT_CMD" == "true" ]; then
-      printCmdString "$message"
-  else
-    docker exec -it -u "$user" "$SPARK_MASTER_HOSTNAME" bash -c "bin/spark-shell --conf spark.app.sql=\"$sql_arg\" --conf spark.app.msg=\"$msg_arg\" -I test.scala"
-  fi
-}
-
 setupHdfsPathsAndPermissions() {
   # The default permissions have been set to
   #   - 700 for dirs

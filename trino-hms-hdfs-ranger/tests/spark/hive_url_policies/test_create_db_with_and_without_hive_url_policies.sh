@@ -81,10 +81,9 @@ if [ "$without_url" == 0 ]; then
   echo "The operation should fail."
   echo ""
 
-  cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_FOR_EXCEPTION_FILENAME
-  scala_sql=$(base64encode "create database gross_test location '/$HIVE_GROSS_DB_TEST_DIR'")
-  scala_msg=$(base64encode "Permission denied: user [spark] does not have [ALL] privilege on [hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR]")
-  retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILENAME $scala_sql $scala_msg" "$SPARK_TEST_SUCCESS_MSG" "false"
+  command="spark.sql(\"create database gross_test location '/$HIVE_GROSS_DB_TEST_DIR'\")"
+  expectedMsg="Permission denied: user [spark] does not have [ALL] privilege on [hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR]"
+  runSpark "spark" "$command" "shouldFail" "$expectedMsg"
 fi
 
 # With URL policies.
@@ -96,9 +95,8 @@ if [ "$with_url" == 0 ]; then
   echo "Because Hive URL policies are enabled, no sub-dirs should be checked for access. Operation should succeed."
   echo ""
 
-  cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_NO_EXCEPTION_FILENAME
-  scala_sql=$(base64encode "create database gross_test location '/$HIVE_GROSS_DB_TEST_DIR'")
-  retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
+  command="spark.sql(\"create database gross_test location '/$HIVE_GROSS_DB_TEST_DIR'\")"
+  runSpark "spark" "$command" "shouldPass"
 fi
 
 

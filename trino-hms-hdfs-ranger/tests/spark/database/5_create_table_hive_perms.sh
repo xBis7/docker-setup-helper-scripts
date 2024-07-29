@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: Updating Ranger policies. User [spark] will now have all access to Hive $EXTERNAL_DB DB."
 
@@ -20,6 +18,6 @@ waitForPoliciesUpdate
 echo ""
 echo "- INFO: Create table."
 echo "- INFO: User [spark] should be able to create table."
-cpSparkTest $(pwd)/$SPARK_TEST_PATH/$SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME
-scala_sql=$(base64encode "$EXTERNAL_DB.$SPARK_TABLE")
-retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
+
+command="spark.read.text(\"hdfs://namenode:8020/test\").write.option(\"path\", \"hdfs://namenode/opt/hive/data\").mode(\"overwrite\").format(\"csv\").saveAsTable(\"$EXTERNAL_DB.$SPARK_TABLE\")"
+runSpark "spark" "$command" "shouldPass"

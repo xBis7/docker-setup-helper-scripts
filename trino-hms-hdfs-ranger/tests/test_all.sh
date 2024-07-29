@@ -24,6 +24,8 @@ if [ "$prepare_env" == "true" ]; then
   ./docker/start_docker_env.sh "$abs_path"
 fi
 
+./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
+
 ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"
 
 waitForPoliciesUpdate

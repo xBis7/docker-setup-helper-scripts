@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "Test3-trino: ############### create table (managed + not-managed) without and with Hive URL policies ###############"
 echo ""
@@ -33,9 +31,9 @@ if [ "$HIVE_VERSION" == "4" ]; then # TODO: investigate this.
   op="READ"
 fi
 
-failMsg="Permission denied: user [trino] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME/]]"
-cmd="create table hive.$GROSS_DB_NAME.$GROSS_TABLE_NAME (id int, name varchar);"
-retryOperationIfNeeded "$abs_path" "performTrinoCmd trino $cmd" "$failMsg" "true"
+command="create table hive.$GROSS_DB_NAME.$GROSS_TABLE_NAME (id int, name varchar);"
+expectedMsg="Permission denied: user [trino] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME/]]"
+runTrino "trino" "$command" "shouldFail" "$expectedMsg"
 
 echo ""
 echo "##### Managed Table #####"
@@ -55,9 +53,10 @@ fi
 echo ""
 echo "- INFO: Trying to create managed table $TABLE_PERSONS."
 echo "- INFO: [create] should fail."
-failMsg="Permission denied: user [trino] does not have [$op] privilege on [[hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS, hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS/]]"
-cmd="create table hive.default.$TABLE_PERSONS (id int, name varchar);"
-retryOperationIfNeeded "$abs_path" "performTrinoCmd trino $cmd" "$failMsg" "true"
+
+command="create table hive.default.$TABLE_PERSONS (id int, name varchar);"
+expectedMsg="Permission denied: user [trino] does not have [$op] privilege on [[hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS, hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS/]]"
+runTrino "trino" "$command" "shouldFail" "$expectedMsg"
 
 echo ""
 echo "Creating Hive URL policies again."
@@ -74,15 +73,17 @@ echo "##### Not - Managed Table #####"
 
 echo "- INFO: Creating not-managed table $GROSS_DB_NAME.$GROSS_TABLE_NAME."
 echo "- INFO: [create] should succeed."
-successMsg="CREATE TABLE"
-cmd="create table hive.$GROSS_DB_NAME.$GROSS_TABLE_NAME (id int, name varchar);"
-retryOperationIfNeeded "$abs_path" "performTrinoCmd trino $cmd" "$successMsg" "false"
+
+command="create table hive.$GROSS_DB_NAME.$GROSS_TABLE_NAME (id int, name varchar);"
+expectedMsg="CREATE TABLE"
+runTrino "trino" "$command" "shouldPass" "$expectedMsg"
 
 echo ""
 echo "##### Managed Table #####"
 
 echo "- INFO: Creating managed table $TABLE_PERSONS."
 echo "- INFO: [create] should succeed."
-successMsg="CREATE TABLE"
-cmd="create table hive.default.$TABLE_PERSONS (id int, name varchar);"
-retryOperationIfNeeded "$abs_path" "performTrinoCmd trino $cmd" "$successMsg" "false"
+
+command="create table hive.default.$TABLE_PERSONS (id int, name varchar);"
+expectedMsg="CREATE TABLE"
+runTrino "trino" "$command" "shouldPass" "$expectedMsg"

@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: Updating Ranger policies. User [trino] won't have any Hive privileges."
 
@@ -19,5 +17,7 @@ waitForPoliciesUpdate
 
 echo ""
 echo "- INFO: User [trino] shouldn't be able to run select table."
-failMsg="Permission denied: user [trino] does not have [SELECT] privilege"
-retryOperationIfNeeded "$abs_path" "selectDataFromTrinoTable $TABLE_ANIMALS $DEFAULT_DB" "$failMsg" "true"
+
+command="select * from hive.$DEFAULT_DB.$TABLE_ANIMALS"
+expectedMsg="Permission denied: user [trino] does not have [SELECT] privilege"
+runTrino "trino" "$command" "shouldFail" "$expectedMsg"

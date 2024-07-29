@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "Test1-trino: ############### create schema without and with Hive URL policies ###############"
 echo ""
@@ -14,8 +12,9 @@ echo ""
 echo ""
 echo "Creating schema $GROSS_DB_NAME as user 'trino' without Hive URL access. Operation should fail."
 
-failMsg="Permission denied: user [trino] does not have [WRITE] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/]]"
-retryOperationIfNeeded "$abs_path" "createSchemaWithTrino $GROSS_DB_NAME $HIVE_GROSS_DB_TEST_DIR" "$failMsg" "true"
+command="create schema hive.$GROSS_DB_NAME with (location = 'hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR')"
+expectedMsg="Permission denied: user [trino] does not have [WRITE] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/]]"
+runTrino "trino" "$command" "shouldFail" "$expectedMsg"
 
 echo ""
 echo "Updating Hive URL policies."
@@ -33,5 +32,6 @@ waitForPoliciesUpdate
 echo ""
 echo "Creating schema $GROSS_DB_NAME as user 'trino' with Hive URL access. Operation should succeed."
 
-successMsg="CREATE SCHEMA"
-retryOperationIfNeeded "$abs_path" "createSchemaWithTrino $GROSS_DB_NAME $HIVE_GROSS_DB_TEST_DIR" "$successMsg" "false"
+command="create schema hive.$GROSS_DB_NAME with (location = 'hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR')"
+expectedMsg="CREATE SCHEMA"
+runTrino "trino" "$command" "shouldPass" "$expectedMsg"

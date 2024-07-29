@@ -5,8 +5,6 @@ source "./big-data-c3-tests/lib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: Updating Ranger policies. User [trino] will now have all access to Hive $EXTERNAL_DB DB."
 
@@ -20,6 +18,6 @@ waitForPoliciesUpdate
 echo ""
 echo "- INFO: Ranger policies updated."
 
-successMsg="CREATE TABLE"
-
-retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR $EXTERNAL_DB" "$successMsg" "false"
+command="create table hive.$EXTERNAL_DB.$TRINO_TABLE (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode/$HDFS_DIR',format = 'CSV')"
+expectedMsg="CREATE TABLE"
+runTrino "trino" "$command" "shouldPass" "$expectedMsg"

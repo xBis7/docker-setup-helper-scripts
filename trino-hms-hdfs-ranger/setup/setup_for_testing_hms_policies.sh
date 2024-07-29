@@ -24,5 +24,6 @@ echo "- INFO: User [spark] should be able to create table."
 command="spark.read.text(\"hdfs://namenode:8020/test\").write.option(\"path\", \"hdfs://namenode/opt/hive/data\").mode(\"overwrite\").format(\"csv\").saveAsTable(\"$DEFAULT_DB.$SPARK_TABLE\")"
 runSpark "spark" "$command" "shouldPass"
 
-trinoSuccessMsg="CREATE TABLE"
-retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR $DEFAULT_DB" "$successMsg" "false"
+command="create table hive.$DEFAULT_DB.$TRINO_TABLE (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode/$HDFS_DIR',format = 'CSV');"
+expectedMsg="CREATE TABLE"
+runTrino "trino" "$command" "shouldPass" "$expectedMsg"

@@ -14,6 +14,13 @@ CORE-SITE.XML_hadoop.security.authorization=true
 CORE-SITE.XML_hadoop.security.krb5.conf=/etc/krb5.conf
 CORE-SITE.XML_hadoop.rpc.protection=privacy
 
+# core-site.xml ssl config
+CORE-SITE.XML_hadoop.ssl.require.client.cert=false
+CORE-SITE.XML_hadoop.ssl.hostname.verifier=DEFAULT
+CORE-SITE.XML_hadoop.ssl.keystores.factory.class=org.apache.hadoop.security.ssl.FileBasedKeyStoresFactory
+CORE-SITE.XML_hadoop.ssl.server.conf=ssl-server.xml
+CORE-SITE.XML_hadoop.ssl.client.conf=ssl-client.xml
+
 HDFS-SITE.XML_dfs.namenode.rpc-address=namenode:8020
 HDFS-SITE.XML_dfs.replication=1
 
@@ -37,6 +44,10 @@ HDFS-SITE.XML_dfs.datanode.http.address=0.0.0.0:10022
 HDFS-SITE.XML_dfs.datanode.data.dir.perm=700
 HDFS-SITE.XML_dfs.http.policy=HTTPS_ONLY
 HDFS-SITE.XML_dfs.web.authentication.kerberos.principal=HTTP/_HOST@EXAMPLE.COM
+
+# hdfs-site.xml ssl config
+HDFS-SITE.XML_dfs.https.server.keystore.resource=ssl-server.xml
+HDFS-SITE.XML_dfs.client.https.keystore.resource=ssl-client.xml
 
 MAPRED-SITE.XML_mapreduce.framework.name=yarn
 MAPRED-SITE.XML_yarn.app.mapreduce.am.env=HADOOP_MAPRED_HOME=$HADOOP_HOME

@@ -20,6 +20,10 @@ handleHadoopEnv "$abs_path" "stop"
 
 handleKerberosEnv "$abs_path" "stop"
 
+# Delete the keytabs.
+# We can't reuse them because then they won't exist on the kerberos db.
+rm -r "$abs_path"/$CURRENT_REPO/compose/common/keytabs/*
+
 handleRangerEnv "$abs_path" "stop"
 
 # if docker network rm shared-network; then

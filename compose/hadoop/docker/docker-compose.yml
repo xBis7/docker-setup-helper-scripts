@@ -8,9 +8,12 @@ x-common-config:
     - ../conf/ranger-hdfs-security.xml:/opt/hadoop/etc/hadoop/ranger-hdfs-security.xml
     - ../conf/ranger-policymgr-ssl.xml:/opt/hadoop/etc/hadoop/ranger-policymgr-ssl.xml
     - ../conf/ranger-jars:/opt/hadoop/share/hadoop/hdfs/lib
+    - ../conf/ssl/ssl-server.xml:/opt/hadoop/etc/hadoop/ssl-server.xml
+    - ../conf/ssl/ssl-client.xml:/opt/hadoop/etc/hadoop/ssl-client.xml
     - ./test.csv:/opt/hadoop/test.csv
     - ../../kerberos/conf/krb5.conf:/etc/krb5.conf
     - ../../common/keytabs:/etc/security/keytabs
+    - ./keystores:/opt/hadoop/keystores
   env_file:
     - ./config
   networks:

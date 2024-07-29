@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- Client certificate Store -->
+  <property>
+    <name>ssl.client.keystore.type</name>
+    <value>jks</value>
+  </property>
+  <property>
+    <name>ssl.client.keystore.location</name>
+    <value>${user.home}/keystores/ssl-client-keystore.jks</value>
+  </property>
+  <property>
+    <name>ssl.client.keystore.password</name>
+    <value>changeit</value>
+  </property>
+
+  <!-- Client Trust Store -->
+  <property>
+    <name>ssl.client.truststore.type</name>
+    <value>jks</value>
+  </property>
+  <property>
+    <name>ssl.client.truststore.location</name>
+    <value>${user.home}/keystores/ssl-client-truststore.jks</value>
+  </property>
+  <property>
+    <name>ssl.client.truststore.password</name>
+    <value>changeit</value>
+  </property>
+  <property>
+    <name>ssl.client.truststore.reload.interval</name>
+    <value>10000</value>
+  </property>
+</configuration>

@@ -16,11 +16,4 @@ abs_path=$1
 
 waitForPoliciesUpdate
 
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $HDFS_DIR" "$notExpMsg" "false" "true"
-
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsFile $HDFS_DIR" "$notExpMsg" "false" "true"
-
-notExpMsg="Permission denied"
-retryOperationIfNeeded "$abs_path" "createHdfsDir $HIVE_WAREHOUSE_DIR" "$notExpMsg" "false" "true"
+setupHdfsPathsAndPermissions

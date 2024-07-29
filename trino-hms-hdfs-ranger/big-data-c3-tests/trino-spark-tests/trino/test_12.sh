@@ -49,10 +49,6 @@ expectedMsg="test2"
 
 runTrino "$TRINO_USER2" "$command" "shouldPass" "$expectedMsg" "user"
 
-# BigData note: Change permissions here to get an HDFS POSIX permissions error and
-# check that creating a Ranger policy fixes it.
-changeHdfsDirPermissions "data/projects/gross_test" 744 "devpod"
-
 command="select * from $TRINO_HIVE_SCHEMA.gross_test.test2"
 
 if [ "$CURRENT_ENV" == "local" ]; then

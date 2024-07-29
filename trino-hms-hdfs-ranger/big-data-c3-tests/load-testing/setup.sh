@@ -13,6 +13,10 @@ if [ "$CURRENT_ENV" == "local" ]; then
   ./docker/start_docker_env.sh "$abs_path" "true" "4"
   createHdfsDir "$HIVE_WAREHOUSE_DIR"
 
+  changeHdfsPathPermissions "$HIVE_WAREHOUSE_ROOT_DIR" 755
+  changeHdfsPathPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 755
+  changeHdfsPathPermissions "$HIVE_WAREHOUSE_DIR" 755
+
   HIVE_BASE_POLICIES="hive_base_policies"
 
   echo ""

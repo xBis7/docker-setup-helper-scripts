@@ -17,6 +17,11 @@ HDFS-SITE.XML_dfs.namenode.acls.enabled=true
 HDFS-SITE.XML_dfs.permissions.ContentSummary.subAccess=true
 HDFS-SITE.XML_dfs.namenode.inode.attributes.provider.class=org.apache.ranger.authorization.hadoop.RangerHdfsAuthorizer
 
+# It's setting the default posix permissions.
+# Default permissions for directories will be 700.
+# Default permissions for files will be 600.
+HDFS-SITE.XML_fs.permissions.umask-mode=077
+
 MAPRED-SITE.XML_mapreduce.framework.name=yarn
 MAPRED-SITE.XML_yarn.app.mapreduce.am.env=HADOOP_MAPRED_HOME=$HADOOP_HOME
 MAPRED-SITE.XML_mapreduce.map.env=HADOOP_MAPRED_HOME=$HADOOP_HOME

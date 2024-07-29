@@ -68,6 +68,7 @@ SPARK_EVENTS_DIR="spark-events"
 SPARK_WORK_DIR="work"
 HIVE_WAREHOUSE_DIR="opt/hive/data"
 HIVE_WAREHOUSE_PARENT_DIR="opt/hive"
+HIVE_WAREHOUSE_ROOT_DIR="opt"
 TMP_FILE="tmp_output.txt"
 PG_TMP_OUT_FILE="pg_tmp_output.txt"
 LAST_SUCCESS_FILE="lastSuccess.txt"
@@ -727,11 +728,11 @@ createHdfsFileAsUser() {
 }
 
 
-changeHdfsDirPermissions() {
-  perms=$1
-  dir_name=$2
+changeHdfsPathPermissions() {
+  path=$1
+  perms=$2
 
-  c="hdfs dfs -chmod $perms /$dir_name"
+  c="hdfs dfs -chmod $perms /$path"
 
   if [ "$PRINT_CMD" == "true" ]; then
     printCmdString "$c"
@@ -1033,6 +1034,22 @@ base64encode() {
   else
     echo -n "$input" | base64
   fi
+}
+
+setupHdfsPathsAndPermissions() {
+  # The default permissions have been set to
+  #   - 700 for dirs
+  #   - 600 for files
+  # Change posix permissions to avoid getting an EXECUTE error.
+  createHdfsDir "$HDFS_DIR"
+  createHdfsFile "$HDFS_DIR"
+  changeHdfsPathPermissions "$HDFS_DIR" 755
+  changeHdfsPathPermissions "$HDFS_DIR/test.csv" 655
+
+  createHdfsDir "$HIVE_WAREHOUSE_DIR"
+  changeHdfsPathPermissions "$HIVE_WAREHOUSE_ROOT_DIR" 755
+  changeHdfsPathPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 755
+  changeHdfsPathPermissions "$HIVE_WAREHOUSE_DIR" 755
 }
 
 updateHdfsPathPolicy() {

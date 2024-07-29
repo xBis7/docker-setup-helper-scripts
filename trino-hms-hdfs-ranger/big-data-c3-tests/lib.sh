@@ -70,7 +70,7 @@ createHdfsDir() {
   echo ""
 }
 
-changeHdfsDirPermissions() {
+changeHdfsPathPermissions() {
   path=$1
   permissions=$2
   location=${3:-hdfs} # Ignored if the env is local.

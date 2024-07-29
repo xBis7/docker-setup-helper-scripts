@@ -40,13 +40,13 @@ setup() {
   retryOperationIfNeeded "$abs_path" "createHdfsDir $full_test_path" "$notExpMsg" "false" "true"
 
   notExpMsg="Permission denied"
-  retryOperationIfNeeded "$abs_path" "changeHdfsDirPermissions 777 $HIVE_GROSS_DB_TEST_DIR" "$notExpMsg" "false" "true"
+  retryOperationIfNeeded "$abs_path" "changeHdfsPathPermissions $HIVE_GROSS_DB_TEST_DIR 777" "$notExpMsg" "false" "true"
 
   notExpMsg="Permission denied"
-  retryOperationIfNeeded "$abs_path" "changeHdfsDirPermissions 777 $HIVE_GROSS_DB_TEST_DIR/test1" "$notExpMsg" "false" "true"
+  retryOperationIfNeeded "$abs_path" "changeHdfsPathPermissions $HIVE_GROSS_DB_TEST_DIR/test1 777" "$notExpMsg" "false" "true"
 
   notExpMsg="Permission denied"
-  retryOperationIfNeeded "$abs_path" "changeHdfsDirPermissions 777 $HIVE_GROSS_DB_TEST_DIR/test1/test2" "$notExpMsg" "false" "true"
+  retryOperationIfNeeded "$abs_path" "changeHdfsPathPermissions $HIVE_GROSS_DB_TEST_DIR/test1/test2 777" "$notExpMsg" "false" "true"
 
   if [ "$use_url_config" == "true" ]; then
     echo ""

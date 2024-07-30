@@ -37,6 +37,34 @@ fi
 expectedMsg="Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR_SEC, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR_SEC/"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
 
+# The location of 'gross_test' is '/data/projects/gross_test/gross_test.db'
+#
+# The table has been created like this
+# spark.sql("create table $GROSS_DB_NAME.$GROSS_TABLE_NAME (id INT, num INT)")
+#
+# The location of the db was used for the table.
+# The table location will be
+# '/data/projects/gross_test/gross_test.db/gross_test_table'
+#
+# Because there was no info specified during the table creation,
+#
+# spark.sql("describe extended table gross_test.gross_test_table").show
+# org.apache.spark.sql.AnalysisException: Table or view not found: table; line 1 pos 18;
+# 'DescribeColumn 'gross_test.gross_test_table, true, [info_name#44, info_value#45]
+# +- 'UnresolvedTableOrView [table], DESCRIBE TABLE, true
+#
+# spark.sql("describe table gross_test.gross_test_table").show(true)
+# +--------+---------+-------+
+# |col_name|data_type|comment|
+# +--------+---------+-------+
+# |      id|      int|   null|
+# |     num|      int|   null|
+# +--------+---------+-------+
+#
+# We can't check the location
+#
+# verifyCreateWriteFailure "spark" "alterTableData" "$GROSS_DB_NAME" "$GROSS_TABLE_NAME" "hdfs://namenode/data/projects/gross_test/gross_test.db/gross_test_table"
+
 echo ""
 echo "Creating Hive URL policies again."
 

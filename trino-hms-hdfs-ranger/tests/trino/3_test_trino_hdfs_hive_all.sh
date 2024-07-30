@@ -23,6 +23,6 @@ runTrino "trino" "$command" "shouldPass" "$expectedMsg"
 echo ""
 echo "- INFO: Create $TRINO_TABLE table non-managed by Hive."
 
-command="create table hive.$DEFAULT_DB.$TRINO_TABLE (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode/$HDFS_DIR',format = 'CSV');"
+command="create table hive.$DEFAULT_DB.$TRINO_TABLE (id varchar, name varchar) with (external_location = 'hdfs://namenode/$HDFS_DIR',format = 'CSV');"
 expectedMsg="CREATE TABLE"
 runTrino "trino" "$command" "shouldPass" "$expectedMsg"

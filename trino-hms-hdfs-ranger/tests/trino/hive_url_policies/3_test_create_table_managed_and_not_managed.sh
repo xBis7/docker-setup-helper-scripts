@@ -34,6 +34,8 @@ command="create table hive.$GROSS_DB_NAME.$GROSS_TABLE_NAME (id int, name varcha
 expectedMsg="Permission denied: user [trino] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME/]]"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
 
+verifyCreateWriteFailure "trino" "createTable" "$GROSS_DB_NAME" "$GROSS_TABLE_NAME"
+
 echo ""
 echo "##### Managed Table #####"
 
@@ -56,6 +58,8 @@ echo "- INFO: [create] should fail."
 command="create table hive.default.$TABLE_PERSONS (id int, name varchar);"
 expectedMsg="Permission denied: user [trino] does not have [$op] privilege on [[hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS, hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS/]]"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "trino" "createTable" "default" "$TABLE_PERSONS"
 
 echo ""
 echo "Creating Hive URL policies again."

@@ -44,6 +44,8 @@ fi
 expectedMsg="Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/$GROSS_TABLE_NAME/"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
 
+verifyCreateWriteFailure "spark" "createTable" "$GROSS_DB_NAME" "$GROSS_TABLE_NAME"
+
 echo ""
 echo "##### Managed Table #####"
 
@@ -60,6 +62,8 @@ fi
 
 expectedMsg="Permission denied: user [spark] does not have [$op] privilege on [[hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS, hdfs://namenode/$HIVE_WAREHOUSE_DIR/$TABLE_PERSONS/]]"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "spark" "createTable" "$DEFAULT_DB" "$TABLE_PERSONS"
 
 echo ""
 echo "Creating Hive URL policies again."

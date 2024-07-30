@@ -15,6 +15,8 @@ command="create schema hive.$GROSS_DB_NAME with (location = 'hdfs://namenode/$HI
 expectedMsg="Permission denied: user [trino] does not have [WRITE] privilege on [[hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR, hdfs://namenode/$HIVE_GROSS_DB_TEST_DIR/]]"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
 
+verifyCreateWriteFailure "trino" "createDb" "$GROSS_DB_NAME"
+
 echo ""
 echo "Updating Hive URL policies."
 echo ""

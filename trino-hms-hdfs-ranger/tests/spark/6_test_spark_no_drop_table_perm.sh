@@ -18,3 +18,5 @@ echo "- INFO: User [spark] shouldn't be able to drop table."
 command="spark.sql(\"drop table $DEFAULT_DB.$NEW_SPARK_TABLE_NAME\")"
 expectedMsg="Permission denied: user [spark] does not have [DROP] privilege on [$DEFAULT_DB/$NEW_SPARK_TABLE_NAME]"
 runSpark "spark" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "spark" "dropTable" "$DEFAULT_DB" "$NEW_SPARK_TABLE_NAME"

@@ -21,3 +21,5 @@ echo "- INFO: [drop] should fail."
 command="drop table hive.$DEFAULT_DB.$NEW_TRINO_TABLE_NAME;"
 expectedMsg="The following metastore delete operations failed: drop table $DEFAULT_DB.$NEW_TRINO_TABLE_NAME"
 runTrino "trino" "$command" "shouldFail" "$expectedMsg"
+
+verifyCreateWriteFailure "trino" "dropTable" "$DEFAULT_DB" "$NEW_TRINO_TABLE_NAME"

@@ -1,7 +1,6 @@
 #!/bin/bash
 
 source "./testlib.sh"
-source "./big-data-c3-tests/lib.sh"
 
 set -e
 

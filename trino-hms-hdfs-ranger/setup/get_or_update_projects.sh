@@ -18,6 +18,7 @@ github_remote_user=$3   # 'origin' if current user is also the remote user.
 
 # Clone repo if it doesn't exist locally.
 cloneProjectIfNotExist "$abs_path" "$PROJECT_RANGER" "$github_user"
+cloneProjectIfNotExist "$abs_path" "$PROJECT_HADOOP" "$github_user"
 cloneProjectIfNotExist "$abs_path" "$PROJECT_HIVE" "$github_user"
 if [[ "${HIVE_VERSION}" == "4" ]]; then
   cloneProjectIfNotExist "$abs_path" "$PROJECT_SPARK" "$github_user"
@@ -29,6 +30,7 @@ fi
 # Checkout to commit. No change, if the commit is the same as the current.
 checkoutToProjectCommit "$abs_path" "$PROJECT_RANGER" "$github_remote_user" "$RANGER_COMMIT_SHA"
 checkoutToProjectCommit "$abs_path" "$PROJECT_HIVE" "$github_remote_user" "$HIVE_COMMIT_SHA"
+checkoutToProjectCommit "$abs_path" "$PROJECT_HADOOP" "$github_remote_user" "$HADOOP_COMMIT_SHA"
 if [[ "${HIVE_VERSION}" == "4" ]]; then
   checkoutToProjectCommit "$abs_path" "$PROJECT_SPARK" "$github_remote_user" "$SPARK_COMMIT_SHA"
 fi

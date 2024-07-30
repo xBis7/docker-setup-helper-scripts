@@ -14,6 +14,7 @@ CURRENT_REPO="docker-setup-helper-scripts"
 
 # Project branches
 SPARK_COMMIT_SHA="cde6109471a4e51a063c9d35d6d51d38ca536b68"
+HADOOP_COMMIT_SHA="257c66b876bac95627a9a1a368a402267cf89553"
 RANGER_COMMIT_SHA=
 HIVE_COMMIT_SHA=
 
@@ -321,10 +322,16 @@ setupSparkJarsIfNeeded() {
 
 setupRangerJarsIfNeeded() {
   abs_path=$1
+  isLocal=$2
 
-  dir_base_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf"
+  dir_base_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop-ranger/conf"
   jars_dir_name="ranger-jars"
-  jars_dir_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf/$jars_dir_name"
+  jars_dir_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop-ranger/conf/$jars_dir_name"
+
+  if [ "$isLocal" != "" ]; then
+    dir_base_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf"
+    jars_dir_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf/$jars_dir_name"
+  fi
 
   # Check if the directory exists.
   if find "$dir_base_path" -type d | grep -E "/$jars_dir_name$"; then
@@ -404,8 +411,14 @@ handleRangerEnv() {
 handleHadoopEnv() {
   abs_path=$1
   op=$2
+  isLocal=$3
 
-  hadoop_docker_path="$abs_path/$CURRENT_REPO/compose/hadoop/docker"
+  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop-ranger/docker"
+
+  if [ "$isLocal" != "" ]; then
+    hadoop_docker_path="$abs_path/$CURRENT_REPO/compose/hadoop/docker"
+  fi
+
   cd $hadoop_docker_path
 
   if [ "$op" == "start" ]; then

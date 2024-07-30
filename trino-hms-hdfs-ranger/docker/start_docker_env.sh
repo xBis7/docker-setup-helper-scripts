@@ -28,6 +28,11 @@ handleRangerEnv "$abs_path" "start"
 # Wait 10 seconds.
 sleep 10
 
+# Copy krb5.conf under ranger
+# Copy keytabs under ranger
+
+# Restart Ranger
+
 # Start the rest of the env. The keytabs will be available and each setup will be able to mount them.
 handleHadoopEnv "$abs_path" "start"
 

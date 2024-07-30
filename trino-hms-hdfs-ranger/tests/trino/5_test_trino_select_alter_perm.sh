@@ -11,10 +11,10 @@ echo "- INFO: Updating Ranger policies."
 echo "- INFO: Users [trino] will now have [select, alter] access to Hive default DB."
 echo "- INFO: User [trino] will now have [Write] permission for HDFS policy."
 
-updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
-updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,trino,spark"
+updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 updateHiveDefaultDbPolicy "select,Alter:spark,trino"
-updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
 waitForPoliciesUpdate
 

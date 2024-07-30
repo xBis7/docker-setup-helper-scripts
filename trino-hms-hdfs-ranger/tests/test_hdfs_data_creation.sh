@@ -4,13 +4,11 @@ source "./testlib.sh"
 
 set -e
 
-abs_path=$1
-
 # Load the default Ranger policies.
-updateHdfsPathPolicy "read,write,execute:hadoop" "/*"
-updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop"
+updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 updateHiveDefaultDbPolicy "select,read:spark"
-updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
 waitForPoliciesUpdate
 

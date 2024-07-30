@@ -6,10 +6,10 @@ set -e
 
 abs_path=$1
 
-updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
-updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive/select,read,create:spark,trino"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,trino,spark"
+updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive/select,read,create:spark,trino"
 updateHiveDefaultDbPolicy "select,read:spark,trino"
-updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
 waitForPoliciesUpdate
 

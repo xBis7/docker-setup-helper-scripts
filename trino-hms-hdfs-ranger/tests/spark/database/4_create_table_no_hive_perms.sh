@@ -11,10 +11,10 @@ echo "- INFO: User [spark] has only 'select' Hive perms. Creating a table under 
 echo "- INFO: Create table."
 echo "- INFO: User [spark] shouldn't be able to create table."
 
-updateHdfsPathPolicy "read,write,execute:hadoop,trino,spark" "/*"
-updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive/select,read:spark,trino"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,trino,spark"
+updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive/select,read:spark,trino"
 updateHiveDefaultDbPolicy "select,read:spark,trino"
-updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
 waitForPoliciesUpdate
 

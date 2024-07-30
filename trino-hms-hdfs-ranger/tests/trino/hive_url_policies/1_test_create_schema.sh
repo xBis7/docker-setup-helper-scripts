@@ -19,10 +19,10 @@ retryOperationIfNeeded "$abs_path" "createSchemaWithTrino $GROSS_DB_NAME $HIVE_G
 echo ""
 echo "Updating Hive URL policies."
 echo ""
-updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
-updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,spark,trino"
+updateHiveDbAllPolicy "*" "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
-updateHiveUrlPolicy "read,write:trino"
+updateHiveUrlPolicy "*" "read,write:trino"
 
 echo ""
 echo "---------------------------------------------------"

@@ -10,10 +10,10 @@ echo ""
 echo "- INFO: Updating Ranger policies. User [trino] will now have only [select] access to Hive default DB."
 echo "- INFO: HDFS access for user [trino] has been removed."
 
-updateHdfsPathPolicy "read,write,execute:hadoop,spark" "/*"
-updateHiveDbAllPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,spark"
+updateHiveDbAllPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 updateHiveDefaultDbPolicy "select:spark,trino"
-updateHiveUrlPolicy "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
+updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Write,ReplAdmin,Refresh:hive"
 
 waitForPoliciesUpdate
 

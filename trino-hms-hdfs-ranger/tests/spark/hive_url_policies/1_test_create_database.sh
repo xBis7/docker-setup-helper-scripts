@@ -21,10 +21,10 @@ retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_FOR_EXCEPTION_FILEN
 echo ""
 echo "Updating Hive URL policies."
 echo ""
-updateHdfsPathPolicy "read,write,execute:hadoop,spark,trino" "/*"
-updateHiveDbAllPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
+updateHdfsPathPolicy "/*" "read,write,execute:hadoop,spark,trino"
+updateHiveDbAllPolicy "*" "select,update,create,drop,alter,index,lock:spark,trino/select:games"
 updateHiveDefaultDbPolicy "select,update,create,drop,alter,index,lock:spark,trino/select:games"
-updateHiveUrlPolicy "read,write:spark"
+updateHiveUrlPolicy "*" "read,write:spark"
 
 echo ""
 echo "---------------------------------------------------"

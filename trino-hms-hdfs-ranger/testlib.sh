@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "./big-data-c3-tests/lib.sh"
+
 # Project names
 PROJECT_RANGER="ranger"
 PROJECT_HADOOP="hadoop"
@@ -996,13 +998,6 @@ retryOperationIfNeeded() {
   done
 }
 
-waitForPoliciesUpdate() {
-  wait_time_sec=30
-  echo ""
-  echo "- INFO: Waiting $wait_time_sec sec to make sure enough time has passed for the policies to get updated."
-  sleep "$wait_time_sec"
-}
-
 cpSparkTest() {
   testFilePath=$1
 
@@ -1023,19 +1018,6 @@ runSparkTest() {
   fi
 }
 
-# This function is created to allow for substitutes or changes if base64 works differently on different systems.
-# We can achieve the correct variable substitution and space handling by encoding and decoding the string.
-base64encode() {
-  input=$1
-
-  # Because of OS differences, it is necessary to use -w 0 for Linux distros.
-  if [[ $(uname) != "Darwin"* ]]; then
-    echo -n "$input" | base64 -w 0
-  else
-    echo -n "$input" | base64
-  fi
-}
-
 setupHdfsPathsAndPermissions() {
   # The default permissions have been set to
   #   - 700 for dirs
@@ -1050,43 +1032,4 @@ setupHdfsPathsAndPermissions() {
   changeHdfsPathPermissions "$HIVE_WAREHOUSE_ROOT_DIR" 755
   changeHdfsPathPermissions "$HIVE_WAREHOUSE_PARENT_DIR" 755
   changeHdfsPathPermissions "$HIVE_WAREHOUSE_DIR" 755
-}
-
-updateHdfsPathPolicy() {
-  # access1,access2:user1/access2,access4:user2
-  permissions=$1
-  path_list=$2
-
-  ./ranger_api/create_update/create_update_hdfs_path_policy.sh "put" "$permissions" "$path_list"
-}
-
-updateHiveDbAllPolicy() {
-  # access1,access2:user1/access2,access4:user2
-  permissions=$1
-  db_list=$2
-
-  ./ranger_api/create_update/create_update_hive_all_db_policy.sh "put" "$permissions" "$db_list"
-}
-
-updateHiveDefaultDbPolicy() {
-  # access1,access2:user1/access2,access4:user2
-  permissions=$1
-
-  ./ranger_api/create_update/create_update_hive_defaultdb_policy.sh "put" "$permissions"
-}
-
-updateHiveUrlPolicy() {
-  # access1,access2:user1/access2,access4:user2
-  permissions=$1
-  url_list=$2
-
-  ./ranger_api/create_update/create_update_hive_url_policy.sh "put" "$permissions" "$url_list"
-}
-
-createHiveUrlPolicy() {
-  # access1,access2:user1/access2,access4:user2
-  permissions=$1
-  url_list=$2
-
-  ./ranger_api/create_update/create_update_hive_url_policy.sh "create" "$permissions" "$url_list"
 }

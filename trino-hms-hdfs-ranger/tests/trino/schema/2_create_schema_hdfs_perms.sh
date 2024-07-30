@@ -4,8 +4,6 @@ source "./testlib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: Updating Ranger policies. User [trino] now will have [ALL] privileges on all HDFS paths."
 echo "- INFO: The user will also have 'select','read','create' Hive permissions."
@@ -21,7 +19,6 @@ echo ""
 echo "- INFO: Ranger policies updated."
 echo ""
 
-successMsg="CREATE SCHEMA"
-
-retryOperationIfNeeded "$abs_path" "createSchemaWithTrino $EXTERNAL_DB" "$successMsg" "false"
-
+command="create schema hive.$EXTERNAL_DB with (location = 'hdfs://namenode/$HIVE_WAREHOUSE_DIR/$EXTERNAL_DB/external/$EXTERNAL_DB.db')"
+expectedMsg="CREATE SCHEMA"
+runTrino "trino" "$command" "shouldPass" "$expectedMsg"

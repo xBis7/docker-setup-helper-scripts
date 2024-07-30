@@ -4,8 +4,6 @@ source "./testlib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: Updating Ranger policies. User [trino] will now have [drop] access to Hive default DB."
 
@@ -19,6 +17,6 @@ waitForPoliciesUpdate
 echo ""
 echo "- INFO: [drop] should succeed."
 
-successMsg="DROP TABLE"
-
-retryOperationIfNeeded "$abs_path" "dropTrinoTable $NEW_TRINO_TABLE_NAME $DEFAULT_DB" "$successMsg" "false"
+command="drop table hive.$DEFAULT_DB.$NEW_TRINO_TABLE_NAME;"
+expectedMsg="DROP TABLE"
+runTrino "trino" "$command" "shouldPass" "$expectedMsg"

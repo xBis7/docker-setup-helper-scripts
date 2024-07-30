@@ -4,8 +4,6 @@ source "./testlib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: User [trino] has only 'select' Hive perms. Creating a table under db '$EXTERNAL_DB' should fail."
 echo ""
@@ -18,6 +16,6 @@ updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Wri
 
 waitForPoliciesUpdate
 
-failMsg="Permission denied: user [trino] does not have [CREATE] privilege on [$EXTERNAL_DB/$TRINO_TABLE]"
-
-retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR $EXTERNAL_DB" "$failMsg" "true"
+command="create table hive.$EXTERNAL_DB.$TRINO_TABLE (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode/$HDFS_DIR',format = 'CSV')"
+expectedMsg="Permission denied: user [trino] does not have [CREATE] privilege on [$EXTERNAL_DB/$TRINO_TABLE]"
+runTrino "trino" "$command" "shouldFail" "$expectedMsg"

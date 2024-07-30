@@ -4,8 +4,6 @@ source "./testlib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: Updating Ranger policies. User [trino] now will have [ALL] privileges on all HDFS paths."
 echo "- INFO: No user will have permissions on Hive metastore operations on the default db."
@@ -23,8 +21,7 @@ waitForPoliciesUpdate
 echo ""
 echo "- INFO: Ranger policies updated."
 
+command="create table hive.$DEFAULT_DB.$TRINO_TABLE (column1 varchar,column2 varchar) with (external_location = 'hdfs://namenode/$HDFS_DIR',format = 'CSV');"
 # Failure due to lack of Hive metastore permissions.
-
-failMsg="Permission denied: user [trino] does not have [CREATE] privilege on"
-
-retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR $DEFAULT_DB" "$failMsg" "true"
+expectedMsg="Permission denied: user [trino] does not have [CREATE] privilege on"
+runTrino "trino" "$command" "shouldFail" "$expectedMsg"

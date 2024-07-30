@@ -4,8 +4,6 @@ source "./testlib.sh"
 
 set -e
 
-abs_path=$1
-
 echo ""
 echo "- INFO: To create an external schema and store it in HDFS, using Trino,"
 echo "- INFO: all you need is HDFS perms. No Hive perms are needed."
@@ -20,6 +18,6 @@ updateHiveUrlPolicy "*" "select,update,Create,Drop,Alter,Index,Lock,All,Read,Wri
 
 waitForPoliciesUpdate
 
-failMsg="Permission denied: user [trino] does not have [ALL] privilege on [hdfs://namenode/opt/hive/data/$EXTERNAL_DB/external/$EXTERNAL_DB.db]"
-
-retryOperationIfNeeded "$abs_path" "createSchemaWithTrino $EXTERNAL_DB" "$failMsg" "true"
+command="create schema hive.$EXTERNAL_DB with (location = 'hdfs://namenode/$HIVE_WAREHOUSE_DIR/$EXTERNAL_DB/external/$EXTERNAL_DB.db')"
+expectedMsg="Permission denied: user [trino] does not have [ALL] privilege on [hdfs://namenode/opt/hive/data/$EXTERNAL_DB/external/$EXTERNAL_DB.db]"
+runTrino "trino" "$command" "shouldFail" "$expectedMsg"

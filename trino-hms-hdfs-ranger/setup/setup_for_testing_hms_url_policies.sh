@@ -18,6 +18,8 @@ if [ "$prepare_env" == "true" ]; then
   createHdfsDir "$HIVE_WAREHOUSE_DIR"
 fi
 
+./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
+
 echo ""
 echo "- INFO: Updating Ranger policies. User [spark] will have Write permission for Hive URL policy but no HDFS access."
 

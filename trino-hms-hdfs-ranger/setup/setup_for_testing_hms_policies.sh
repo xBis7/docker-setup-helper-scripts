@@ -19,9 +19,9 @@ sleep 15
 echo ""
 echo "- INFO: Create table."
 echo "- INFO: User [spark] should be able to create table."
-cpSparkTest $abs_path/$CURRENT_REPO/trino-hms-hdfs-ranger/$SPARK_TEST_PATH/$SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME
-scala_sql=$(base64encode "$DEFAULT_DB.$SPARK_TABLE")
-retryOperationIfNeeded "$abs_path" "runSparkTest $SPARK_TEST_EXTERNAL_TABLE_CREATION_NO_EXCEPTION_FILENAME $scala_sql" "$SPARK_TEST_SUCCESS_MSG" "false"
+
+command="spark.read.text(\"hdfs://namenode:8020/test\").write.option(\"path\", \"hdfs://namenode/opt/hive/data\").mode(\"overwrite\").format(\"csv\").saveAsTable(\"$DEFAULT_DB.$SPARK_TABLE\")"
+runSpark "spark" "$command" "shouldPass"
 
 trinoSuccessMsg="CREATE TABLE"
 retryOperationIfNeeded "$abs_path" "createTrinoTable $TRINO_TABLE $HDFS_DIR $DEFAULT_DB" "$successMsg" "false"

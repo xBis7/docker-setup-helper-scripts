@@ -19,6 +19,8 @@ if [ "$prepare_env" == "true" ]; then
   setupHdfsPathsAndPermissions
 fi
 
+./big-data-c3-tests/copy_files_under_spark.sh "$abs_path"
+
 echo ""
 echo "- INFO: Updating Ranger policies. Loading base policies. No user will have any access."
 ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"

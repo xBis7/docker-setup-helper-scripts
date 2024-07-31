@@ -19,7 +19,8 @@ RANGER_COMMIT_SHA=
 HIVE_COMMIT_SHA=
 
 # Project Build versions
-HADOOP_BUILD_VERSION="3.3.6"
+# HADOOP_BUILD_VERSION="3.3.6"
+HADOOP_BUILD_VERSION="3.1.1"
 RANGER_BUILD_VERSION=
 HIVE_BUILD_VERSION=
 
@@ -324,9 +325,9 @@ setupRangerJarsIfNeeded() {
   abs_path=$1
   isLocal=$2
 
-  dir_base_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop-ranger/conf"
+  dir_base_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-$HADOOP_BUILD_VERSION/compose/hadoop-ranger/conf"
   jars_dir_name="ranger-jars"
-  jars_dir_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop-ranger/conf/$jars_dir_name"
+  jars_dir_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-$HADOOP_BUILD_VERSION/compose/hadoop-ranger/conf/$jars_dir_name"
 
   if [ "$isLocal" != "" ]; then
     dir_base_path="$abs_path/$CURRENT_REPO/compose/hadoop/conf"
@@ -413,7 +414,7 @@ handleHadoopEnv() {
   op=$2
   isLocal=$3
 
-  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-3.3.6/compose/hadoop-ranger/docker"
+  hadoop_docker_path="$abs_path/$PROJECT_HADOOP/hadoop-dist/target/hadoop-$HADOOP_BUILD_VERSION/compose/hadoop-ranger/docker"
 
   if [ "$isLocal" != "" ]; then
     hadoop_docker_path="$abs_path/$CURRENT_REPO/compose/hadoop/docker"

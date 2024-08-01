@@ -8,19 +8,13 @@ abs_path=$1
 hive_url_policies_enabled=$2
 workers_num=$3
 
-# All environments are using Ranger's network. Ranger needs to start first.
+# copyKerberosFilesUnderRanger() {
 
-# if docker network create shared-network; then
-#   echo "Creating 'shared-network' succeeded."
-# else
-#   echo "Creating 'shared-network' failed."
-#   echo "Retry manually by running: "
-#   echo "> docker network create shared-network"
-# fi
+# }
 
-handleRangerEnv "$abs_path" "start"
-
-# handleKerberosEnv "$abs_path" "start"
+if ! docker network ls | grep rangernw; then
+  docker network create rangernw
+fi
 
 # This will start kdc and generate the keytabs.
 "$abs_path"/"$CURRENT_REPO"/compose/kerberos/create_keytabs.sh "$abs_path"
@@ -31,7 +25,7 @@ sleep 10
 # Copy krb5.conf under ranger
 # Copy keytabs under ranger
 
-# Restart Ranger
+handleRangerEnv "$abs_path" "start"
 
 # Start the rest of the env. The keytabs will be available and each setup will be able to mount them.
 handleHadoopEnv "$abs_path" "start"

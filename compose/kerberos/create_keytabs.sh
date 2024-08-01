@@ -12,6 +12,11 @@ docker compose -f "$abs_path"/docker-setup-helper-scripts/compose/kerberos/docke
 
 docker exec -it kerberos-kdc-1 ./keytab_gen.sh
 
+current_user=$(whoami)
+
+sudo chown $current_user:$current_user "$abs_path"/docker-setup-helper-scripts/compose/common/keytabs
+sudo chown $current_user:$current_user "$abs_path"/docker-setup-helper-scripts/compose/common/keytabs/*
+
 # docker compose down
 
 # docker network rm rangernw

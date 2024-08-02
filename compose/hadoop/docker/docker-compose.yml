@@ -7,7 +7,10 @@ x-common-config:
     - ../conf/ranger-hdfs-audit.xml:/opt/hadoop/etc/hadoop/ranger-hdfs-audit.xml
     - ../conf/ranger-hdfs-security.xml:/opt/hadoop/etc/hadoop/ranger-hdfs-security.xml
     - ../conf/ranger-policymgr-ssl.xml:/opt/hadoop/etc/hadoop/ranger-policymgr-ssl.xml
-    - ../conf/ranger-jars:/opt/hadoop/share/hadoop/hdfs/lib
+    - ../conf/ranger-jars/ranger-hdfs-plugin-2.4.1-SNAPSHOT.jar:/opt/hadoop/share/hadoop/hdfs/lib/ranger-hdfs-plugin-2.4.1-SNAPSHOT.jar
+    - ../conf/ranger-jars/ranger-kms-plugin-2.4.1-SNAPSHOT.jar:/opt/hadoop/share/hadoop/hdfs/lib/ranger-kms-plugin-2.4.1-SNAPSHOT.jar
+    - ../conf/ranger-jars/ranger-plugins-audit-2.4.1-SNAPSHOT.jar:/opt/hadoop/share/hadoop/hdfs/lib/ranger-plugins-audit-2.4.1-SNAPSHOT.jar
+    - ../conf/ranger-jars/ranger-plugins-common-2.4.1-SNAPSHOT-jar-with-dependencies.jar:/opt/hadoop/share/hadoop/hdfs/lib/ranger-plugins-common-2.4.1-SNAPSHOT-jar-with-dependencies.jar
     - ./test.csv:/opt/hadoop/test.csv
   env_file:
     - ./config
@@ -23,6 +26,7 @@ services:
       - 9870:9870
       - 7007:7007
     environment:
+      HADOOP_HOME: "/opt/hadoop"
       HADOOP_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7007"
       ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
   datanode:

@@ -43,7 +43,7 @@ configureHiveVersion() {
     HIVE_COMMIT_SHA="bef77533f986c1f465a3595e1bcebe1aa5219317"
     HIVE_BUILD_VERSION="3.1.3-with-backport"
     # Ranger branch: 'ranger-2.4-with-hmsa'
-    RANGER_COMMIT_SHA="aa734887ecbfbb7697baa3fef0ab8d359e2e5b79"
+    RANGER_COMMIT_SHA="a16d0e416"
     RANGER_BUILD_VERSION="2.4.1-SNAPSHOT"
 
     RANGER_DB_DUMP_VERSION="2.4"

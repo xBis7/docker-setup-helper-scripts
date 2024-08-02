@@ -13,7 +13,7 @@ if [ "$prepare_env" == "true" ]; then
   ./docker/start_docker_env.sh "$abs_path"
 fi
 
-copyKeytabsUnderContainer() {
+copyKerberosFilesUnderRanger() {
   abs_path=$1
   container_hostname=$2
 
@@ -29,21 +29,27 @@ copyKeytabsUnderContainer() {
 
   project_path="docker-setup-helper-scripts/compose"
 
-  docker exec -u root -it ranger mkdir -p /etc/security/keytabs
+  # Copy krb5.conf under ranger
+  cp -f "$abs_path"/"$CURRENT_REPO"/compose/kerberos/conf/krb5.conf "$abs_path"/"$PROJECT_RANGER"/dev-support/ranger-docker/kerberos-files/
 
-  docker cp "$abs_path/$project_path/kerberos/conf/krb5.conf" "$container_hostname:/etc/krb5.conf"
-  docker exec -u root -it ranger chown root:root /etc/krb5.conf
-  docker exec -u root -it ranger chmod 655 /etc/krb5.conf
+  # docker exec -u root -it ranger mkdir -p /etc/security/keytabs
+
+  # docker cp "$abs_path/$project_path/kerberos/conf/krb5.conf" "$container_hostname:/etc/krb5.conf"
+  # docker exec -u root -it ranger chown root:root /etc/krb5.conf
+  # docker exec -u root -it ranger chmod 655 /etc/krb5.conf
 
   for file in "${keytabs_array[@]}"
   do
-    docker cp "$abs_path/$project_path/common/keytabs/$file" "$container_hostname:/etc/security/keytabs/$file"
-    docker exec -u root -it ranger chown root:root /etc/security/keytabs/$file
-    docker exec -u root -it ranger chmod 655 /etc/security/keytabs/$file
+    # docker cp "$abs_path/$project_path/common/keytabs/$file" "$container_hostname:/etc/security/keytabs/$file"
+    # docker exec -u root -it ranger chown root:root /etc/security/keytabs/$file
+    # docker exec -u root -it ranger chmod 655 /etc/security/keytabs/$file
+
+    # Copy keytabs under ranger
+    cp -f "$abs_path"/"$CURRENT_REPO"/compose/common/keytabs/$file "$abs_path"/"$PROJECT_RANGER"/dev-support/ranger-docker/kerberos-files/keytabs/
   done
 }
 
-copyKeytabsUnderContainer "$abs_path" "ranger"
+copyKerberosFilesUnderRanger "$abs_path" "ranger"
 
 # Kerberos base policies.
 # ./setup/load_ranger_policies.sh "$abs_path" "$HIVE_BASE_POLICIES"

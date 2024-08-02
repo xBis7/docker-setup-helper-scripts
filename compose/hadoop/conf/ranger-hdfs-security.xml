@@ -43,6 +43,17 @@
 		</description>
 	</property>
 
+  <property>
+    <name>ranger.plugin.hdfs.kerberos.principal</name>
+    <value>hadoop/nn@EXAMPLE.COM</value>
+    <!-- Could be hadoop/dn1. -->
+  </property>
+  <property>
+    <name>ranger.plugin.hdfs.kerberos.keytab</name>
+    <value>/etc/security/keytabs/hadoop.nn.keytab</value>
+    <!-- Could be hadoop.dn1.keytab -->
+  </property>
+
 	<property>
 		<name>ranger.plugin.hdfs.policy.rest.ssl.config.file</name>
 		<value>/opt/hadoop/etc/hadoop/ranger-policymgr-ssl.xml</value>

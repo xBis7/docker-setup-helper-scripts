@@ -8,6 +8,9 @@ CORE-SITE.XML_hadoop.proxyuser.trino.groups=*
 CORE-SITE.XML_hadoop.proxyuser.hive.hosts=*
 CORE-SITE.XML_hadoop.proxyuser.hive.groups=*
 
+CORE-SITE.XML_hadoop.proxyuser.hadoop.hosts=*
+CORE-SITE.XML_hadoop.proxyuser.hadoop.groups=*
+
 # core-site.xml Kerberos config
 CORE-SITE.XML_hadoop.security.authentication=kerberos
 CORE-SITE.XML_hadoop.security.authorization=true
@@ -37,13 +40,15 @@ HDFS-SITE.XML_dfs.namenode.keytab.file=/etc/security/keytabs/hadoop.nn.keytab
 HDFS-SITE.XML_dfs.datanode.kerberos.principal=hadoop/dn1@EXAMPLE.COM
 HDFS-SITE.XML_dfs.datanode.keytab.file=/etc/security/keytabs/hadoop.dn1.keytab
 
+HDFS-SITE.XML_dfs.namenode.kerberos.principal.pattern=*
+
 HDFS-SITE.XML_dfs.block.access.token.enable=true
 HDFS-SITE.XML_dfs.data.transfer.protection=integrity
 HDFS-SITE.XML_dfs.datanode.address=0.0.0.0:10019
 HDFS-SITE.XML_dfs.datanode.http.address=0.0.0.0:10022
 HDFS-SITE.XML_dfs.datanode.data.dir.perm=700
 HDFS-SITE.XML_dfs.http.policy=HTTPS_ONLY
-HDFS-SITE.XML_dfs.web.authentication.kerberos.principal=HTTP/_HOST@EXAMPLE.COM
+HDFS-SITE.XML_dfs.web.authentication.kerberos.principal=HTTP/local@EXAMPLE.COM
 
 # hdfs-site.xml ssl config
 HDFS-SITE.XML_dfs.https.server.keystore.resource=ssl-server.xml
